@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xushu.campus.notification.mapper.EmailTemplateMapper">
+
+    <resultMap id="BaseResultMap" type="com.xushu.campus.notification.entity.EmailTemplate">
+        <id column="id" property="id"/>
+        <result column="template_code" property="templateCode"/>
+        <result column="template_name" property="templateName"/>
+        <result column="subject" property="subject"/>
+        <result column="content" property="content"/>
+        <result column="plain_text_content" property="plainTextContent"/>
+        <result column="variables" property="variables"/>
+        <result column="template_type" property="templateType"/>
+        <result column="enabled" property="enabled"/>
+        <result column="remark" property="remark"/>
+        <result column="deleted" property="deleted"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="version" property="version"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, template_code, template_name, subject, content, plain_text_content,
+        variables, template_type, enabled, remark, deleted, create_time, update_time, version
+    </sql>
+
+</mapper>

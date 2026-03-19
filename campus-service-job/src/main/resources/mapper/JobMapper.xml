@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xushu.campus.job.mapper.JobMapper">
+
+    <resultMap id="BaseResultMap" type="com.xushu.campus.job.entity.Job">
+        <id column="id" property="id"/>
+        <result column="title" property="title"/>
+        <result column="description" property="description"/>
+        <result column="salary" property="salary"/>
+        <result column="salary_unit" property="salaryUnit"/>
+        <result column="job_type" property="jobType"/>
+        <result column="category" property="category"/>
+        <result column="location" property="location"/>
+        <result column="address" property="address"/>
+        <result column="start_date" property="startDate"/>
+        <result column="end_date" property="endDate"/>
+        <result column="work_time" property="workTime"/>
+        <result column="recruit_count" property="recruitCount"/>
+        <result column="applied_count" property="appliedCount"/>
+        <result column="accepted_count" property="acceptedCount"/>
+        <result column="contact_name" property="contactName"/>
+        <result column="contact_phone" property="contactPhone"/>
+        <result column="contact_email" property="contactEmail"/>
+        <result column="company_name" property="companyName"/>
+        <result column="company_description" property="companyDescription"/>
+        <result column="company_logo" property="companyLogo"/>
+        <result column="requirements" property="requirements"/>
+        <result column="benefits" property="benefits"/>
+        <result column="status" property="status"/>
+        <result column="view_count" property="viewCount"/>
+        <result column="favorite_count" property="favoriteCount"/>
+        <result column="publish_time" property="publishTime"/>
+        <result column="deadline" property="deadline"/>
+        <result column="is_top" property="isTop"/>
+        <result column="top_weight" property="topWeight"/>
+        <result column="is_recommended" property="isRecommended"/>
+        <result column="publisher_id" property="publisherId"/>
+        <result column="publisher_type" property="publisherType"/>
+        <result column="publisher_name" property="publisherName"/>
+        <result column="auditor_id" property="auditorId"/>
+        <result column="audit_time" property="auditTime"/>
+        <result column="audit_remark" property="auditRemark"/>
+        <result column="deleted" property="deleted"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="version" property="version"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, title, description, salary, salary_unit, job_type, category, location, address,
+        start_date, end_date, work_time, recruit_count, applied_count, accepted_count,
+        contact_name, contact_phone, contact_email, company_name, company_description,
+        company_logo, requirements, benefits, status, view_count, favorite_count,
+        publish_time, deadline, is_top, top_weight, is_recommended, publisher_id,
+        publisher_type, publisher_name, auditor_id, audit_time, audit_remark,
+        deleted, create_time, update_time, version
+    </sql>
+
+    <select id="searchJobs" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM jobs
+        WHERE deleted = 0
+        <if test="request.keyword != null and request.keyword != ''">
+            AND (
+                title LIKE CONCAT('%', #{request.keyword}, '%')
+                OR description LIKE CONCAT('%', #{request.keyword}, '%')
+                OR location LIKE CONCAT('%', #{request.keyword}, '%')
+                OR company_name LIKE CONCAT('%', #{request.keyword}, '%')
+                OR requirements LIKE CONCAT('%', #{request.keyword}, '%')
+                OR benefits LIKE CONCAT('%', #{request.keyword}, '%')
+            )
+        </if>
+        <if test="request.jobType != null and request.jobType != ''">
+            AND job_type = #{request.jobType}
+        </if>
+        <if test="request.category != null and request.category != ''">
+            AND category = #{request.category}
+        </if>
+        <if test="request.salaryUnit != null and request.salaryUnit != ''">
+            AND salary_unit = #{request.salaryUnit}
+        </if>
+        <if test="request.minSalary != null">
+            AND salary >= #{request.minSalary}
+        </if>
+        <if test="request.maxSalary != null">
+            AND salary &lt;= #{request.maxSalary}
+        </if>
+        <if test="request.location != null and request.location != ''">
+            AND location LIKE CONCAT('%', #{request.location}, '%')
+        </if>
+        <if test="request.status != null">
+            AND status = #{request.status}
+        </if>
+        <if test="request.publisherId != null">
+            AND publisher_id = #{request.publisherId}
+        </if>
+        <if test="request.publisherType != null and request.publisherType != ''">
+            AND publisher_type = #{request.publisherType}
+        </if>
+        <if test="request.startDateAfter != null">
+            AND start_date >= #{request.startDateAfter}
+        </if>
+        <if test="request.endDateBefore != null">
+            AND end_date &lt;= #{request.endDateBefore}
+        </if>
+        <if test="request.publishTimeAfter != null">
+            AND publish_time >= #{request.publishTimeAfter}
+        </if>
+        <if test="request.publishTimeBefore != null">
+            AND publish_time &lt;= #{request.publishTimeBefore}
+        </if>
+        <if test="request.deadlineAfter != null">
+            AND deadline >= #{request.deadlineAfter}
+        </if>
+        <if test="request.deadlineBefore != null">
+            AND deadline &lt;= #{request.deadlineBefore}
+        </if>
+        <if test="request.isTop != null">
+            AND is_top = #{request.isTop}
+        </if>
+        <if test="request.isRecommended != null">
+            AND is_recommended = #{request.isRecommended}
+        </if>
+        <if test="request.hasRemaining != null and request.hasRemaining == true">
+            AND (recruit_count - accepted_count) > 0
+        </if>
+        <if test="request.aboutToExpire != null and request.aboutToExpire == true">
+            AND deadline &lt;= DATE_ADD(NOW(), INTERVAL 3 DAY)
+            AND deadline > NOW()
+        </if>
+        ORDER BY
+        <choose>
+            <when test="request.sortField == 'salary'">salary</when>
+            <when test="request.sortField == 'deadline'">deadline</when>
+            <when test="request.sortField == 'view_count'">view_count</when>
+            <when test="request.sortField == 'applied_count'">applied_count</when>
+            <when test="request.sortField == 'top_weight'">top_weight</when>
+            <when test="request.sortField == 'publish_time'">publish_time</when>
+            <otherwise>publish_time</otherwise>
+        </choose>
+        <choose>
+            <when test="request.sortDirection == 'asc'">ASC</when>
+            <otherwise>DESC</otherwise>
+        </choose>
+    </select>
+
+</mapper>

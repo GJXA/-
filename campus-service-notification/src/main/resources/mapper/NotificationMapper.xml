@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xushu.campus.notification.mapper.NotificationMapper">
+
+    <resultMap id="BaseResultMap" type="com.xushu.campus.notification.entity.Notification">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="type" property="type"/>
+        <result column="title" property="title"/>
+        <result column="content" property="content"/>
+        <result column="status" property="status"/>
+        <result column="priority" property="priority"/>
+        <result column="channel" property="channel"/>
+        <result column="related_id" property="relatedId"/>
+        <result column="related_type" property="relatedType"/>
+        <result column="business_data" property="businessData"/>
+        <result column="send_time" property="sendTime"/>
+        <result column="read_time" property="readTime"/>
+        <result column="expire_time" property="expireTime"/>
+        <result column="email_status" property="emailStatus"/>
+        <result column="email_failure_reason" property="emailFailureReason"/>
+        <result column="email_retry_count" property="emailRetryCount"/>
+        <result column="sms_status" property="smsStatus"/>
+        <result column="sms_failure_reason" property="smsFailureReason"/>
+        <result column="sms_retry_count" property="smsRetryCount"/>
+        <result column="websocket_status" property="websocketStatus"/>
+        <result column="sender_id" property="senderId"/>
+        <result column="sender_name" property="senderName"/>
+        <result column="receiver_email" property="receiverEmail"/>
+        <result column="receiver_phone" property="receiverPhone"/>
+        <result column="deleted" property="deleted"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="version" property="version"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, user_id, type, title, content, status, priority, channel, related_id, related_type,
+        business_data, send_time, read_time, expire_time, email_status, email_failure_reason,
+        email_retry_count, sms_status, sms_failure_reason, sms_retry_count, websocket_status,
+        sender_id, sender_name, receiver_email, receiver_phone, deleted, create_time, update_time, version
+    </sql>
+
+    <select id="searchNotifications" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM notifications
+        WHERE deleted = 0
+        <if test="userId != null">
+            AND user_id = #{userId}
+        </if>
+        <if test="type != null and type != ''">
+            AND type = #{type}
+        </if>
+        <if test="status != null">
+            AND status = #{status}
+        </if>
+        <if test="priority != null">
+            AND priority = #{priority}
+        </if>
+        <if test="startTime != null">
+            AND send_time >= #{startTime}
+        </if>
+        <if test="endTime != null">
+            AND send_time &lt;= #{endTime}
+        </if>
+        <if test="keyword != null and keyword != ''">
+            AND (
+                title LIKE CONCAT('%', #{keyword}, '%')
+                OR content LIKE CONCAT('%', #{keyword}, '%')
+                OR sender_name LIKE CONCAT('%', #{keyword}, '%')
+                OR business_data LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+        ORDER BY
+        <choose>
+            <when test="priority != null">priority DESC, send_time DESC</when>
+            <otherwise>send_time DESC</otherwise>
+        </choose>
+    </select>
+
+</mapper>

@@ -1,0 +1,1363 @@
+<script setup lang="ts">
+import { ref, reactive, onMounted, computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { ShoppingCart, Heart, Share, Star, Location, Clock, Eye, Message, Phone } from '@element-plus/icons-vue'
+
+const route = useRoute()
+const router = useRouter()
+
+const productId = computed(() => route.params.id)
+
+// 商品详情数据
+const product = ref({
+  id: 1,
+  title: '二手 MacBook Pro 2023',
+  description: '13英寸 M2芯片，16GB内存，512GB SSD。电池循环次数120次，外观完好无划痕，屏幕无亮点坏点。包装盒、充电器、原装数据线齐全。因换新电脑而出售，性能强劲，适合学习和办公使用。',
+  price: 6500,
+  originalPrice: 8999,
+  images: [
+    'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800&h=600&fit=crop',
+    'https://images.unsplash.com/photo-1545235617-9465d2a55698?w=800&h=600&fit=crop',
+    'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=800&h=600&fit=crop'
+  ],
+  category: '电子产品',
+  categoryId: 1,
+  seller: {
+    id: 101,
+    name: '张三',
+    avatar: '',
+    rating: 4.8,
+    joinTime: '2025-09-01',
+    location: '北京校区',
+    productCount: 12,
+    positiveReviews: 95
+  },
+  condition: '9成新',
+  location: '北京校区',
+  status: 'available', // available, sold, reserved
+  createdAt: '2026-03-15',
+  updatedAt: '2026-03-18',
+  viewCount: 1245,
+  likeCount: 89,
+  tags: ['苹果', '笔记本电脑', 'M2芯片', 'MacBook', '学习办公'],
+  specifications: [
+    { key: '品牌', value: 'Apple' },
+    { key: '型号', value: 'MacBook Pro 13英寸' },
+    { key: '处理器', value: 'Apple M2芯片' },
+    { key: '内存', value: '16GB' },
+    { key: '硬盘', value: '512GB SSD' },
+    { key: '屏幕', value: '13.3英寸 Retina显示屏' },
+    { key: '电池健康度', value: '92%' },
+    { key: '购买时间', value: '2023年9月' },
+    { key: '保修情况', value: '已过保' },
+    { key: '配件', value: '充电器、数据线、包装盒' }
+  ],
+  shippingInfo: {
+    method: '快递/自提',
+    cost: '包邮',
+    location: '北京市海淀区',
+    deliveryTime: '1-3天'
+  },
+  returnPolicy: '支持7天无理由退货'
+})
+
+// 当前图片索引
+const currentImageIndex = ref(0)
+
+// 购买数量
+const quantity = ref(1)
+
+// 加载状态
+const loading = ref(false)
+const liked = ref(false)
+
+// 相关商品
+const relatedProducts = ref([
+  {
+    id: 2,
+    title: 'MacBook Air M1',
+    price: 4500,
+    image: 'https://images.unsplash.com/photo-1541807084-5c52b6b3adef?w=400&h=300&fit=crop',
+    condition: '8成新',
+    location: '北京校区'
+  },
+  {
+    id: 3,
+    title: 'iPad Pro 2022',
+    price: 3800,
+    image: 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400&h=300&fit=crop',
+    condition: '9成新',
+    location: '上海校区'
+  },
+  {
+    id: 4,
+    title: 'ThinkPad X1 Carbon',
+    price: 5200,
+    image: 'https://images.unsplash.com/photo-1593640408182-31c70c8268f5?w=400&h=300&fit=crop',
+    condition: '85新',
+    location: '广州校区'
+  }
+])
+
+// 评论数据
+const reviews = ref([
+  {
+    id: 1,
+    user: {
+      name: '李四',
+      avatar: '',
+      rating: 4.9
+    },
+    rating: 5,
+    comment: '商品非常满意，卖家很负责，电脑运行流畅，物超所值！',
+    images: [],
+    createdAt: '2026-03-17',
+    likes: 12
+  },
+  {
+    id: 2,
+    user: {
+      name: '王五',
+      avatar: '',
+      rating: 4.7
+    },
+    rating: 4,
+    comment: '电脑成色不错，电池健康度也还可以，就是有点小划痕，但不影响使用。',
+    images: [],
+    createdAt: '2026-03-16',
+    likes: 5
+  }
+])
+
+// 新评论
+const newReview = reactive({
+  rating: 5,
+  comment: '',
+  images: []
+})
+
+// 计算总价
+const totalPrice = computed(() => {
+  return product.value.price * quantity.value
+})
+
+// 切换图片
+const selectImage = (index: number) => {
+  currentImageIndex.value = index
+}
+
+// 收藏商品
+const toggleLike = () => {
+  liked.value = !liked.value
+  if (liked.value) {
+    product.value.likeCount++
+    ElMessage.success('已添加到收藏')
+  } else {
+    product.value.likeCount--
+    ElMessage.info('已取消收藏')
+  }
+}
+
+// 分享商品
+const shareProduct = () => {
+  // 复制链接到剪贴板
+  const url = window.location.href
+  navigator.clipboard.writeText(url)
+    .then(() => ElMessage.success('链接已复制到剪贴板'))
+    .catch(() => ElMessage.error('复制失败'))
+}
+
+// 立即购买
+const buyNow = () => {
+  if (product.value.status !== 'available') {
+    ElMessage.warning('该商品已售出或已被预定')
+    return
+  }
+
+  ElMessageBox.confirm(
+    `确定要购买 "${product.value.title}" 吗？\n数量: ${quantity.value}件\n总价: ¥${totalPrice.value}`,
+    '确认购买',
+    {
+      confirmButtonText: '立即购买',
+      cancelButtonText: '再考虑一下',
+      type: 'warning'
+    }
+  ).then(() => {
+    // TODO: 调用创建订单 API
+    router.push({
+      path: '/order/checkout',
+      query: {
+        productId: product.value.id,
+        quantity: quantity.value
+      }
+    })
+  }).catch(() => {
+    // 取消操作
+  })
+}
+
+// 加入购物车（暂时模拟）
+const addToCart = () => {
+  if (product.value.status !== 'available') {
+    ElMessage.warning('该商品已售出或已被预定')
+    return
+  }
+
+  // TODO: 调用加入购物车 API
+  ElMessage.success('已加入购物车')
+}
+
+// 联系卖家
+const contactSeller = () => {
+  ElMessage.info(`卖家电话: ${product.value.seller.phone || '13800138000'}`)
+}
+
+// 提交评论
+const submitReview = () => {
+  if (!newReview.comment.trim()) {
+    ElMessage.warning('请输入评论内容')
+    return
+  }
+
+  const review = {
+    id: reviews.value.length + 1,
+    user: {
+      name: '当前用户',
+      avatar: '',
+      rating: 5.0
+    },
+    rating: newReview.rating,
+    comment: newReview.comment,
+    images: newReview.images,
+    createdAt: new Date().toISOString().split('T')[0],
+    likes: 0
+  }
+
+  reviews.value.unshift(review)
+  newReview.rating = 5
+  newReview.comment = ''
+  newReview.images = []
+  ElMessage.success('评论发表成功')
+}
+
+// 加载商品详情
+const loadProductDetail = async () => {
+  loading.value = true
+  try {
+    // TODO: 调用后端 API
+    // const response = await productApi.getProductDetail(Number(productId.value))
+    // product.value = response.data
+
+    // 模拟延迟
+    await new Promise(resolve => setTimeout(resolve, 500))
+  } catch (error) {
+    ElMessage.error('加载商品详情失败')
+  } finally {
+    loading.value = false
+  }
+}
+
+// 初始化
+onMounted(() => {
+  loadProductDetail()
+  // 增加浏览次数
+  product.value.viewCount++
+})
+</script>
+
+<template>
+  <div class="product-detail-container">
+    <div class="container">
+      <!-- 面包屑导航 -->
+      <div class="breadcrumb">
+        <el-breadcrumb separator="/">
+          <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
+          <el-breadcrumb-item :to="{ path: '/products' }">二手商品</el-breadcrumb-item>
+          <el-breadcrumb-item :to="{ path: `/products?category=${product.categoryId}` }">
+            {{ product.category }}
+          </el-breadcrumb-item>
+          <el-breadcrumb-item>{{ product.title }}</el-breadcrumb-item>
+        </el-breadcrumb>
+      </div>
+
+      <div v-if="loading" class="loading-container">
+        <el-skeleton :rows="10" animated />
+      </div>
+
+      <div v-else class="product-detail">
+        <!-- 商品主区域 -->
+        <div class="product-main">
+          <!-- 商品图片 -->
+          <div class="product-gallery">
+            <!-- 主图 -->
+            <div class="main-image">
+              <img
+                :src="product.images[currentImageIndex]"
+                :alt="product.title"
+                class="product-image"
+              />
+              <div v-if="product.status !== 'available'" class="product-status-overlay">
+                <div class="status-badge" :class="product.status">
+                  {{ product.status === 'sold' ? '已售出' : '已预定' }}
+                </div>
+              </div>
+            </div>
+
+            <!-- 缩略图列表 -->
+            <div class="thumbnail-list">
+              <div
+                v-for="(image, index) in product.images"
+                :key="index"
+                class="thumbnail-item"
+                :class="{ active: currentImageIndex === index }"
+                @click="selectImage(index)"
+              >
+                <img :src="image" :alt="`${product.title}-${index}`" />
+              </div>
+            </div>
+
+            <!-- 图片操作 -->
+            <div class="image-actions">
+              <el-button type="text" @click="toggleLike" class="like-action">
+                <Heart :class="['like-icon', { liked }]" />
+                <span class="like-count">{{ product.likeCount }}</span>
+              </el-button>
+              <el-button type="text" @click="shareProduct" class="share-action">
+                <Share class="share-icon" />
+                分享
+              </el-button>
+            </div>
+          </div>
+
+          <!-- 商品信息 -->
+          <div class="product-info">
+            <!-- 商品标题和状态 -->
+            <div class="product-header">
+              <h1 class="product-title">{{ product.title }}</h1>
+              <div class="product-status">
+                <el-tag :type="product.status === 'available' ? 'success' : 'info'">
+                  {{ product.status === 'available' ? '可购买' :
+                     product.status === 'sold' ? '已售出' : '已预定' }}
+                </el-tag>
+              </div>
+            </div>
+
+            <!-- 价格信息 -->
+            <div class="price-section">
+              <div class="current-price">
+                <span class="price-symbol">¥</span>
+                <span class="price-value">{{ product.price }}</span>
+              </div>
+              <div class="original-price">
+                <span class="original-label">原价:</span>
+                <span class="original-value">¥{{ product.originalPrice }}</span>
+              </div>
+              <div class="discount-badge">
+                节省 ¥{{ product.originalPrice - product.price }}
+              </div>
+            </div>
+
+            <!-- 商品属性 -->
+            <div class="product-attributes">
+              <div class="attribute-item">
+                <span class="attribute-label">商品成色:</span>
+                <span class="attribute-value">{{ product.condition }}</span>
+              </div>
+              <div class="attribute-item">
+                <span class="attribute-label">所在校区:</span>
+                <span class="attribute-value">
+                  <Location class="attribute-icon" />
+                  {{ product.location }}
+                </span>
+              </div>
+              <div class="attribute-item">
+                <span class="attribute-label">发布时间:</span>
+                <span class="attribute-value">
+                  <Clock class="attribute-icon" />
+                  {{ product.createdAt }}
+                </span>
+              </div>
+              <div class="attribute-item">
+                <span class="attribute-label">浏览次数:</span>
+                <span class="attribute-value">
+                  <Eye class="attribute-icon" />
+                  {{ product.viewCount }}
+                </span>
+              </div>
+            </div>
+
+            <!-- 购买数量 -->
+            <div class="quantity-section">
+              <div class="quantity-label">购买数量:</div>
+              <div class="quantity-controls">
+                <el-input-number
+                  v-model="quantity"
+                  :min="1"
+                  :max="10"
+                  size="large"
+                />
+                <div class="stock-info">库存: {{ product.status === 'available' ? '充足' : '无' }}</div>
+              </div>
+            </div>
+
+            <!-- 操作按钮 -->
+            <div class="action-buttons">
+              <el-button
+                type="primary"
+                size="large"
+                :disabled="product.status !== 'available'"
+                @click="buyNow"
+                class="buy-button"
+              >
+                <ShoppingCart class="button-icon" />
+                立即购买
+              </el-button>
+              <el-button
+                size="large"
+                :disabled="product.status !== 'available'"
+                @click="addToCart"
+                class="cart-button"
+              >
+                加入购物车
+              </el-button>
+              <el-button
+                size="large"
+                @click="contactSeller"
+                class="contact-button"
+              >
+                <Message class="button-icon" />
+                联系卖家
+              </el-button>
+            </div>
+
+            <!-- 卖家信息 -->
+            <div class="seller-info">
+              <div class="seller-header">
+                <el-avatar :size="48" :src="product.seller.avatar">
+                  {{ product.seller.name?.charAt(0) }}
+                </el-avatar>
+                <div class="seller-details">
+                  <h3 class="seller-name">{{ product.seller.name }}</h3>
+                  <div class="seller-rating">
+                    <el-rate v-model="product.seller.rating" disabled size="small" />
+                    <span class="rating-text">{{ product.seller.rating }}</span>
+                    <span class="review-count">({{ product.seller.positiveReviews }}%好评)</span>
+                  </div>
+                </div>
+              </div>
+              <div class="seller-stats">
+                <div class="stat-item">
+                  <div class="stat-value">{{ product.seller.productCount }}</div>
+                  <div class="stat-label">发布商品</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">{{ product.seller.positiveReviews }}%</div>
+                  <div class="stat-label">好评率</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">{{ product.seller.joinTime }}</div>
+                  <div class="stat-label">加入时间</div>
+                </div>
+              </div>
+              <div class="seller-actions">
+                <el-button size="small" @click="router.push(`/user/${product.seller.id}`)">
+                  查看卖家主页
+                </el-button>
+                <el-button size="small" type="primary" @click="contactSeller">
+                  <Phone class="button-icon" />
+                  联系卖家
+                </el-button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 商品详情标签页 -->
+        <div class="product-tabs">
+          <el-tabs type="border-card">
+            <!-- 商品描述 -->
+            <el-tab-pane label="商品描述">
+              <div class="description-content">
+                <h3 class="description-title">商品详情</h3>
+                <p class="description-text">
+                  {{ product.description }}
+                </p>
+
+                <!-- 规格参数 -->
+                <div class="specifications">
+                  <h4 class="specifications-title">规格参数</h4>
+                  <div class="specifications-grid">
+                    <div
+                      v-for="spec in product.specifications"
+                      :key="spec.key"
+                      class="specification-item"
+                    >
+                      <span class="spec-key">{{ spec.key }}</span>
+                      <span class="spec-value">{{ spec.value }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 商品标签 -->
+                <div class="product-tags">
+                  <el-tag
+                    v-for="tag in product.tags"
+                    :key="tag"
+                    size="medium"
+                    class="product-tag"
+                  >
+                    {{ tag }}
+                  </el-tag>
+                </div>
+              </div>
+            </el-tab-pane>
+
+            <!-- 物流信息 -->
+            <el-tab-pane label="物流信息">
+              <div class="shipping-content">
+                <div class="shipping-item">
+                  <h4 class="shipping-title">配送方式</h4>
+                  <p>{{ product.shippingInfo.method }}</p>
+                </div>
+                <div class="shipping-item">
+                  <h4 class="shipping-title">配送费用</h4>
+                  <p>{{ product.shippingInfo.cost }}</p>
+                </div>
+                <div class="shipping-item">
+                  <h4 class="shipping-title">发货地点</h4>
+                  <p>{{ product.shippingInfo.location }}</p>
+                </div>
+                <div class="shipping-item">
+                  <h4 class="shipping-title">预计送达</h4>
+                  <p>{{ product.shippingInfo.deliveryTime }}</p>
+                </div>
+                <div class="shipping-item">
+                  <h4 class="shipping-title">退换货政策</h4>
+                  <p>{{ product.returnPolicy }}</p>
+                </div>
+              </div>
+            </el-tab-pane>
+
+            <!-- 商品评价 -->
+            <el-tab-pane label="商品评价">
+              <div class="reviews-content">
+                <!-- 评价统计 -->
+                <div class="reviews-stats">
+                  <div class="overall-rating">
+                    <div class="rating-score">4.5</div>
+                    <div class="rating-stars">
+                      <el-rate v-model="4.5" disabled />
+                    </div>
+                    <div class="rating-count">{{ reviews.length }} 条评价</div>
+                  </div>
+                </div>
+
+                <!-- 发表评价 -->
+                <div class="review-form">
+                  <h4 class="form-title">发表评价</h4>
+                  <div class="form-content">
+                    <div class="rating-input">
+                      <span class="rating-label">评分:</span>
+                      <el-rate v-model="newReview.rating" />
+                    </div>
+                    <el-input
+                      v-model="newReview.comment"
+                      type="textarea"
+                      :rows="4"
+                      placeholder="写下您的使用体验和建议..."
+                      class="comment-input"
+                    />
+                    <div class="form-actions">
+                      <el-button type="primary" @click="submitReview">
+                        提交评价
+                      </el-button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 评价列表 -->
+                <div class="reviews-list">
+                  <div
+                    v-for="review in reviews"
+                    :key="review.id"
+                    class="review-item"
+                  >
+                    <div class="review-header">
+                      <el-avatar :size="40" :src="review.user.avatar">
+                        {{ review.user.name?.charAt(0) }}
+                      </el-avatar>
+                      <div class="reviewer-info">
+                        <h4 class="reviewer-name">{{ review.user.name }}</h4>
+                        <div class="review-rating">
+                          <el-rate v-model="review.rating" disabled size="small" />
+                          <span class="review-time">{{ review.createdAt }}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="review-content">
+                      <p class="review-comment">{{ review.comment }}</p>
+                    </div>
+                    <div class="review-actions">
+                      <el-button type="text" size="small">
+                        <el-icon><Thumb /></el-icon>
+                        有用 ({{ review.likes }})
+                      </el-button>
+                      <el-button type="text" size="small">
+                        回复
+                      </el-button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </el-tab-pane>
+          </el-tabs>
+        </div>
+
+        <!-- 相关商品推荐 -->
+        <div class="related-products">
+          <h3 class="related-title">相关推荐</h3>
+          <div class="related-grid">
+            <div
+              v-for="related in relatedProducts"
+              :key="related.id"
+              class="related-card"
+              @click="router.push(`/products/${related.id}`)"
+            >
+              <div class="related-image">
+                <img :src="related.image" :alt="related.title" />
+              </div>
+              <div class="related-info">
+                <h4 class="related-name">{{ related.title }}</h4>
+                <div class="related-price">¥{{ related.price }}</div>
+                <div class="related-meta">
+                  <span class="meta-condition">{{ related.condition }}</span>
+                  <span class="meta-location">{{ related.location }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+.product-detail-container {
+  padding: var(--spacing-xl) 0;
+}
+
+.breadcrumb {
+  margin-bottom: var(--spacing-xl);
+}
+
+.loading-container {
+  padding: var(--spacing-3xl) 0;
+}
+
+/* 商品主区域 */
+.product-main {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-2xl);
+  margin-bottom: var(--spacing-2xl);
+  padding: var(--spacing-xl);
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+/* 商品图片区域 */
+.product-gallery {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.main-image {
+  position: relative;
+  width: 100%;
+  height: 400px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background-color: var(--color-gray-100);
+}
+
+.product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform var(--transition-normal);
+}
+
+.main-image:hover .product-image {
+  transform: scale(1.05);
+}
+
+.product-status-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.status-badge {
+  padding: var(--spacing-md) var(--spacing-xl);
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-gray-900);
+}
+
+.status-badge.sold {
+  color: var(--color-error);
+}
+
+.status-badge.reserved {
+  color: var(--color-warning);
+}
+
+.thumbnail-list {
+  display: flex;
+  gap: var(--spacing-sm);
+  overflow-x: auto;
+  padding: var(--spacing-xs) 0;
+}
+
+.thumbnail-item {
+  width: 80px;
+  height: 80px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px solid transparent;
+  flex-shrink: 0;
+  transition: all var(--transition-fast);
+}
+
+.thumbnail-item:hover {
+  border-color: var(--color-primary);
+}
+
+.thumbnail-item.active {
+  border-color: var(--color-primary);
+}
+
+.thumbnail-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.image-actions {
+  display: flex;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-md) 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.like-action,
+.share-action {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.like-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--color-gray-500);
+  transition: all var(--transition-fast);
+}
+
+.like-icon.liked {
+  color: var(--color-error);
+  fill: var(--color-error);
+}
+
+.like-count {
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-600);
+}
+
+.share-icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* 商品信息区域 */
+.product-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.product-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--spacing-lg);
+}
+
+.product-title {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-gray-900);
+  margin: 0;
+  line-height: 1.4;
+  flex: 1;
+}
+
+.price-section {
+  padding: var(--spacing-lg);
+  background-color: var(--color-gray-50);
+  border-radius: var(--radius-lg);
+}
+
+.current-price {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-sm);
+}
+
+.price-symbol {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-error);
+}
+
+.price-value {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-error);
+}
+
+.original-price {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-sm);
+}
+
+.original-label {
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-600);
+}
+
+.original-value {
+  font-size: var(--font-size-base);
+  color: var(--color-gray-500);
+  text-decoration: line-through;
+}
+
+.discount-badge {
+  display: inline-block;
+  padding: var(--spacing-xs) var(--spacing-md);
+  background-color: var(--color-error);
+  color: white;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.product-attributes {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  background-color: var(--color-gray-50);
+  border-radius: var(--radius-lg);
+}
+
+.attribute-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.attribute-label {
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-600);
+  min-width: 80px;
+}
+
+.attribute-value {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-gray-900);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.attribute-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--color-gray-500);
+}
+
+.quantity-section {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-lg);
+  background-color: var(--color-gray-50);
+  border-radius: var(--radius-lg);
+}
+
+.quantity-label {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-gray-900);
+  min-width: 100px;
+}
+
+.quantity-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+  flex: 1;
+}
+
+.stock-info {
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-600);
+}
+
+.action-buttons {
+  display: flex;
+  gap: var(--spacing-md);
+}
+
+.buy-button {
+  flex: 2;
+}
+
+.cart-button,
+.contact-button {
+  flex: 1;
+}
+
+.button-icon {
+  width: 20px;
+  height: 20px;
+  margin-right: var(--spacing-xs);
+}
+
+/* 卖家信息 */
+.seller-info {
+  padding: var(--spacing-lg);
+  background-color: var(--color-gray-50);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+}
+
+.seller-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+}
+
+.seller-details {
+  flex: 1;
+}
+
+.seller-name {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-gray-900);
+  margin-bottom: var(--spacing-xs);
+}
+
+.seller-rating {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.rating-text {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-gray-900);
+}
+
+.review-count {
+  font-size: var(--font-size-xs);
+  color: var(--color-gray-500);
+}
+
+.seller-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-lg) 0;
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-value {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.stat-label {
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-600);
+}
+
+.seller-actions {
+  display: flex;
+  gap: var(--spacing-md);
+}
+
+/* 商品详情标签页 */
+.product-tabs {
+  margin-bottom: var(--spacing-2xl);
+}
+
+.description-content,
+.shipping-content,
+.reviews-content {
+  padding: var(--spacing-lg);
+}
+
+.description-title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-gray-900);
+  margin-bottom: var(--spacing-lg);
+}
+
+.description-text {
+  font-size: var(--font-size-base);
+  color: var(--color-gray-700);
+  line-height: var(--line-height-relaxed);
+  margin-bottom: var(--spacing-xl);
+}
+
+.specifications {
+  margin-bottom: var(--spacing-xl);
+}
+
+.specifications-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-gray-900);
+  margin-bottom: var(--spacing-lg);
+}
+
+.specifications-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--spacing-lg);
+}
+
+.specification-item {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--spacing-sm) 0;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.spec-key {
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-600);
+}
+
+.spec-value {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-gray-900);
+}
+
+.product-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+.product-tag {
+  font-size: var(--font-size-sm) !important;
+  border-radius: var(--radius-sm) !important;
+}
+
+/* 物流信息 */
+.shipping-item {
+  margin-bottom: var(--spacing-lg);
+}
+
+.shipping-title {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-gray-900);
+  margin-bottom: var(--spacing-xs);
+}
+
+.shipping-item p {
+  font-size: var(--font-size-base);
+  color: var(--color-gray-700);
+  margin: 0;
+}
+
+/* 评价内容 */
+.reviews-stats {
+  display: flex;
+  justify-content: center;
+  margin-bottom: var(--spacing-xl);
+}
+
+.overall-rating {
+  text-align: center;
+  padding: var(--spacing-lg);
+  background-color: var(--color-gray-50);
+  border-radius: var(--radius-lg);
+  min-width: 200px;
+}
+
+.rating-score {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.rating-count {
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-600);
+  margin-top: var(--spacing-sm);
+}
+
+.review-form {
+  margin-bottom: var(--spacing-xl);
+  padding: var(--spacing-lg);
+  background-color: var(--color-gray-50);
+  border-radius: var(--radius-lg);
+}
+
+.form-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-gray-900);
+  margin-bottom: var(--spacing-lg);
+}
+
+.rating-input {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+}
+
+.rating-label {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-gray-900);
+}
+
+.comment-input {
+  margin-bottom: var(--spacing-lg);
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.reviews-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.review-item {
+  padding: var(--spacing-lg);
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.review-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+}
+
+.reviewer-info {
+  flex: 1;
+}
+
+.reviewer-name {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-gray-900);
+  margin-bottom: var(--spacing-xs);
+}
+
+.review-rating {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+}
+
+.review-time {
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-500);
+}
+
+.review-content {
+  margin-bottom: var(--spacing-lg);
+}
+
+.review-comment {
+  font-size: var(--font-size-base);
+  color: var(--color-gray-700);
+  line-height: var(--line-height-relaxed);
+  margin: 0;
+}
+
+.review-actions {
+  display: flex;
+  gap: var(--spacing-lg);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--color-border-light);
+}
+
+/* 相关商品推荐 */
+.related-products {
+  margin-bottom: var(--spacing-xl);
+}
+
+.related-title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-gray-900);
+  margin-bottom: var(--spacing-lg);
+}
+
+.related-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: var(--spacing-lg);
+}
+
+.related-card {
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+
+.related-card:hover {
+  border-color: var(--color-primary);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+.related-image {
+  width: 100%;
+  height: 180px;
+  overflow: hidden;
+}
+
+.related-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--transition-normal);
+}
+
+.related-card:hover .related-image img {
+  transform: scale(1.05);
+}
+
+.related-info {
+  padding: var(--spacing-lg);
+}
+
+.related-name {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-gray-900);
+  margin-bottom: var(--spacing-sm);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.related-price {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.related-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-600);
+}
+
+/* 响应式设计 */
+@media (max-width: 1024px) {
+  .product-main {
+    grid-template-columns: 1fr;
+  }
+
+  .product-attributes {
+    grid-template-columns: 1fr;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+  }
+
+  .specifications-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-image {
+    height: 300px;
+  }
+
+  .seller-header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .seller-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .seller-actions {
+    flex-direction: column;
+  }
+
+  .related-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>

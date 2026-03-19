@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xushu.campus.order.mapper.OrderMapper">
+
+    <resultMap id="BaseResultMap" type="com.xushu.campus.order.entity.Order">
+        <id column="id" property="id"/>
+        <result column="order_no" property="orderNo"/>
+        <result column="user_id" property="userId"/>
+        <result column="product_id" property="productId"/>
+        <result column="product_title" property="productTitle"/>
+        <result column="product_price" property="productPrice"/>
+        <result column="product_image" property="productImage"/>
+        <result column="quantity" property="quantity"/>
+        <result column="total_amount" property="totalAmount"/>
+        <result column="pay_amount" property="payAmount"/>
+        <result column="payment_method" property="paymentMethod"/>
+        <result column="payment_status" property="paymentStatus"/>
+        <result column="order_status" property="orderStatus"/>
+        <result column="receiver_name" property="receiverName"/>
+        <result column="receiver_phone" property="receiverPhone"/>
+        <result column="receiver_address" property="receiverAddress"/>
+        <result column="buyer_message" property="buyerMessage"/>
+        <result column="seller_message" property="sellerMessage"/>
+        <result column="payment_time" property="paymentTime"/>
+        <result column="delivery_time" property="deliveryTime"/>
+        <result column="confirm_time" property="confirmTime"/>
+        <result column="cancel_time" property="cancelTime"/>
+        <result column="cancel_reason" property="cancelReason"/>
+        <result column="expire_time" property="expireTime"/>
+        <result column="seller_id" property="sellerId"/>
+        <result column="seller_nickname" property="sellerNickname"/>
+        <result column="buyer_nickname" property="buyerNickname"/>
+        <result column="deleted" property="deleted"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="version" property="version"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, order_no, user_id, product_id, product_title, product_price, product_image, quantity,
+        total_amount, pay_amount, payment_method, payment_status, order_status, receiver_name,
+        receiver_phone, receiver_address, buyer_message, seller_message, payment_time,
+        delivery_time, confirm_time, cancel_time, cancel_reason, expire_time, seller_id,
+        seller_nickname, buyer_nickname, deleted, create_time, update_time, version
+    </sql>
+
+    <select id="searchOrders" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM orders
+        WHERE deleted = 0
+        <if test="request.orderNo != null and request.orderNo != ''">
+            AND order_no = #{request.orderNo}
+        </if>
+        <if test="request.productTitle != null and request.productTitle != ''">
+            AND product_title LIKE CONCAT('%', #{request.productTitle}, '%')
+        </if>
+        <if test="request.orderStatus != null">
+            AND order_status = #{request.orderStatus}
+        </if>
+        <if test="request.paymentStatus != null">
+            AND payment_status = #{request.paymentStatus}
+        </if>
+        <if test="request.paymentMethod != null and request.paymentMethod != ''">
+            AND payment_method = #{request.paymentMethod}
+        </if>
+        <if test="request.sellerId != null">
+            AND seller_id = #{request.sellerId}
+        </if>
+        <if test="request.buyerId != null">
+            AND user_id = #{request.buyerId}
+        </if>
+        <if test="request.startTime != null">
+            AND create_time >= #{request.startTime}
+        </if>
+        <if test="request.endTime != null">
+            AND create_time &lt;= #{request.endTime}
+        </if>
+        ORDER BY
+        <choose>
+            <when test="request.sortField == 'payment_time'">payment_time</when>
+            <when test="request.sortField == 'total_amount'">total_amount</when>
+            <otherwise>create_time</otherwise>
+        </choose>
+        <choose>
+            <when test="request.sortDirection == 'asc'">ASC</when>
+            <otherwise>DESC</otherwise>
+        </choose>
+    </select>
+
+</mapper>

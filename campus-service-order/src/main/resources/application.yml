@@ -1,0 +1,120 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: campus-service-order
+
+  # 数据源配置
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/campus_order?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: ${MYSQL_USERNAME:root}
+    password: ${MYSQL_PASSWORD:123456}
+    hikari:
+      connection-timeout: 30000
+      maximum-pool-size: 10
+      minimum-idle: 5
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  # Redis配置
+  redis:
+    host: ${REDIS_HOST:localhost}
+    port: ${REDIS_PORT:6379}
+    password: ${REDIS_PASSWORD:}
+    database: 3
+    timeout: 5000ms
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+        max-wait: -1ms
+
+  # MyBatis Plus配置
+  mybatis-plus:
+    configuration:
+      log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+      map-underscore-to-camel-case: true
+    global-config:
+      db-config:
+        id-type: auto
+        logic-delete-field: deleted
+        logic-delete-value: 1
+        logic-not-delete-value: 0
+
+  # 服务发现与配置
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_SERVER:localhost:8848}
+        namespace: ${NACOS_NAMESPACE:}
+        group: ${NACOS_GROUP:DEFAULT_GROUP}
+
+      config:
+        server-addr: ${NACOS_SERVER:localhost:8848}
+        namespace: ${NACOS_NAMESPACE:}
+        group: ${NACOS_GROUP:DEFAULT_GROUP}
+        file-extension: yaml
+        refresh-enabled: true
+
+# JWT配置
+jwt:
+  secret: ${JWT_SECRET:defaultSecretKeyForJwtTokenGenerationInCampusPlatform}
+  expiration: ${JWT_EXPIRATION:86400000}
+  refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800000}
+
+# 日志配置
+logging:
+  level:
+    com.xushu.campus.order: DEBUG
+    com.baomidou.mybatisplus: INFO
+
+# 管理端点
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+# 自定义配置
+campus:
+  order:
+    # 订单超时时间（分钟）
+    timeout-minutes: 30
+    # 自动确认收货时间（天）
+    auto-confirm-days: 7
+    # 支付方式
+    payment-methods:
+      - ALIPAY
+      - WECHAT
+      - CASH
+    # 定时任务配置
+    schedule:
+      # 取消超时订单任务（cron表达式）
+      cancel-expired-orders: "0 */5 * * * ?"  # 每5分钟执行一次
+      # 自动确认收货任务（cron表达式）
+      auto-confirm-orders: "0 0 2 * * ?"      # 每天凌晨2点执行
+    # 支付配置
+    payment:
+      # 模拟支付配置
+      mock:
+        enabled: true
+        success-rate: 100  # 支付成功率百分比
+        callback-delay: 3  # 回调延迟（秒）
+      # 支付宝模拟配置
+      alipay:
+        mock-account: "test@alipay.com"
+        mock-password: "123456"
+      # 微信支付模拟配置
+      wechat:
+        mock-account: "test@wechat.com"
+        mock-password: "123456"
+    # 缓存配置
+    cache:
+      order-detail-ttl: 300  # 订单详情缓存时间（秒）
+      user-orders-ttl: 180   # 用户订单列表缓存时间（秒）
