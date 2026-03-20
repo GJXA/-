@@ -1,6 +1,7 @@
 package com.xushu.campus.notification.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.xushu.campus.notification.constant.NotificationConstants;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -161,4 +162,25 @@ public class Notification {
      */
     @Version
     private Integer version;
+
+    /**
+     * 是否需要发送邮件
+     */
+    public boolean needSendEmail() {
+        return this.channel != null && this.channel.contains(NotificationConstants.NotificationChannel.EMAIL);
+    }
+
+    /**
+     * 是否需要发送短信
+     */
+    public boolean needSendSms() {
+        return this.channel != null && this.channel.contains(NotificationConstants.NotificationChannel.SMS);
+    }
+
+    /**
+     * 是否需要发送WebSocket消息
+     */
+    public boolean needSendWebSocket() {
+        return this.channel != null && this.channel.contains(NotificationConstants.NotificationChannel.WEBSOCKET);
+    }
 }

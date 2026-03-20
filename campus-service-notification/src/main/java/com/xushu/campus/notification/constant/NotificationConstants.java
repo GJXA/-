@@ -456,4 +456,71 @@ public class NotificationConstants {
          */
         public static final String WEBSOCKET_ALLOWED_ORIGINS = "*";
     }
+
+    /**
+     * 发送状态
+     */
+    public static class SendStatus {
+        /**
+         * 未发送
+         */
+        public static final int NOT_SENT = 0;
+
+        /**
+         * 发送中
+         */
+        public static final int SENDING = 1;
+
+        /**
+         * 发送成功
+         */
+        public static final int SENT_SUCCESS = 2;
+
+        /**
+         * 发送失败
+         */
+        public static final int SENT_FAILED = 3;
+
+        /**
+         * 验证发送状态是否有效
+         */
+        public static boolean isValid(Integer status) {
+            return status != null && status >= NOT_SENT && status <= SENT_FAILED;
+        }
+
+        /**
+         * 获取发送状态描述
+         */
+        public static String getDesc(Integer status) {
+            if (status == null) {
+                return "未知";
+            }
+            switch (status) {
+                case NOT_SENT:
+                    return "未发送";
+                case SENDING:
+                    return "发送中";
+                case SENT_SUCCESS:
+                    return "发送成功";
+                case SENT_FAILED:
+                    return "发送失败";
+                default:
+                    return "未知";
+            }
+        }
+
+        /**
+         * 是否可以重试发送
+         */
+        public static boolean canRetry(Integer status) {
+            return status != null && status == SENT_FAILED;
+        }
+
+        /**
+         * 是否发送完成
+         */
+        public static boolean isCompleted(Integer status) {
+            return status != null && (status == SENT_SUCCESS || status == SENT_FAILED);
+        }
+    }
 }

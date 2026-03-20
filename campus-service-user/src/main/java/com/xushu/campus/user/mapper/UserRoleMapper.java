@@ -5,6 +5,7 @@ import com.xushu.campus.user.entity.UserRole;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
@@ -12,6 +13,7 @@ import java.util.List;
  * 用户角色Mapper接口
  */
 @Mapper
+@Repository
 public interface UserRoleMapper extends BaseMapper<UserRole> {
 
     /**

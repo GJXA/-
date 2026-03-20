@@ -4,6 +4,10 @@ server:
 spring:
   application:
     name: campus-gateway
+  config:
+    import: "optional:nacos:${spring.application.name}"
+  main:
+    web-application-type: reactive
 
   cloud:
     gateway:
@@ -87,18 +91,19 @@ spring:
         refresh-enabled: true
 
   # Redis配置
-  redis:
-    host: ${REDIS_HOST:localhost}
-    port: ${REDIS_PORT:6379}
-    password: ${REDIS_PASSWORD:}
-    database: 0
-    timeout: 5000ms
-    lettuce:
-      pool:
-        max-active: 8
-        max-idle: 8
-        min-idle: 0
-        max-wait: -1ms
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      database: 0
+      timeout: 5000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1ms
 
 # JWT配置
 jwt:

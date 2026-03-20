@@ -125,7 +125,7 @@ public class NotificationController {
     @LoginRequired
     public Result<Void> markAllAsRead(@PathVariable Long userId) {
         notificationService.markAllAsRead(userId);
-        return Result.success("全部标记为已读成功");
+        return Result.<Void>success("全部标记为已读成功", null);
     }
 
     @DeleteMapping("/{id}")
@@ -134,7 +134,7 @@ public class NotificationController {
     public Result<Void> deleteNotification(@PathVariable Long id, @RequestParam Long userId) {
         try {
             notificationService.deleteNotification(id, userId);
-            return Result.success("删除成功");
+            return Result.<Void>success("删除成功", null);
         } catch (BusinessException e) {
             return Result.error(e.getMessage());
         }
@@ -146,7 +146,7 @@ public class NotificationController {
     public Result<Void> batchDeleteNotifications(@RequestBody List<Long> ids, @RequestParam Long userId) {
         try {
             notificationService.batchDeleteNotifications(ids, userId);
-            return Result.success("批量删除成功");
+            return Result.<Void>success("批量删除成功", null);
         } catch (BusinessException e) {
             return Result.error(e.getMessage());
         }
@@ -166,7 +166,7 @@ public class NotificationController {
     public Result<Void> sendNotification(@PathVariable Long id) {
         try {
             notificationService.sendNotification(id);
-            return Result.success("通知发送成功");
+            return Result.<Void>success("通知发送成功", null);
         } catch (BusinessException e) {
             return Result.error(e.getMessage());
         }
@@ -178,7 +178,7 @@ public class NotificationController {
     public Result<Void> retryFailedNotification(@PathVariable Long id) {
         try {
             notificationService.retryFailedNotification(id);
-            return Result.success("重试发送成功");
+            return Result.<Void>success("重试发送成功", null);
         } catch (BusinessException e) {
             return Result.error(e.getMessage());
         }
@@ -229,7 +229,7 @@ public class NotificationController {
     @RoleRequired("ADMIN")
     public Result<Void> sendPendingNotifications() {
         notificationService.sendPendingNotifications();
-        return Result.success("开始发送待处理通知");
+        return Result.<Void>success("开始发送待处理通知", null);
     }
 
     @PostMapping("/admin/process-expired")
@@ -237,7 +237,7 @@ public class NotificationController {
     @RoleRequired("ADMIN")
     public Result<Void> processExpiredNotifications() {
         notificationService.processExpiredNotifications();
-        return Result.success("开始处理过期通知");
+        return Result.<Void>success("开始处理过期通知", null);
     }
 
     @GetMapping("/check/{id}/belongs-to/{userId}")

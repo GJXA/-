@@ -5,11 +5,13 @@ import com.xushu.campus.user.entity.User;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.springframework.stereotype.Repository;
 
 /**
  * 用户Mapper接口
  */
 @Mapper
+@Repository
 public interface UserMapper extends BaseMapper<User> {
 
     /**

@@ -133,11 +133,11 @@ public class EmailTemplateController {
     @PutMapping("/{id}/status")
     @Operation(summary = "启用/禁用邮件模板", description = "启用或禁用指定的邮件模板")
     @RoleRequired("ADMIN")
-    public Result<String> toggleEmailTemplateStatus(@PathVariable Long id, @RequestParam boolean enabled) {
+    public Result<Void> toggleEmailTemplateStatus(@PathVariable Long id, @RequestParam boolean enabled) {
         try {
             emailTemplateService.toggleEmailTemplateStatus(id, enabled);
             String message = enabled ? "启用成功" : "禁用成功";
-            return Result.success(message);
+            return Result.success(message, null);
         } catch (BusinessException e) {
             return Result.error(e.getMessage());
         }

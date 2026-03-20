@@ -10,6 +10,9 @@ import lombok.Data;
 @Schema(description = "更新邮件模板请求")
 public class UpdateEmailTemplateRequest {
 
+    @Schema(description = "模板代码（唯一标识）", maxLength = 50)
+    private String templateCode;
+
     @Schema(description = "模板名称", maxLength = 100)
     private String templateName;
 
@@ -48,7 +51,8 @@ public class UpdateEmailTemplateRequest {
      * 验证是否至少有一个更新字段
      */
     public boolean hasUpdateFields() {
-        return this.templateName != null ||
+        return this.templateCode != null ||
+                this.templateName != null ||
                 this.subject != null ||
                 this.content != null ||
                 this.plainTextContent != null ||

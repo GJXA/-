@@ -54,7 +54,7 @@ public class MessageReadStatusServiceImpl implements MessageReadStatusService {
         // 检查是否已记录
         if (hasUserReadMessage(messageId, userId)) {
             // 已存在，更新阅读时间
-            MessageReadStatus existing = getMessageReadStatus(messageId, userId);
+            MessageReadStatus existing = getMessageReadStatusByUser(messageId, userId);
             if (existing != null) {
                 existing.setReadTime(LocalDateTime.now());
                 messageReadStatusMapper.updateById(existing);
@@ -113,6 +113,16 @@ public class MessageReadStatusServiceImpl implements MessageReadStatusService {
         return readStatuses.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 根据消息ID和用户ID获取阅读状态实体
+     */
+    private MessageReadStatus getMessageReadStatusByUser(Long messageId, Long userId) {
+        LambdaQueryWrapper<MessageReadStatus> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(MessageReadStatus::getMessageId, messageId)
+                   .eq(MessageReadStatus::getUserId, userId);
+        return messageReadStatusMapper.selectOne(queryWrapper);
     }
 
     @Override
@@ -911,7 +921,7 @@ public class MessageReadStatusServiceImpl implements MessageReadStatusService {
             return null;
         }
 
-        MessageReadStatus readStatus = getMessageReadStatus(messageId, userId);
+        MessageReadStatus readStatus = getMessageReadStatusByUser(messageId, userId);
         if (readStatus == null || readStatus.getReadTime() == null) {
             return null;
         }

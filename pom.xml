@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.5.11</version>
+		<version>3.4.7</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 
@@ -25,7 +25,7 @@
 		<!-- Spring Cloud Alibaba 版本 -->
 		<spring-cloud-alibaba.version>2023.0.1.0</spring-cloud-alibaba.version>
 		<!-- MyBatis Plus 版本 -->
-		<mybatis-plus.version>3.5.9</mybatis-plus.version>
+		<mybatis-plus.version>3.5.3.1</mybatis-plus.version>
 		<!-- JWT 版本 -->
 		<jjwt.version>0.12.6</jjwt.version>
 		<!-- Lombok 版本 -->
@@ -54,6 +54,13 @@
 				<version>${spring-cloud-alibaba.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
+			</dependency>
+
+			<!-- MyBatis Spring Boot Starter -->
+			<dependency>
+				<groupId>org.mybatis.spring.boot</groupId>
+				<artifactId>mybatis-spring-boot-starter</artifactId>
+				<version>3.0.3</version>
 			</dependency>
 
 			<!-- MyBatis Plus -->

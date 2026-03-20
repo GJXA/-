@@ -106,7 +106,7 @@ public class RabbitMQProducerService {
                 RabbitMQConfig.NOTIFICATION_ROUTING_KEY,
                 notification,
                 message -> {
-                    message.getMessageProperties().setDelay((int) delayMillis);
+                    message.getMessageProperties().setHeader("x-delay", delayMillis);
                     return message;
                 }
         );

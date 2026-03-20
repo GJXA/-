@@ -4,6 +4,8 @@ server:
 spring:
   application:
     name: campus-service-job
+  config:
+    import: "optional:nacos:${spring.application.name}"
 
   # 数据源配置
   datasource:
@@ -19,18 +21,19 @@ spring:
       max-lifetime: 1800000
 
   # Redis配置
-  redis:
-    host: ${REDIS_HOST:localhost}
-    port: ${REDIS_PORT:6379}
-    password: ${REDIS_PASSWORD:}
-    database: 4
-    timeout: 5000ms
-    lettuce:
-      pool:
-        max-active: 8
-        max-idle: 8
-        min-idle: 0
-        max-wait: -1ms
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      database: 4
+      timeout: 5000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1ms
 
   # MyBatis Plus配置
   mybatis-plus:
@@ -44,20 +47,23 @@ spring:
         logic-delete-value: 1
         logic-not-delete-value: 0
 
-  # 服务发现与配置
+  # 服务发现与配置 - Nacos服务发现与配置中心
   cloud:
     nacos:
       discovery:
         server-addr: ${NACOS_SERVER:localhost:8848}
         namespace: ${NACOS_NAMESPACE:}
         group: ${NACOS_GROUP:DEFAULT_GROUP}
-
+        enabled: true
       config:
         server-addr: ${NACOS_SERVER:localhost:8848}
         namespace: ${NACOS_NAMESPACE:}
         group: ${NACOS_GROUP:DEFAULT_GROUP}
         file-extension: yaml
         refresh-enabled: true
+        enabled: true
+        import-check:
+          enabled: false
 
 # JWT配置
 jwt:

@@ -4,6 +4,8 @@ server:
 spring:
   application:
     name: campus-service-user
+  config:
+    import: "optional:nacos:${spring.application.name}"
 
   # 数据源配置
   datasource:
@@ -19,18 +21,19 @@ spring:
       max-lifetime: 1800000
 
   # Redis配置
-  redis:
-    host: ${REDIS_HOST:localhost}
-    port: ${REDIS_PORT:6379}
-    password: ${REDIS_PASSWORD:}
-    database: 1
-    timeout: 5000ms
-    lettuce:
-      pool:
-        max-active: 8
-        max-idle: 8
-        min-idle: 0
-        max-wait: -1ms
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      database: 1
+      timeout: 5000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1ms
 
   # MyBatis Plus配置
   mybatis-plus:
@@ -43,27 +46,42 @@ spring:
         logic-delete-field: deleted
         logic-delete-value: 1
         logic-not-delete-value: 0
+        # 禁用自动DDL
+        auto-ddl: false
 
-  # 服务发现与配置
+  # 数据库初始化配置
+  sql:
+    init:
+      enabled: false
+      mode: never
+      dependency-detector:
+        annotation:
+          enabled: false
+
+  # Spring Cloud 配置 - Nacos服务发现与配置中心
   cloud:
     nacos:
       discovery:
         server-addr: ${NACOS_SERVER:localhost:8848}
         namespace: ${NACOS_NAMESPACE:}
         group: ${NACOS_GROUP:DEFAULT_GROUP}
-
+        enabled: true
       config:
         server-addr: ${NACOS_SERVER:localhost:8848}
         namespace: ${NACOS_NAMESPACE:}
         group: ${NACOS_GROUP:DEFAULT_GROUP}
         file-extension: yaml
         refresh-enabled: true
+        enabled: true
+        import-check:
+          enabled: false
 
 # JWT配置
 jwt:
   secret: ${JWT_SECRET:defaultSecretKeyForJwtTokenGenerationInCampusPlatform}
   expiration: ${JWT_EXPIRATION:86400000}
   refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800000}
+
 
 # 日志配置
 logging:
@@ -80,6 +98,7 @@ management:
   endpoint:
     health:
       show-details: always
+
 
 # 自定义配置
 campus:
