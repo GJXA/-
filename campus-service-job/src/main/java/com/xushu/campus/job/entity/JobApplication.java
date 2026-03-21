@@ -28,20 +28,6 @@ public class JobApplication {
      */
     private Long applicantId;
 
-    /**
-     * 申请人姓名
-     */
-    private String applicantName;
-
-    /**
-     * 申请人电话
-     */
-    private String applicantPhone;
-
-    /**
-     * 申请人邮箱
-     */
-    private String applicantEmail;
 
     /**
      * 申请人年级/专业
@@ -73,10 +59,6 @@ public class JobApplication {
      */
     private Long processorId;
 
-    /**
-     * 处理人姓名
-     */
-    private String processorName;
 
     /**
      * 处理备注
@@ -157,19 +139,19 @@ public class JobApplication {
      * 逻辑删除标志：0-未删除，1-已删除
      */
     @TableLogic
-    private Integer deleted;
+    private Integer isDeleted;
 
     /**
      * 创建时间
      */
     @TableField(fill = FieldFill.INSERT)
-    private LocalDateTime createTime;
+    private LocalDateTime createdAt;
 
     /**
      * 更新时间
      */
     @TableField(fill = FieldFill.INSERT_UPDATE)
-    private LocalDateTime updateTime;
+    private LocalDateTime updatedAt;
 
     /**
      * 版本号（乐观锁）
@@ -178,37 +160,63 @@ public class JobApplication {
     private Integer version;
 
     /**
-     * 以下字段为冗余字段，方便查询
+     * 申请人姓名（瞬态字段，不存储到数据库）
      */
+    @TableField(exist = false)
+    private String applicantName;
 
     /**
-     * 兼职标题（冗余存储）
+     * 申请人电话（瞬态字段，不存储到数据库）
      */
+    @TableField(exist = false)
+    private String applicantPhone;
+
+    /**
+     * 申请人邮箱（瞬态字段，不存储到数据库）
+     */
+    @TableField(exist = false)
+    private String applicantEmail;
+
+    /**
+     * 兼职标题（瞬态字段，不存储到数据库）
+     */
+    @TableField(exist = false)
     private String jobTitle;
 
     /**
-     * 兼职薪资（冗余存储）
+     * 兼职薪资描述（瞬态字段，不存储到数据库）
      */
+    @TableField(exist = false)
     private String jobSalary;
 
     /**
-     * 兼职工作类型（冗余存储）
+     * 兼职类型（瞬态字段，不存储到数据库）
      */
+    @TableField(exist = false)
     private String jobType;
 
     /**
-     * 兼职工作地点（冗余存储）
+     * 兼职地点（瞬态字段，不存储到数据库）
      */
+    @TableField(exist = false)
     private String jobLocation;
 
     /**
-     * 发布者ID（冗余存储）
+     * 发布者ID（瞬态字段，不存储到数据库）
      */
+    @TableField(exist = false)
     private Long publisherId;
 
     /**
-     * 发布者名称（冗余存储）
+     * 发布者姓名（瞬态字段，不存储到数据库）
      */
+    @TableField(exist = false)
     private String publisherName;
+
+    /**
+     * 处理人姓名（瞬态字段，不存储到数据库）
+     */
+    @TableField(exist = false)
+    private String processorName;
 
 }

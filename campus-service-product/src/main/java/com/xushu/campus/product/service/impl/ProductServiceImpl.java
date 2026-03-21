@@ -75,6 +75,10 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         // 2. 创建商品实体
         Product product = new Product();
         BeanUtils.copyProperties(request, product);
+        // 手动映射字段名不一致的字段
+        if (StringUtils.hasText(request.getLocation())) {
+            product.setAddress(request.getLocation());
+        }
         product.setUserId(userId);
         product.setStatus(ProductStatus.PENDING); // 默认待审核
         product.setViewCount(0);
@@ -162,7 +166,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         }
 
         if (StringUtils.hasText(request.getLocation())) {
-            product.setLocation(request.getLocation());
+            product.setAddress(request.getLocation());
         }
 
         if (StringUtils.hasText(request.getContactPhone())) {

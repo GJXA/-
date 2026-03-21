@@ -84,6 +84,21 @@ public class UserController {
         return Result.success(userDTO);
     }
 
+    @PutMapping("/profile")
+    @Operation(summary = "更新当前用户信息", description = "更新当前登录用户的个人信息")
+    public Result<UserDTO> updateCurrentUser(@Valid @RequestBody UpdateUserRequest request,
+                                             HttpServletRequest httpRequest) {
+        String userIdStr = httpRequest.getHeader("X-User-Id");
+        if (userIdStr == null) {
+            return Result.unauthorized("用户未登录");
+        }
+
+        Long userId = Long.parseLong(userIdStr);
+        log.info("更新当前用户信息请求: userId={}", userId);
+        UserDTO userDTO = userService.updateUser(userId, request);
+        return Result.success("更新成功", userDTO);
+    }
+
     @PutMapping("/{userId}")
     @Operation(summary = "更新用户信息", description = "更新用户个人信息")
     public Result<UserDTO> updateUser(
@@ -133,10 +148,10 @@ public class UserController {
         return Result.success("用户已启用");
     }
 
-    @GetMapping("/batch")
+    @PostMapping("/batch")
     @Operation(summary = "批量获取用户信息", description = "根据用户ID列表批量获取用户信息")
     public Result<List<UserDTO>> getUsersByIds(
-            @RequestParam @Parameter(description = "用户ID列表") List<Long> userIds) {
+            @RequestBody @Parameter(description = "用户ID列表") List<Long> userIds) {
         log.debug("批量获取用户信息请求: userIds={}", userIds);
         List<UserDTO> userDTOs = userService.getUsersByIds(userIds);
         return Result.success(userDTOs);

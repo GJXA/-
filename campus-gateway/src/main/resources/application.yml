@@ -4,6 +4,10 @@ server:
 spring:
   application:
     name: campus-gateway
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
   config:
     import: "optional:nacos:${spring.application.name}"
   main:
@@ -19,11 +23,10 @@ spring:
       routes:
         # 用户服务路由
         - id: campus-service-user
-          uri: lb://campus-service-user
+          uri: http://localhost:8081
           predicates:
             - Path=/api/users/**
           filters:
-            - StripPrefix=1
             - name: RequestRateLimiter
               args:
                 redis-rate-limiter.replenishRate: 10 # 每秒令牌生成速率
@@ -32,46 +35,44 @@ spring:
 
         # 商品服务路由
         - id: campus-service-product
-          uri: lb://campus-service-product
+          uri: http://localhost:8082
           predicates:
             - Path=/api/products/**
-          filters:
-            - StripPrefix=1
 
         # 订单服务路由
         - id: campus-service-order
-          uri: lb://campus-service-order
+          uri: http://localhost:8083
           predicates:
             - Path=/api/orders/**
-          filters:
-            - StripPrefix=1
 
         # 兼职服务路由
         - id: campus-service-job
-          uri: lb://campus-service-job
+          uri: http://localhost:8084
           predicates:
             - Path=/api/jobs/**
-          filters:
-            - StripPrefix=1
+
+        # 兼职申请服务路由
+        - id: campus-service-job-applications
+          uri: http://localhost:8084
+          predicates:
+            - Path=/api/job-applications/**
 
         # 通知服务路由
         - id: campus-service-notification
-          uri: lb://campus-service-notification
+          uri: http://localhost:8085
           predicates:
             - Path=/api/notifications/**
-          filters:
-            - StripPrefix=1
 
         # 公共API文档路由
         - id: swagger-ui
-          uri: lb://campus-service-user # 可以指向任意服务，实际项目中应该统一文档
+          uri: http://localhost:8081 # 可以指向任意服务，实际项目中应该统一文档
           predicates:
             - Path=/swagger-ui/**
           filters:
             - StripPrefix=1
 
         - id: api-docs
-          uri: lb://campus-service-user
+          uri: http://localhost:8081
           predicates:
             - Path=/v3/api-docs/**
           filters:
@@ -79,11 +80,13 @@ spring:
 
     nacos:
       discovery:
+        enabled: true
         server-addr: ${NACOS_SERVER:localhost:8848}
         namespace: ${NACOS_NAMESPACE:}
         group: ${NACOS_GROUP:DEFAULT_GROUP}
 
       config:
+        enabled: true
         server-addr: ${NACOS_SERVER:localhost:8848}
         namespace: ${NACOS_NAMESPACE:}
         group: ${NACOS_GROUP:DEFAULT_GROUP}

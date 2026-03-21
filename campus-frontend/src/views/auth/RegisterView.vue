@@ -18,7 +18,7 @@ const formData = reactive({
 })
 
 // 表单验证规则
-const validateUsername = (rule: any, value: string, callback: any) => {
+const validateUsername = (_rule: any, value: string, callback: any) => {
   if (!value) {
     callback(new Error('请输入用户名'))
   } else if (value.length < 3 || value.length > 20) {
@@ -30,7 +30,7 @@ const validateUsername = (rule: any, value: string, callback: any) => {
   }
 }
 
-const validatePassword = (rule: any, value: string, callback: any) => {
+const validatePassword = (_rule: any, value: string, callback: any) => {
   if (!value) {
     callback(new Error('请输入密码'))
   } else if (value.length < 6 || value.length > 20) {
@@ -42,7 +42,7 @@ const validatePassword = (rule: any, value: string, callback: any) => {
   }
 }
 
-const validateConfirmPassword = (rule: any, value: string, callback: any) => {
+const validateConfirmPassword = (_rule: any, value: string, callback: any) => {
   if (!value) {
     callback(new Error('请再次输入密码'))
   } else if (value !== formData.password) {
@@ -52,7 +52,7 @@ const validateConfirmPassword = (rule: any, value: string, callback: any) => {
   }
 }
 
-const validateEmail = (rule: any, value: string, callback: any) => {
+const validateEmail = (_rule: any, value: string, callback: any) => {
   if (!value) {
     callback(new Error('请输入邮箱'))
   } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {

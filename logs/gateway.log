@@ -1,0 +1,91 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ----------------------< com.xushu:campus-gateway >----------------------
+[INFO] Building Campus Gateway Module 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] >>> spring-boot:3.4.7:run (default-cli) > test-compile @ campus-gateway >>>
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ campus-gateway ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 0 resource from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.13.0:compile (default-compile) @ campus-gateway ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ campus-gateway ---
+[INFO] skip non existing resourceDirectory F:\claude code\Campus\campus-gateway\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.13.0:testCompile (default-testCompile) @ campus-gateway ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] <<< spring-boot:3.4.7:run (default-cli) < test-compile @ campus-gateway <<<
+[INFO] 
+[INFO] 
+[INFO] --- spring-boot:3.4.7:run (default-cli) @ campus-gateway ---
+[INFO] Attaching agents: []
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.4.7)
+
+2026-03-21T21:30:43.625+08:00  INFO 43596 --- [campus-gateway] [           main] c.x.campus.gateway.GatewayApplication    : Starting GatewayApplication using Java 17.0.14 with PID 43596 (F:\claude code\Campus\campus-gateway\target\classes started by g1982 in F:\claude code\Campus\campus-gateway)
+2026-03-21T21:30:43.627+08:00 DEBUG 43596 --- [campus-gateway] [           main] c.x.campus.gateway.GatewayApplication    : Running with Spring Boot v3.4.7, Spring v6.2.8
+2026-03-21T21:30:43.627+08:00  INFO 43596 --- [campus-gateway] [           main] c.x.campus.gateway.GatewayApplication    : No active profile set, falling back to 1 default profile: "default"
+2026-03-21T21:30:43.991+08:00  INFO 43596 --- [campus-gateway] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Multiple Spring Data modules found, entering strict repository configuration mode
+2026-03-21T21:30:43.993+08:00  INFO 43596 --- [campus-gateway] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+2026-03-21T21:30:44.012+08:00  INFO 43596 --- [campus-gateway] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 6 ms. Found 0 Redis repository interfaces.
+2026-03-21T21:30:44.117+08:00  INFO 43596 --- [campus-gateway] [           main] o.s.cloud.context.scope.GenericScope     : BeanFactory id=f512b494-4446-3e88-a811-2f040324d6ae
+2026-03-21T21:30:45.167+08:00 DEBUG 43596 --- [campus-gateway] [           main] o.s.c.gateway.config.GatewayProperties   : Routes supplied from Gateway Properties: [RouteDefinition{id='campus-service-user', predicates=[PredicateDefinition{name='Path', args={_genkey_0=/api/users/**}}], filters=[FilterDefinition{name='RequestRateLimiter', args={redis-rate-limiter.replenishRate=10, redis-rate-limiter.burstCapacity=20, key-resolver=#{@ipKeyResolver}}}], uri=http://localhost:8081, order=0, metadata={}, enabled=true}, RouteDefinition{id='campus-service-product', predicates=[PredicateDefinition{name='Path', args={_genkey_0=/api/products/**}}], filters=[], uri=http://localhost:8082, order=0, metadata={}, enabled=true}, RouteDefinition{id='campus-service-order', predicates=[PredicateDefinition{name='Path', args={_genkey_0=/api/orders/**}}], filters=[], uri=http://localhost:8083, order=0, metadata={}, enabled=true}, RouteDefinition{id='campus-service-job', predicates=[PredicateDefinition{name='Path', args={_genkey_0=/api/jobs/**}}], filters=[], uri=http://localhost:8084, order=0, metadata={}, enabled=true}, RouteDefinition{id='campus-service-job-applications', predicates=[PredicateDefinition{name='Path', args={_genkey_0=/api/job-applications/**}}], filters=[], uri=http://localhost:8084, order=0, metadata={}, enabled=true}, RouteDefinition{id='campus-service-notification', predicates=[PredicateDefinition{name='Path', args={_genkey_0=/api/notifications/**}}], filters=[], uri=http://localhost:8085, order=0, metadata={}, enabled=true}, RouteDefinition{id='swagger-ui', predicates=[PredicateDefinition{name='Path', args={_genkey_0=/swagger-ui/**}}], filters=[FilterDefinition{name='StripPrefix', args={_genkey_0=1}}], uri=http://localhost:8081, order=0, metadata={}, enabled=true}, RouteDefinition{id='api-docs', predicates=[PredicateDefinition{name='Path', args={_genkey_0=/v3/api-docs/**}}], filters=[FilterDefinition{name='StripPrefix', args={_genkey_0=1}}], uri=http://localhost:8081, order=0, metadata={}, enabled=true}]
+2026-03-21T21:30:45.222+08:00  INFO 43596 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [After]
+2026-03-21T21:30:45.222+08:00  INFO 43596 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Before]
+2026-03-21T21:30:45.223+08:00  INFO 43596 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Between]
+2026-03-21T21:30:45.223+08:00  INFO 43596 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Cookie]
+2026-03-21T21:30:45.223+08:00  INFO 43596 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Header]
+2026-03-21T21:30:45.223+08:00  INFO 43596 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Host]
+2026-03-21T21:30:45.223+08:00  INFO 43596 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Method]
+2026-03-21T21:30:45.223+08:00  INFO 43596 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Path]
+2026-03-21T21:30:45.223+08:00  INFO 43596 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Query]
+2026-03-21T21:30:45.223+08:00  INFO 43596 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [ReadBody]
+2026-03-21T21:30:45.223+08:00  INFO 43596 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [RemoteAddr]
+2026-03-21T21:30:45.223+08:00  INFO 43596 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [XForwardedRemoteAddr]
+2026-03-21T21:30:45.223+08:00  INFO 43596 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Weight]
+2026-03-21T21:30:45.223+08:00  INFO 43596 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [CloudFoundryRouteService]
+2026-03-21T21:30:45.333+08:00  WARN 43596 --- [campus-gateway] [           main] iguration$LoadBalancerCaffeineWarnLogger : Spring Cloud LoadBalancer is currently working with the default cache. While this cache implementation is useful for development and tests, it's recommended to use Caffeine cache in production.You can switch to using Caffeine cache, by adding it and org.springframework.cache.caffeine.CaffeineCacheManager to the classpath.
+2026-03-21T21:30:45.452+08:00  INFO 43596 --- [campus-gateway] [           main] o.s.b.web.embedded.netty.NettyWebServer  : Netty started on port 8080 (http)
+2026-03-21T21:30:45.901+08:00 DEBUG 43596 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition campus-service-user applying {_genkey_0=/api/users/**} to Path
+2026-03-21T21:30:45.910+08:00 DEBUG 43596 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition campus-service-user applying filter {redis-rate-limiter.replenishRate=10, redis-rate-limiter.burstCapacity=20, key-resolver=#{@ipKeyResolver}} to RequestRateLimiter
+2026-03-21T21:30:45.917+08:00 DEBUG 43596 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition matched: campus-service-user
+2026-03-21T21:30:45.917+08:00 DEBUG 43596 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition campus-service-product applying {_genkey_0=/api/products/**} to Path
+2026-03-21T21:30:45.917+08:00 DEBUG 43596 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition matched: campus-service-product
+2026-03-21T21:30:45.917+08:00 DEBUG 43596 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition campus-service-order applying {_genkey_0=/api/orders/**} to Path
+2026-03-21T21:30:45.918+08:00 DEBUG 43596 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition matched: campus-service-order
+2026-03-21T21:30:45.918+08:00 DEBUG 43596 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition campus-service-job applying {_genkey_0=/api/jobs/**} to Path
+2026-03-21T21:30:45.918+08:00 DEBUG 43596 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition matched: campus-service-job
+2026-03-21T21:30:45.918+08:00 DEBUG 43596 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition campus-service-job-applications applying {_genkey_0=/api/job-applications/**} to Path
+2026-03-21T21:30:45.919+08:00 DEBUG 43596 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition matched: campus-service-job-applications
+2026-03-21T21:30:45.919+08:00 DEBUG 43596 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition campus-service-notification applying {_genkey_0=/api/notifications/**} to Path
+2026-03-21T21:30:45.919+08:00 DEBUG 43596 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition matched: campus-service-notification
+2026-03-21T21:30:45.919+08:00 DEBUG 43596 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition swagger-ui applying {_genkey_0=/swagger-ui/**} to Path
+2026-03-21T21:30:45.919+08:00 DEBUG 43596 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition swagger-ui applying filter {_genkey_0=1} to StripPrefix
+2026-03-21T21:30:45.920+08:00 DEBUG 43596 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition matched: swagger-ui
+2026-03-21T21:30:45.920+08:00 DEBUG 43596 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition api-docs applying {_genkey_0=/v3/api-docs/**} to Path
+2026-03-21T21:30:45.920+08:00 DEBUG 43596 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition api-docs applying filter {_genkey_0=1} to StripPrefix
+2026-03-21T21:30:45.920+08:00 DEBUG 43596 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition matched: api-docs
+2026-03-21T21:30:45.927+08:00  INFO 43596 --- [campus-gateway] [           main] c.x.campus.gateway.GatewayApplication    : Started GatewayApplication in 2.783 seconds (process running for 3.102)
+2026-03-21T21:31:51.325+08:00 DEBUG 43596 --- [campus-gateway] [ctor-http-nio-2] o.s.c.g.h.RoutePredicateHandlerMapping   : Route matched: campus-service-user
+2026-03-21T21:31:51.326+08:00 DEBUG 43596 --- [campus-gateway] [ctor-http-nio-2] o.s.c.g.h.RoutePredicateHandlerMapping   : Mapping [Exchange: POST http://localhost:8080/api/users/login] to Route{id='campus-service-user', uri=http://localhost:8081, order=0, predicate=Paths: [/api/users/**], match trailing slash: true, gatewayFilters=[[org.springframework.cloud.gateway.filter.factory.RequestRateLimiterGatewayFilterFactory$$Lambda$1128/0x000002add1646138@7ca3c94d, order = 1]], metadata={}}
+2026-03-21T21:31:51.326+08:00 DEBUG 43596 --- [campus-gateway] [ctor-http-nio-2] o.s.c.g.h.RoutePredicateHandlerMapping   : [7aef0dce-1] Mapped to org.springframework.cloud.gateway.handler.FilteringWebHandler@5ed65e4b
+2026-03-21T21:31:51.326+08:00 DEBUG 43596 --- [campus-gateway] [ctor-http-nio-2] o.s.c.g.handler.FilteringWebHandler      : Sorted gatewayFilterFactories: [[GatewayFilterAdapter{delegate=org.springframework.cloud.gateway.filter.RemoveCachedBodyFilter@194b9783}, order = -2147483648], [GatewayFilterAdapter{delegate=org.springframework.cloud.gateway.filter.AdaptCachedBodyGlobalFilter@2dc21583}, order = -2147482648], [GatewayFilterAdapter{delegate=com.xushu.campus.gateway.filter.JwtAuthenticationFilter@64ec1459}, order = -100], [GatewayFilterAdapter{delegate=org.springframework.cloud.gateway.filter.NettyWriteResponseFilter@63cf578f}, order = -1], [GatewayFilterAdapter{delegate=org.springframework.cloud.gateway.filter.ForwardPathFilter@54bb1194}, order = 0], [org.springframework.cloud.gateway.filter.factory.RequestRateLimiterGatewayFilterFactory$$Lambda$1128/0x000002add1646138@7ca3c94d, order = 1], [GatewayFilterAdapter{delegate=org.springframework.cloud.gateway.filter.RouteToRequestUrlFilter@45297e7}, order = 10000], [GatewayFilterAdapter{delegate=org.springframework.cloud.gateway.filter.ReactiveLoadBalancerClientFilter@1aac0a47}, order = 10150], [GatewayFilterAdapter{delegate=org.springframework.cloud.gateway.filter.LoadBalancerServiceInstanceCookieFilter@4b3ad7ca}, order = 10151], [GatewayFilterAdapter{delegate=org.springframework.cloud.gateway.filter.WebsocketRoutingFilter@1109730f}, order = 2147483646], [GatewayFilterAdapter{delegate=org.springframework.cloud.gateway.filter.NettyRoutingFilter@6785c9fa}, order = 2147483647], [GatewayFilterAdapter{delegate=org.springframework.cloud.gateway.filter.ForwardRoutingFilter@4dd1548e}, order = 2147483647]]
+2026-03-21T21:31:51.495+08:00 DEBUG 43596 --- [campus-gateway] [ioEventLoop-5-1] o.s.c.g.f.ratelimit.RedisRateLimiter     : response: Response{allowed=true, headers={X-RateLimit-Remaining=19, X-RateLimit-Requested-Tokens=1, X-RateLimit-Burst-Capacity=20, X-RateLimit-Replenish-Rate=10}, tokensRemaining=-1}
+2026-03-21T21:32:11.518+08:00 DEBUG 43596 --- [campus-gateway] [ctor-http-nio-5] o.s.c.g.h.RoutePredicateHandlerMapping   : Route matched: campus-service-user
+2026-03-21T21:32:11.518+08:00 DEBUG 43596 --- [campus-gateway] [ctor-http-nio-5] o.s.c.g.h.RoutePredicateHandlerMapping   : Mapping [Exchange: POST http://localhost:8080/api/users/login] to Route{id='campus-service-user', uri=http://localhost:8081, order=0, predicate=Paths: [/api/users/**], match trailing slash: true, gatewayFilters=[[org.springframework.cloud.gateway.filter.factory.RequestRateLimiterGatewayFilterFactory$$Lambda$1128/0x000002add1646138@7ca3c94d, order = 1]], metadata={}}
+2026-03-21T21:32:11.518+08:00 DEBUG 43596 --- [campus-gateway] [ctor-http-nio-5] o.s.c.g.h.RoutePredicateHandlerMapping   : [9105a010-2] Mapped to org.springframework.cloud.gateway.handler.FilteringWebHandler@5ed65e4b
+2026-03-21T21:32:11.518+08:00 DEBUG 43596 --- [campus-gateway] [ctor-http-nio-5] o.s.c.g.handler.FilteringWebHandler      : Sorted gatewayFilterFactories: [[GatewayFilterAdapter{delegate=org.springframework.cloud.gateway.filter.RemoveCachedBodyFilter@194b9783}, order = -2147483648], [GatewayFilterAdapter{delegate=org.springframework.cloud.gateway.filter.AdaptCachedBodyGlobalFilter@2dc21583}, order = -2147482648], [GatewayFilterAdapter{delegate=com.xushu.campus.gateway.filter.JwtAuthenticationFilter@64ec1459}, order = -100], [GatewayFilterAdapter{delegate=org.springframework.cloud.gateway.filter.NettyWriteResponseFilter@63cf578f}, order = -1], [GatewayFilterAdapter{delegate=org.springframework.cloud.gateway.filter.ForwardPathFilter@54bb1194}, order = 0], [org.springframework.cloud.gateway.filter.factory.RequestRateLimiterGatewayFilterFactory$$Lambda$1128/0x000002add1646138@7ca3c94d, order = 1], [GatewayFilterAdapter{delegate=org.springframework.cloud.gateway.filter.RouteToRequestUrlFilter@45297e7}, order = 10000], [GatewayFilterAdapter{delegate=org.springframework.cloud.gateway.filter.ReactiveLoadBalancerClientFilter@1aac0a47}, order = 10150], [GatewayFilterAdapter{delegate=org.springframework.cloud.gateway.filter.LoadBalancerServiceInstanceCookieFilter@4b3ad7ca}, order = 10151], [GatewayFilterAdapter{delegate=org.springframework.cloud.gateway.filter.WebsocketRoutingFilter@1109730f}, order = 2147483646], [GatewayFilterAdapter{delegate=org.springframework.cloud.gateway.filter.NettyRoutingFilter@6785c9fa}, order = 2147483647], [GatewayFilterAdapter{delegate=org.springframework.cloud.gateway.filter.ForwardRoutingFilter@4dd1548e}, order = 2147483647]]
+2026-03-21T21:32:11.520+08:00 DEBUG 43596 --- [campus-gateway] [ioEventLoop-5-1] o.s.c.g.f.ratelimit.RedisRateLimiter     : response: Response{allowed=true, headers={X-RateLimit-Remaining=19, X-RateLimit-Requested-Tokens=1, X-RateLimit-Burst-Capacity=20, X-RateLimit-Replenish-Rate=10}, tokensRemaining=-1}

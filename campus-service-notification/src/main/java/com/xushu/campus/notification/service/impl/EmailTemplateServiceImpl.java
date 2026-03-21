@@ -68,7 +68,7 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
 
         // 获取现有模板
         EmailTemplate emailTemplate = emailTemplateMapper.selectById(id);
-        if (emailTemplate == null || emailTemplate.getDeleted() == 1) {
+        if (emailTemplate == null || emailTemplate.getIsDeleted() == 1) {
             throw new BusinessException("邮件模板不存在");
         }
 
@@ -97,7 +97,7 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
             emailTemplate.setTemplateType(request.getTemplateType());
         }
         if (request.getEnabled() != null) {
-            emailTemplate.setEnabled(request.getEnabled());
+            emailTemplate.setIsEnabled(request.getEnabled());
         }
         if (request.getRemark() != null) {
             emailTemplate.setRemark(request.getRemark());
@@ -113,18 +113,18 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
     @Transactional(rollbackFor = Exception.class)
     public void deleteEmailTemplate(Long id) throws BusinessException {
         EmailTemplate emailTemplate = emailTemplateMapper.selectById(id);
-        if (emailTemplate == null || emailTemplate.getDeleted() == 1) {
+        if (emailTemplate == null || emailTemplate.getIsDeleted() == 1) {
             throw new BusinessException("邮件模板不存在");
         }
 
-        emailTemplate.setDeleted(1);
+        emailTemplate.setIsDeleted(1);
         emailTemplateMapper.updateById(emailTemplate);
     }
 
     @Override
     public EmailTemplateDTO getEmailTemplateById(Long id) throws BusinessException {
         EmailTemplate emailTemplate = emailTemplateMapper.selectById(id);
-        if (emailTemplate == null || emailTemplate.getDeleted() == 1) {
+        if (emailTemplate == null || emailTemplate.getIsDeleted() == 1) {
             throw new BusinessException("邮件模板不存在");
         }
         return convertToDTO(emailTemplate);
@@ -133,7 +133,7 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
     @Override
     public EmailTemplateDTO getEmailTemplateByCode(String templateCode) throws BusinessException {
         EmailTemplate emailTemplate = emailTemplateMapper.selectByTemplateCode(templateCode);
-        if (emailTemplate == null || emailTemplate.getDeleted() == 1) {
+        if (emailTemplate == null || emailTemplate.getIsDeleted() == 1) {
             throw new BusinessException("邮件模板不存在");
         }
         return convertToDTO(emailTemplate);
@@ -143,8 +143,8 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
     public IPage<EmailTemplateDTO> getEmailTemplateList(Integer page, Integer size, String sortField, String sortDirection) {
         Page<EmailTemplate> pageParam = new Page<>(page, size);
         LambdaQueryWrapper<EmailTemplate> wrapper = Wrappers.lambdaQuery();
-        wrapper.eq(EmailTemplate::getDeleted, 0)
-               .orderByDesc(EmailTemplate::getCreateTime);
+        wrapper.eq(EmailTemplate::getIsDeleted, 0)
+               .orderByDesc(EmailTemplate::getCreatedAt);
 
         IPage<EmailTemplate> result = emailTemplateMapper.selectPage(pageParam, wrapper);
 
@@ -178,9 +178,9 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
     public IPage<EmailTemplateDTO> searchEmailTemplates(String keyword, Integer page, Integer size) {
         Page<EmailTemplate> pageParam = new Page<>(page, size);
         LambdaQueryWrapper<EmailTemplate> wrapper = Wrappers.lambdaQuery();
-        wrapper.eq(EmailTemplate::getDeleted, 0)
+        wrapper.eq(EmailTemplate::getIsDeleted, 0)
                .like(StringUtils.hasText(keyword), EmailTemplate::getTemplateName, keyword)
-               .orderByDesc(EmailTemplate::getCreateTime);
+               .orderByDesc(EmailTemplate::getCreatedAt);
 
         IPage<EmailTemplate> result = emailTemplateMapper.selectPage(pageParam, wrapper);
 
@@ -198,11 +198,11 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
     @Transactional(rollbackFor = Exception.class)
     public void toggleEmailTemplateStatus(Long id, boolean enabled) throws BusinessException {
         EmailTemplate emailTemplate = emailTemplateMapper.selectById(id);
-        if (emailTemplate == null || emailTemplate.getDeleted() == 1) {
+        if (emailTemplate == null || emailTemplate.getIsDeleted() == 1) {
             throw new BusinessException("邮件模板不存在");
         }
 
-        emailTemplate.setEnabled(enabled ? 1 : 0);
+        emailTemplate.setIsEnabled(enabled ? 1 : 0);
         emailTemplateMapper.updateById(emailTemplate);
     }
 

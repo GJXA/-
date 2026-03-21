@@ -82,10 +82,6 @@ public class ProductDTO {
      */
     private List<String> images;
 
-    /**
-     * 商品位置
-     */
-    private String location;
 
     /**
      * 联系电话
@@ -107,4 +103,33 @@ public class ProductDTO {
      */
     private Boolean liked;
 
+    /**
+     * 收藏数
+     */
+    private Integer favoriteCount;
+
+    /**
+     * 详细地址
+     */
+    private String address;
+
+    /**
+     * 联系人姓名
+     */
+    private String contactName;
+
+    /**
+     * 成色：NEW-全新，LIKE_NEW-几乎全新，USED-使用过
+     */
+    private String qualityLevel;
+
+    /**
+     * 发布时间
+     */
+    private LocalDateTime publishTime;
+
+    /**
+     * 过期时间
+     */
+    private LocalDateTime expireTime;
 }

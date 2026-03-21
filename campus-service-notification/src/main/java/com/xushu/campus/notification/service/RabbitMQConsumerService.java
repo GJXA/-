@@ -107,7 +107,7 @@ public class RabbitMQConsumerService {
     /**
      * 处理死信队列消息（需要配置死信队列）
      */
-    @RabbitListener(queues = RabbitMQConfig.NOTIFICATION_QUEUE + ".dlq")
+    @RabbitListener(queues = RabbitMQConfig.NOTIFICATION_DLQ)
     public void consumeDeadLetterNotification(NotificationDTO notification) {
         log.warn("消费死信队列消息，通知ID: {}, 标题: {}", notification.getId(), notification.getTitle());
 
@@ -119,12 +119,34 @@ public class RabbitMQConsumerService {
     /**
      * 处理邮件死信队列消息
      */
-    @RabbitListener(queues = RabbitMQConfig.EMAIL_QUEUE + ".dlq")
+    @RabbitListener(queues = RabbitMQConfig.EMAIL_DLQ)
     public void consumeDeadLetterEmail(NotificationDTO notification) {
         log.warn("消费邮件死信队列消息，通知ID: {}, 收件人: {}", notification.getId(), notification.getReceiverEmail());
 
         // 处理失败的邮件消息
         log.error("邮件发送失败，需要人工干预，通知ID: {}, 收件人: {}", notification.getId(), notification.getReceiverEmail());
+    }
+
+    /**
+     * 处理短信死信队列消息
+     */
+    @RabbitListener(queues = RabbitMQConfig.SMS_DLQ)
+    public void consumeDeadLetterSms(NotificationDTO notification) {
+        log.warn("消费短信死信队列消息，通知ID: {}, 收件人手机: {}", notification.getId(), notification.getReceiverPhone());
+
+        // 处理失败的短信消息
+        log.error("短信发送失败，需要人工干预，通知ID: {}, 手机号: {}", notification.getId(), notification.getReceiverPhone());
+    }
+
+    /**
+     * 处理WebSocket死信队列消息
+     */
+    @RabbitListener(queues = RabbitMQConfig.WEBSOCKET_DLQ)
+    public void consumeDeadLetterWebSocket(NotificationDTO notification) {
+        log.warn("消费WebSocket死信队列消息，通知ID: {}, 用户ID: {}", notification.getId(), notification.getUserId());
+
+        // 处理失败的WebSocket消息
+        log.error("WebSocket通知发送失败，需要人工干预，通知ID: {}, 用户ID: {}", notification.getId(), notification.getUserId());
     }
 
     /**

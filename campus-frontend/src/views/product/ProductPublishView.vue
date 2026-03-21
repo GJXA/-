@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { UploadFilled, Picture, Location, PriceTag, Description, Category } from '@element-plus/icons-vue'
+import { UploadFilled, Picture, Location, PriceTag, Document } from '@element-plus/icons-vue'
 import { useRouter } from 'vue-router'
 import { productApi } from '@/api'
 
@@ -23,7 +23,6 @@ const form = reactive({
 })
 
 // 图片上传相关
-const uploadRef = ref()
 const fileList = ref<File[]>([])
 const isUploading = ref(false)
 
@@ -171,10 +170,6 @@ const resetForm = () => {
   })
 }
 
-// 计算商品总价
-const totalPrice = computed(() => {
-  return form.price || 0
-})
 
 // 计算折扣（如果有原价）
 const discount = computed(() => {
@@ -227,7 +222,7 @@ onMounted(() => {
                 type="textarea"
                 :rows="6"
                 placeholder="详细描述商品的品牌、型号、使用情况、瑕疵等，越详细越好"
-                :prefix-icon="Description"
+                :prefix-icon="Document"
                 maxlength="1000"
                 show-word-limit
               />

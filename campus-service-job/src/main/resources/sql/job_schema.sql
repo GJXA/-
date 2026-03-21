@@ -39,13 +39,9 @@ CREATE TABLE IF NOT EXISTS `jobs` (
   `is_recommended` tinyint(1) DEFAULT '0' COMMENT '是否推荐',
   `publisher_id` bigint NOT NULL COMMENT '发布者ID（企业用户或管理员）',
   `publisher_type` varchar(20) DEFAULT NULL COMMENT '发布者类型：USER-个人用户，COMPANY-企业用户，ADMIN-管理员',
-  `publisher_name` varchar(100) DEFAULT NULL COMMENT '发布者昵称/名称',
-  `auditor_id` bigint DEFAULT NULL COMMENT '审核人ID',
-  `audit_time` datetime DEFAULT NULL COMMENT '审核时间',
-  `audit_remark` varchar(500) DEFAULT NULL COMMENT '审核备注',
-  `deleted` tinyint(1) DEFAULT '0' COMMENT '逻辑删除标志：0-未删除，1-已删除',
-  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `is_deleted` tinyint(1) DEFAULT '0' COMMENT '逻辑删除标志：0-未删除，1-已删除',
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `version` int DEFAULT '0' COMMENT '版本号（乐观锁）',
   PRIMARY KEY (`id`),
   KEY `idx_publisher_id` (`publisher_id`),
@@ -56,7 +52,7 @@ CREATE TABLE IF NOT EXISTS `jobs` (
   KEY `idx_deadline` (`deadline`),
   KEY `idx_is_top` (`is_top`),
   KEY `idx_is_recommended` (`is_recommended`),
-  KEY `idx_deleted` (`deleted`)
+  KEY `idx_is_deleted` (`is_deleted`)
   -- 注意：这里没有添加外键约束，因为job_categories表在后面定义
   -- 如果需要外键约束，可以在创建job_categories表后使用ALTER TABLE添加
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='兼职信息表';
@@ -66,9 +62,6 @@ CREATE TABLE IF NOT EXISTS `job_applications` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '申请ID',
   `job_id` bigint NOT NULL COMMENT '兼职ID',
   `applicant_id` bigint NOT NULL COMMENT '申请人ID',
-  `applicant_name` varchar(100) DEFAULT NULL COMMENT '申请人姓名',
-  `applicant_phone` varchar(20) DEFAULT NULL COMMENT '申请人电话',
-  `applicant_email` varchar(100) DEFAULT NULL COMMENT '申请人邮箱',
   `applicant_grade` varchar(50) DEFAULT NULL COMMENT '申请人年级/专业',
   `resume` text COMMENT '简历内容',
   `apply_remark` varchar(500) DEFAULT NULL COMMENT '申请备注',
@@ -77,7 +70,6 @@ CREATE TABLE IF NOT EXISTS `job_applications` (
   `apply_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '申请时间',
   `process_time` datetime DEFAULT NULL COMMENT '处理时间',
   `processor_id` bigint DEFAULT NULL COMMENT '处理人ID',
-  `processor_name` varchar(100) DEFAULT NULL COMMENT '处理人姓名',
   `process_remark` varchar(500) DEFAULT NULL COMMENT '处理备注',
   `interview_time` datetime DEFAULT NULL COMMENT '面试时间',
   `interview_location` varchar(200) DEFAULT NULL COMMENT '面试地点',
@@ -91,26 +83,18 @@ CREATE TABLE IF NOT EXISTS `job_applications` (
   `work_evaluation` text COMMENT '工作评价',
   `evaluation_score` int DEFAULT NULL COMMENT '评价分数（1-5分）',
   `evaluation_time` datetime DEFAULT NULL COMMENT '评价时间',
-  -- 冗余字段（避免频繁联表查询）
-  `job_title` varchar(200) DEFAULT NULL COMMENT '兼职标题（冗余）',
-  `job_salary` varchar(100) DEFAULT NULL COMMENT '薪资描述（冗余）',
-  `job_type` varchar(20) DEFAULT NULL COMMENT '工作类型（冗余）',
-  `job_location` varchar(100) DEFAULT NULL COMMENT '工作地点（冗余）',
-  `publisher_id` bigint DEFAULT NULL COMMENT '发布者ID（冗余）',
-  `publisher_name` varchar(100) DEFAULT NULL COMMENT '发布者名称（冗余）',
   -- 系统字段
-  `deleted` tinyint(1) DEFAULT '0' COMMENT '逻辑删除标志：0-未删除，1-已删除',
-  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `is_deleted` tinyint(1) DEFAULT '0' COMMENT '逻辑删除标志：0-未删除，1-已删除',
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_applicant_job` (`applicant_id`, `job_id`, `deleted`),
+  UNIQUE KEY `uk_applicant_job` (`applicant_id`, `job_id`, `is_deleted`),
   KEY `idx_job_id` (`job_id`),
   KEY `idx_applicant_id` (`applicant_id`),
   KEY `idx_status` (`status`),
   KEY `idx_confirm_status` (`confirm_status`),
   KEY `idx_apply_time` (`apply_time`),
-  KEY `idx_publisher_id` (`publisher_id`),
-  KEY `idx_deleted` (`deleted`),
+  KEY `idx_is_deleted` (`is_deleted`),
   CONSTRAINT `fk_application_job` FOREIGN KEY (`job_id`) REFERENCES `jobs` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='兼职申请表';
 
@@ -128,7 +112,7 @@ CREATE TABLE IF NOT EXISTS `job_statistics` (
   `total_views` int DEFAULT '0' COMMENT '总浏览量',
   `total_favorites` int DEFAULT '0' COMMENT '总收藏量',
   `statistics_date` date NOT NULL COMMENT '统计日期',
-  `create_time` datetime DEFAULT CURRENT_TIMESTAMP,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_statistics` (`publisher_id`, `job_id`, `statistics_date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='兼职统计数据表';
@@ -141,18 +125,18 @@ CREATE TABLE IF NOT EXISTS `job_categories` (
   `description` varchar(500) DEFAULT NULL COMMENT '分类描述',
   `icon` varchar(200) DEFAULT NULL COMMENT '分类图标',
   `sort_order` int DEFAULT 0 COMMENT '排序',
-  `enabled` tinyint DEFAULT 1 COMMENT '是否启用：0-禁用，1-启用',
-  `deleted` tinyint DEFAULT 0 COMMENT '逻辑删除：0-未删除，1-已删除',
-  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `is_enabled` tinyint DEFAULT 1 COMMENT '是否启用：0-禁用，1-启用',
+  `is_deleted` tinyint DEFAULT 0 COMMENT '逻辑删除：0-未删除，1-已删除',
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_code` (`code`),
   KEY `idx_sort_order` (`sort_order`),
-  KEY `idx_enabled` (`enabled`)
+  KEY `idx_is_enabled` (`is_enabled`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='兼职分类表';
 
 -- 初始化兼职分类数据
-INSERT INTO `job_categories` (`code`, `name`, `description`, `sort_order`) VALUES
+INSERT IGNORE INTO `job_categories` (`code`, `name`, `description`, `sort_order`) VALUES
 ('SALES', '销售', '销售类兼职工作', 1),
 ('TUTOR', '家教', '家教辅导类工作', 2),
 ('WAITER', '服务员', '餐饮服务类工作', 3),
@@ -168,11 +152,11 @@ CREATE TABLE IF NOT EXISTS `job_favorites` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '收藏ID',
   `job_id` bigint NOT NULL COMMENT '兼职ID',
   `user_id` bigint NOT NULL COMMENT '用户ID',
-  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_job_user` (`job_id`, `user_id`),
   KEY `idx_user_id` (`user_id`),
-  KEY `idx_create_time` (`create_time`),
+  KEY `idx_created_at` (`created_at`),
   CONSTRAINT `fk_favorite_job` FOREIGN KEY (`job_id`) REFERENCES `jobs` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='兼职收藏表';
 
@@ -183,11 +167,11 @@ CREATE TABLE IF NOT EXISTS `job_view_logs` (
   `user_id` bigint DEFAULT NULL COMMENT '用户ID（可为空）',
   `ip_address` varchar(50) DEFAULT NULL COMMENT 'IP地址',
   `user_agent` varchar(500) DEFAULT NULL COMMENT '用户代理',
-  `view_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '浏览时间',
+  `viewed_at` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '浏览时间',
   PRIMARY KEY (`id`),
   KEY `idx_job_id` (`job_id`),
   KEY `idx_user_id` (`user_id`),
-  KEY `idx_view_time` (`view_time`)
+  KEY `idx_viewed_at` (`viewed_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='兼职浏览记录表';
 
 -- 7. 创建索引优化
@@ -207,7 +191,7 @@ SELECT
     (SELECT COUNT(*) FROM job_view_logs jvl WHERE jvl.job_id = j.id) as actual_view_count
 FROM `jobs` j
 LEFT JOIN `job_categories` jc ON j.category = jc.code
-WHERE j.deleted = 0;
+WHERE j.is_deleted = 0;
 
 -- 9. 创建热门兼职视图
 CREATE OR REPLACE VIEW `hot_jobs_view` AS
@@ -225,7 +209,7 @@ SELECT
 FROM `jobs` j
 LEFT JOIN `job_categories` jc ON j.category = jc.code
 WHERE j.status = 1
-  AND j.deleted = 0
+  AND j.is_deleted = 0
   AND (j.deadline IS NULL OR j.deadline > NOW());
 
 -- 10. 添加外键约束（在创建所有表之后）
@@ -234,13 +218,14 @@ ALTER TABLE `jobs` ADD CONSTRAINT `fk_job_category` FOREIGN KEY (`category`) REF
 
 -- 11. 创建存储过程：更新兼职统计数据
 DELIMITER //
+DROP PROCEDURE IF EXISTS `sp_update_job_statistics`//
 CREATE PROCEDURE `sp_update_job_statistics`()
 BEGIN
     DECLARE done INT DEFAULT FALSE;
     DECLARE v_publisher_id BIGINT;
     DECLARE v_job_id BIGINT;
     DECLARE cur CURSOR FOR
-        SELECT DISTINCT publisher_id, id FROM jobs WHERE deleted = 0;
+        SELECT DISTINCT publisher_id, id FROM jobs WHERE is_deleted = 0;
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
 
     OPEN cur;
@@ -254,17 +239,17 @@ BEGIN
         INSERT INTO job_statistics
             (publisher_id, job_id, total_jobs, active_jobs, total_applications,
              pending_applications, approved_applications, rejected_applications,
-             total_views, total_favorites, statistics_date, create_time)
+             total_views, total_favorites, statistics_date, created_at)
         SELECT
             v_publisher_id,
             v_job_id,
             -- 统计逻辑
-            (SELECT COUNT(*) FROM jobs j WHERE j.publisher_id = v_publisher_id AND j.deleted = 0) as total_jobs,
-            (SELECT COUNT(*) FROM jobs j WHERE j.publisher_id = v_publisher_id AND j.status = 1 AND j.deleted = 0) as active_jobs,
-            (SELECT COUNT(*) FROM job_applications ja WHERE ja.job_id = v_job_id AND ja.deleted = 0) as total_applications,
-            (SELECT COUNT(*) FROM job_applications ja WHERE ja.job_id = v_job_id AND ja.status = 0 AND ja.deleted = 0) as pending_applications,
-            (SELECT COUNT(*) FROM job_applications ja WHERE ja.job_id = v_job_id AND ja.status = 1 AND ja.deleted = 0) as approved_applications,
-            (SELECT COUNT(*) FROM job_applications ja WHERE ja.job_id = v_job_id AND ja.status = 2 AND ja.deleted = 0) as rejected_applications,
+            (SELECT COUNT(*) FROM jobs j WHERE j.publisher_id = v_publisher_id AND j.is_deleted = 0) as total_jobs,
+            (SELECT COUNT(*) FROM jobs j WHERE j.publisher_id = v_publisher_id AND j.status = 1 AND j.is_deleted = 0) as active_jobs,
+            (SELECT COUNT(*) FROM job_applications ja WHERE ja.job_id = v_job_id AND ja.is_deleted = 0) as total_applications,
+            (SELECT COUNT(*) FROM job_applications ja WHERE ja.job_id = v_job_id AND ja.status = 0 AND ja.is_deleted = 0) as pending_applications,
+            (SELECT COUNT(*) FROM job_applications ja WHERE ja.job_id = v_job_id AND ja.status = 1 AND ja.is_deleted = 0) as approved_applications,
+            (SELECT COUNT(*) FROM job_applications ja WHERE ja.job_id = v_job_id AND ja.status = 2 AND ja.is_deleted = 0) as rejected_applications,
             (SELECT COALESCE(SUM(view_count), 0) FROM jobs j WHERE j.id = v_job_id) as total_views,
             (SELECT COALESCE(SUM(favorite_count), 0) FROM jobs j WHERE j.id = v_job_id) as total_favorites,
             CURDATE(),
@@ -278,7 +263,7 @@ BEGIN
             rejected_applications = VALUES(rejected_applications),
             total_views = VALUES(total_views),
             total_favorites = VALUES(total_favorites),
-            create_time = NOW();
+            created_at = NOW();
     END LOOP;
 
     CLOSE cur;

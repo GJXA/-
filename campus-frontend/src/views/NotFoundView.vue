@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import { Home, ArrowLeft, Search } from '@element-plus/icons-vue'
+import { House, ArrowLeft, Search, ShoppingCart, Briefcase, Clock, ArrowRight } from '@element-plus/icons-vue'
 
 const router = useRouter()
 
@@ -83,7 +83,7 @@ const popularRoutes = [
       <!-- 操作按钮 -->
       <div class="action-buttons">
         <el-button type="primary" size="large" @click="goHome">
-          <Home class="button-icon" />
+          <House class="button-icon" />
           返回首页
         </el-button>
         <el-button size="large" @click="goBack">
@@ -103,10 +103,10 @@ const popularRoutes = [
             @click="router.push(route.path)"
           >
             <div class="page-icon">
-              <component :is="route.path === '/home' ? Home :
+              <component :is="route.path === '/home' ? House :
                             route.path === '/products' ? ShoppingCart :
                             route.path === '/jobs' ? Briefcase :
-                            route.path === '/orders' ? History : Home" />
+                            route.path === '/orders' ? Clock : House" />
             </div>
             <div class="page-info">
               <h4 class="page-name">{{ route.name }}</h4>

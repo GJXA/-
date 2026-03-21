@@ -18,7 +18,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
     }
 )
 @EnableDiscoveryClient
-@EnableFeignClients(basePackages = {"com.xushu.campus.common.feign"})
+@EnableFeignClients(basePackages = {"com.xushu.campus.common.feign", "com.xushu.campus.job.feign"})
 @EnableScheduling
 @MapperScan("com.xushu.campus.job.mapper")
 public class JobApplication {

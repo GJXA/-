@@ -13,7 +13,7 @@ import java.util.List;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@TableName("product")
+@TableName("products")
 public class Product {
 
     /**
@@ -73,9 +73,35 @@ public class Product {
     private String images;
 
     /**
-     * 商品位置
+     * 收藏数
      */
-    private String location;
+    private Integer favoriteCount;
+
+    /**
+     * 详细地址
+     */
+    private String address;
+
+    /**
+     * 联系人姓名
+     */
+    private String contactName;
+
+    /**
+     * 成色：NEW-全新，LIKE_NEW-几乎全新，USED-使用过
+     */
+    private String qualityLevel;
+
+    /**
+     * 发布时间
+     */
+    private LocalDateTime publishTime;
+
+    /**
+     * 过期时间
+     */
+    private LocalDateTime expireTime;
+
 
     /**
      * 联系电话
@@ -83,21 +109,47 @@ public class Product {
     private String contactPhone;
 
     /**
+     * 是否置顶：0-否，1-是
+     */
+    private Integer isTop;
+
+    /**
+     * 置顶权重
+     */
+    private Integer topWeight;
+
+    /**
+     * 是否推荐：0-否，1-是
+     */
+    private Integer isRecommended;
+
+
+
+
+
+
+    /**
      * 创建时间
      */
-    @TableField(fill = FieldFill.INSERT)
+    @TableField(value = "created_at", fill = FieldFill.INSERT)
     private LocalDateTime createTime;
 
     /**
      * 更新时间
      */
-    @TableField(fill = FieldFill.INSERT_UPDATE)
+    @TableField(value = "updated_at", fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updateTime;
 
     /**
      * 逻辑删除标志
      */
     @TableLogic
+    @TableField("is_deleted")
     private Integer deleted;
 
+    /**
+     * 版本号（乐观锁）
+     */
+    @Version
+    private Integer version;
 }

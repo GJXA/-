@@ -56,7 +56,7 @@ public class EmailTemplate {
     /**
      * 是否启用：0-禁用，1-启用
      */
-    private Integer enabled;
+    private Integer isEnabled;
 
     /**
      * 备注
@@ -67,19 +67,19 @@ public class EmailTemplate {
      * 逻辑删除标志：0-未删除，1-已删除
      */
     @TableLogic
-    private Integer deleted;
+    private Integer isDeleted;
 
     /**
      * 创建时间
      */
     @TableField(fill = FieldFill.INSERT)
-    private LocalDateTime createTime;
+    private LocalDateTime createdAt;
 
     /**
      * 更新时间
      */
     @TableField(fill = FieldFill.INSERT_UPDATE)
-    private LocalDateTime updateTime;
+    private LocalDateTime updatedAt;
 
     /**
      * 版本号（乐观锁）

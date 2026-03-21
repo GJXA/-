@@ -2,7 +2,8 @@
 import { ref, reactive, onMounted, computed, onBeforeMount, onUpdated, onUnmounted, onBeforeUpdate } from 'vue'
 import { useRouter, onBeforeRouteUpdate, onBeforeRouteLeave } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Search, Filter, ShoppingCart, Wallet, Truck, Check, Close, Eye, Delete, Clock, Calendar } from '@element-plus/icons-vue'
+import { Search, ShoppingCart, Wallet, Check, Close, Delete, Clock, Calendar } from '@element-plus/icons-vue'
+import { orderApi } from '@/api'
 
 const router = useRouter()
 
@@ -14,143 +15,27 @@ const filterForm = reactive({
   sortBy: 'latest' // latest, oldest, amount_high, amount_low
 })
 
-// 订单状态选项
-const orderStatuses = [
-  { value: '', label: '全部状态' },
-  { value: 'pending', label: '待付款', count: 2, color: 'warning' },
-  { value: 'paid', label: '待发货', count: 1, color: 'info' },
-  { value: 'shipped', label: '待收货', count: 3, color: 'primary' },
-  { value: 'completed', label: '已完成', count: 5, color: 'success' },
-  { value: 'cancelled', label: '已取消', count: 1, color: 'danger' },
-  { value: 'refund', label: '退款中', count: 1, color: 'warning' }
-]
+// 订单状态选项（动态计数）
+const orderStatuses = computed(() => {
+  const statusOptions = [
+    { value: '', label: '全部状态', color: 'default' },
+    { value: 'pending', label: '待付款', color: 'warning' },
+    { value: 'paid', label: '待发货', color: 'info' },
+    { value: 'shipped', label: '待收货', color: 'primary' },
+    { value: 'completed', label: '已完成', color: 'success' },
+    { value: 'cancelled', label: '已取消', color: 'danger' },
+    { value: 'refund', label: '退款中', color: 'warning' }
+  ]
+  // 根据实际数据更新计数
+  const stats = statusStats.value
+  return statusOptions.map(option => ({
+    ...option,
+    count: stats[option.value] || 0
+  }))
+})
 
 // 订单列表数据
-const orders = ref([
-  {
-    id: '202603180001',
-    product: {
-      id: 1,
-      title: '二手 MacBook Pro 2023',
-      image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400&h=300&fit=crop',
-      price: 6500
-    },
-    seller: {
-      id: 101,
-      name: '张三',
-      avatar: ''
-    },
-    quantity: 1,
-    totalAmount: 6500,
-    status: 'pending',
-    statusText: '待付款',
-    createdAt: '2026-03-18 14:30:00',
-    paymentDeadline: '2026-03-19 14:30:00',
-    shippingAddress: {
-      name: '李四',
-      phone: '13800138000',
-      address: '北京市海淀区学院路1号 学生公寓3号楼501室'
-    },
-    paymentMethod: '在线支付',
-    shippingMethod: '快递',
-    trackingNumber: '',
-    notes: '请尽快发货'
-  },
-  {
-    id: '202603170001',
-    product: {
-      id: 2,
-      title: '大学物理教材全套',
-      image: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400&h=300&fit=crop',
-      price: 120
-    },
-    seller: {
-      id: 102,
-      name: '李四',
-      avatar: ''
-    },
-    quantity: 1,
-    totalAmount: 120,
-    status: 'shipped',
-    statusText: '待收货',
-    createdAt: '2026-03-17 10:15:00',
-    paymentTime: '2026-03-17 10:20:00',
-    shippingTime: '2026-03-17 15:30:00',
-    estimatedDelivery: '2026-03-20',
-    shippingAddress: {
-      name: '王五',
-      phone: '13800138001',
-      address: '上海市浦东新区张江高科技园区 学生公寓2号楼302室'
-    },
-    paymentMethod: '在线支付',
-    shippingMethod: '快递',
-    trackingNumber: 'SF1234567890',
-    notes: ''
-  },
-  {
-    id: '202603160001',
-    product: {
-      id: 3,
-      title: '自行车（捷安特）',
-      image: 'https://images.unsplash.com/photo-1484920274317-87885fcbc504?w=400&h=300&fit=crop',
-      price: 800
-    },
-    seller: {
-      id: 103,
-      name: '王五',
-      avatar: ''
-    },
-    quantity: 1,
-    totalAmount: 800,
-    status: 'completed',
-    statusText: '已完成',
-    createdAt: '2026-03-16 09:45:00',
-    paymentTime: '2026-03-16 09:50:00',
-    shippingTime: '2026-03-16 14:20:00',
-    deliveryTime: '2026-03-18 16:30:00',
-    shippingAddress: {
-      name: '赵六',
-      phone: '13800138002',
-      address: '广州市天河区华南理工大学 学生宿舍10号楼408室'
-    },
-    paymentMethod: '在线支付',
-    shippingMethod: '快递',
-    trackingNumber: 'YT9876543210',
-    notes: '商品很满意',
-    rating: 5,
-    review: '自行车质量很好，卖家很负责'
-  },
-  {
-    id: '202603150001',
-    product: {
-      id: 4,
-      title: '耳机 Sony WH-1000XM4',
-      image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=300&fit=crop',
-      price: 1200
-    },
-    seller: {
-      id: 104,
-      name: '赵六',
-      avatar: ''
-    },
-    quantity: 1,
-    totalAmount: 1200,
-    status: 'cancelled',
-    statusText: '已取消',
-    createdAt: '2026-03-15 16:20:00',
-    cancelledTime: '2026-03-15 17:30:00',
-    cancelReason: '卖家缺货',
-    shippingAddress: {
-      name: '钱七',
-      phone: '13800138003',
-      address: '深圳市南山区深圳大学 学生宿舍5号楼201室'
-    },
-    paymentMethod: '在线支付',
-    shippingMethod: '快递',
-    trackingNumber: '',
-    notes: ''
-  }
-])
+const orders = ref<any[]>([])
 
 // 分页
 const pagination = reactive({
@@ -236,23 +121,42 @@ const loadOrders = async () => {
   console.log('🔄 OrderList: loadOrders called, loading state:', loading.value)
   loading.value = true
   try {
-    // TODO: 调用后端 API
-    // const response = await orderApi.getOrderList({
-    //   page: pagination.currentPage,
-    //   size: pagination.pageSize,
-    //   ...filterForm
-    // })
+    // 构建API参数
+    const params: any = {
+      page: pagination.currentPage,
+      size: pagination.pageSize
+    }
 
-    console.log('⏳ OrderList: simulating API delay...')
-    // 模拟延迟
-    await new Promise(resolve => setTimeout(resolve, 500))
+    // 添加筛选条件
+    if (filterForm.keyword) params.keyword = filterForm.keyword
+    if (filterForm.status) params.status = filterForm.status
 
-    // 模拟更新分页数据
-    pagination.total = 12
-    console.log('✅ OrderList: data loaded, orders count:', orders.value.length)
+    // 状态映射：前端状态字符串映射到后端状态码
+    if (filterForm.status) {
+      const statusMap: Record<string, number> = {
+        'pending': 0,  // 待付款
+        'paid': 1,     // 待发货
+        'shipped': 2,  // 待收货
+        'completed': 3, // 已完成
+        'cancelled': 4, // 已取消
+        'refund': 5     // 退款中
+      }
+      params.status = statusMap[filterForm.status] ?? filterForm.status
+    }
+
+    const response = await orderApi.getOrderList(params)
+    // 响应可能是分页格式，尝试从records或data字段获取
+    const records = response.records || response.data?.records || response.data || []
+    orders.value = records
+
+    // 更新分页总数
+    pagination.total = response.total || response.data?.total || records.length
+
+    console.log('✅ OrderList: data loaded, orders count:', orders.value.length, 'total:', pagination.total)
   } catch (error) {
     console.error('❌ OrderList: loadOrders error:', error)
     ElMessage.error('加载订单列表失败')
+    orders.value = []
   } finally {
     loading.value = false
     console.log('🏁 OrderList: loadOrders completed, loading state:', loading.value)
@@ -276,8 +180,8 @@ const cancelOrder = (order: any) => {
     }
   ).then(async () => {
     try {
-      // TODO: 调用取消订单 API
-      // await orderApi.cancelOrder(order.id)
+      // 调用取消订单 API
+      await orderApi.cancelOrder(order.id, '用户主动取消')
 
       order.status = 'cancelled'
       order.statusText = '已取消'
@@ -285,8 +189,9 @@ const cancelOrder = (order: any) => {
       order.cancelReason = '用户主动取消'
 
       ElMessage.success('订单已取消')
-    } catch (error) {
-      ElMessage.error('取消订单失败')
+    } catch (error: any) {
+      console.error('取消订单失败:', error)
+      ElMessage.error(error.response?.data?.message || '取消订单失败')
     }
   }).catch(() => {
     // 用户取消操作
@@ -305,16 +210,17 @@ const confirmReceipt = (order: any) => {
     }
   ).then(async () => {
     try {
-      // TODO: 调用确认收货 API
-      // await orderApi.confirmReceipt(order.id)
+      // 调用确认收货 API
+      await orderApi.confirmReceipt(order.id, '')
 
       order.status = 'completed'
       order.statusText = '已完成'
       order.deliveryTime = new Date().toLocaleString()
 
       ElMessage.success('已确认收货')
-    } catch (error) {
-      ElMessage.error('确认收货失败')
+    } catch (error: any) {
+      console.error('确认收货失败:', error)
+      ElMessage.error(error.response?.data?.message || '确认收货失败')
     }
   }).catch(() => {
     // 用户取消操作
@@ -333,16 +239,17 @@ const payOrder = (order: any) => {
     }
   ).then(async () => {
     try {
-      // TODO: 调用支付接口
-      // await orderApi.payOrder(order.id)
+      // 调用支付接口
+      await orderApi.payOrder(order.id, 'ALIPAY', '', '')
 
       order.status = 'paid'
       order.statusText = '待发货'
       order.paymentTime = new Date().toLocaleString()
 
       ElMessage.success('支付成功')
-    } catch (error) {
-      ElMessage.error('支付失败')
+    } catch (error: any) {
+      console.error('支付失败:', error)
+      ElMessage.error(error.response?.data?.message || '支付失败')
     }
   }).catch(() => {
     // 用户取消操作

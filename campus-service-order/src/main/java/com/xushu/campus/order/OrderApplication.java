@@ -19,7 +19,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
     }
 )
 @EnableDiscoveryClient
-@EnableFeignClients(basePackages = {"com.xushu.campus.common.feign"})
+@EnableFeignClients(basePackages = {"com.xushu.campus.common.feign", "com.xushu.campus.order.feign"})
 @EnableScheduling
 @MapperScan("com.xushu.campus.order.mapper")
 public class OrderApplication {

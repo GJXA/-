@@ -84,7 +84,7 @@ public class JobServiceImpl implements JobService {
 
         // 1. 检查兼职是否存在
         Job job = jobMapper.selectById(jobId);
-        if (job == null || job.getDeleted() == 1) {
+        if (job == null || job.getIsDeleted() == 1) {
             throw new BusinessException("兼职不存在或已被删除");
         }
 
@@ -222,7 +222,7 @@ public class JobServiceImpl implements JobService {
 
         // 1. 检查兼职是否存在
         Job job = jobMapper.selectById(jobId);
-        if (job == null || job.getDeleted() == 1) {
+        if (job == null || job.getIsDeleted() == 1) {
             throw new BusinessException("兼职不存在或已被删除");
         }
 
@@ -230,7 +230,7 @@ public class JobServiceImpl implements JobService {
         checkDeletePermission(job, operatorId);
 
         // 3. 逻辑删除
-        job.setDeleted(1);
+        job.setIsDeleted(1);
         int result = jobMapper.updateById(job);
         if (result <= 0) {
             log.error("删除兼职失败: jobId={}", jobId);
@@ -245,7 +245,7 @@ public class JobServiceImpl implements JobService {
         log.debug("获取兼职详情: jobId={}", jobId);
 
         Job job = jobMapper.selectById(jobId);
-        if (job == null || job.getDeleted() == 1) {
+        if (job == null || job.getIsDeleted() == 1) {
             throw new BusinessException("兼职不存在或已被删除");
         }
 
@@ -257,7 +257,7 @@ public class JobServiceImpl implements JobService {
         log.debug("获取兼职详情（增加浏览次数）: jobId={}", jobId);
 
         Job job = jobMapper.selectById(jobId);
-        if (job == null || job.getDeleted() == 1) {
+        if (job == null || job.getIsDeleted() == 1) {
             throw new BusinessException("兼职不存在或已被删除");
         }
 
@@ -321,7 +321,7 @@ public class JobServiceImpl implements JobService {
 
         // 构建查询条件：只查询招聘中且未删除的兼职
         LambdaQueryWrapper<Job> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(Job::getDeleted, 0)
+        queryWrapper.eq(Job::getIsDeleted, 0)
                    .eq(Job::getStatus, JobConstants.JobStatus.RECRUITING);
 
         // 设置排序
@@ -360,7 +360,7 @@ public class JobServiceImpl implements JobService {
 
         // 构建查询条件
         LambdaQueryWrapper<Job> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(Job::getDeleted, 0)
+        queryWrapper.eq(Job::getIsDeleted, 0)
                    .eq(Job::getPublisherId, publisherId)
                    .orderByDesc(Job::getPublishTime);
 
@@ -397,7 +397,7 @@ public class JobServiceImpl implements JobService {
 
         // 构建查询条件：只查询招聘中且未删除的兼职
         LambdaQueryWrapper<Job> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(Job::getDeleted, 0)
+        queryWrapper.eq(Job::getIsDeleted, 0)
                    .eq(Job::getStatus, JobConstants.JobStatus.RECRUITING)
                    .eq(Job::getJobType, jobType)
                    .orderByDesc(Job::getPublishTime);
@@ -435,7 +435,7 @@ public class JobServiceImpl implements JobService {
 
         // 构建查询条件：只查询招聘中且未删除的兼职
         LambdaQueryWrapper<Job> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(Job::getDeleted, 0)
+        queryWrapper.eq(Job::getIsDeleted, 0)
                    .eq(Job::getStatus, JobConstants.JobStatus.RECRUITING)
                    .eq(Job::getCategory, category)
                    .orderByDesc(Job::getPublishTime);
@@ -502,7 +502,7 @@ public class JobServiceImpl implements JobService {
 
         // 1. 检查兼职是否存在
         Job job = jobMapper.selectById(jobId);
-        if (job == null || job.getDeleted() == 1) {
+        if (job == null || job.getIsDeleted() == 1) {
             throw new BusinessException("兼职不存在或已被删除");
         }
 
@@ -538,7 +538,7 @@ public class JobServiceImpl implements JobService {
 
         // 1. 检查兼职是否存在
         Job job = jobMapper.selectById(jobId);
-        if (job == null || job.getDeleted() == 1) {
+        if (job == null || job.getIsDeleted() == 1) {
             throw new BusinessException("兼职不存在或已被删除");
         }
 
@@ -573,7 +573,7 @@ public class JobServiceImpl implements JobService {
 
         // 1. 检查兼职是否存在
         Job job = jobMapper.selectById(jobId);
-        if (job == null || job.getDeleted() == 1) {
+        if (job == null || job.getIsDeleted() == 1) {
             throw new BusinessException("兼职不存在或已被删除");
         }
 
@@ -595,7 +595,7 @@ public class JobServiceImpl implements JobService {
 
         // 1. 检查兼职是否存在
         Job job = jobMapper.selectById(jobId);
-        if (job == null || job.getDeleted() == 1) {
+        if (job == null || job.getIsDeleted() == 1) {
             throw new BusinessException("兼职不存在或已被删除");
         }
 
@@ -627,7 +627,7 @@ public class JobServiceImpl implements JobService {
 
         // 1. 检查兼职是否存在且可申请
         Job job = jobMapper.selectById(jobId);
-        if (job == null || job.getDeleted() == 1) {
+        if (job == null || job.getIsDeleted() == 1) {
             throw new BusinessException("兼职不存在或已被删除");
         }
 
@@ -693,7 +693,7 @@ public class JobServiceImpl implements JobService {
         }
 
         Job job = jobMapper.selectById(jobId);
-        if (job == null || job.getDeleted() == 1) {
+        if (job == null || job.getIsDeleted() == 1) {
             return false;
         }
 
@@ -870,7 +870,7 @@ public class JobServiceImpl implements JobService {
      */
     private LambdaQueryWrapper<Job> buildSearchQueryWrapper(JobSearchRequest request) {
         LambdaQueryWrapper<Job> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(Job::getDeleted, 0);
+        queryWrapper.eq(Job::getIsDeleted, 0);
 
         if (request.getKeyword() != null && !request.getKeyword().isEmpty()) {
             queryWrapper.and(wrapper -> wrapper

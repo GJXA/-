@@ -10,15 +10,26 @@ spring:
   # 数据源配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/campus_order?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
-    username: ${MYSQL_USERNAME:root}
-    password: ${MYSQL_PASSWORD:123456}
+    url: jdbc:mysql://localhost:3306/campus_order?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:123456}
     hikari:
       connection-timeout: 30000
       maximum-pool-size: 10
       minimum-idle: 5
       idle-timeout: 600000
       max-lifetime: 1800000
+
+  # 数据库初始化配置
+  sql:
+    init:
+      enabled: true
+      mode: always
+      schema-locations: classpath:sql/order_schema.sql
+      continue-on-error: true
+      dependency-detector:
+        annotation:
+          enabled: false
 
   # Redis配置
   data:

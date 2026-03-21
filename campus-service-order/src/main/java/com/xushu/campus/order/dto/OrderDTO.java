@@ -80,11 +80,7 @@ public class OrderDTO {
     @Schema(description = "卖家ID")
     private Long sellerId;
 
-    @Schema(description = "卖家昵称")
-    private String sellerNickname;
 
-    @Schema(description = "买家昵称")
-    private String buyerNickname;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Schema(description = "支付时间")

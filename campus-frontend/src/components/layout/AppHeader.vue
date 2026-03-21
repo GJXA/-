@@ -2,6 +2,7 @@
 import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/store/user'
+import { ArrowDown, User, Plus, SwitchButton } from '@element-plus/icons-vue'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -94,7 +95,7 @@ const handleNavClick = (item: any) => {
         <div v-else class="user-menu">
           <el-dropdown>
             <div class="user-info">
-              <el-avatar :size="32" :src="userInfo?.avatar">
+              <el-avatar :size="32" :src="userInfo?.avatarUrl">
                 {{ userInfo?.username?.charAt(0) }}
               </el-avatar>
               <span class="username">{{ userInfo?.username }}</span>

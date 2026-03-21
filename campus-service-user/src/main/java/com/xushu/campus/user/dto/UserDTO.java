@@ -2,6 +2,7 @@ package com.xushu.campus.user.dto;
 
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -71,4 +72,38 @@ public class UserDTO {
      */
     private LocalDateTime updateTime;
 
+    /**
+     * 生日
+     */
+    private LocalDate birthday;
+
+    /**
+     * 学校
+     */
+    private String school;
+
+    /**
+     * 专业
+     */
+    private String major;
+
+    /**
+     * 年级
+     */
+    private String grade;
+
+    /**
+     * 地址
+     */
+    private String address;
+
+    /**
+     * 个性签名
+     */
+    private String signature;
+
+    /**
+     * 最后登录时间
+     */
+    private LocalDateTime lastLoginTime;
 }

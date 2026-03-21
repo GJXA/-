@@ -286,29 +286,37 @@ public class JobController {
     // ========== 私有方法 ==========
 
     /**
-     * 从请求中获取用户ID（模拟实现）
+     * 从请求中获取用户ID
      */
     private Long getUserIdFromRequest(HttpServletRequest request) {
-        // TODO: 从JWT令牌中解析用户ID
-        // 这里返回一个模拟的用户ID
-        return 1L;
+        String userIdStr = request.getHeader("X-User-Id");
+        if (userIdStr == null) {
+            throw new IllegalArgumentException("用户未登录");
+        }
+        try {
+            return Long.parseLong(userIdStr);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("无效的用户ID格式");
+        }
     }
 
     /**
-     * 从请求中获取用户类型（模拟实现）
+     * 从请求中获取用户类型
      */
     private String getUserTypeFromRequest(HttpServletRequest request) {
-        // TODO: 从JWT令牌中解析用户类型
-        // 这里返回一个模拟的用户类型
-        return "USER";
+        String roles = request.getHeader("X-User-Roles");
+        if (roles == null || roles.isEmpty()) {
+            return "USER";
+        }
+        // 如果有管理员角色则返回ADMIN，否则返回USER
+        return roles.contains("ADMIN") ? "ADMIN" : "USER";
     }
 
     /**
-     * 从请求中获取用户名（模拟实现）
+     * 从请求中获取用户名
      */
     private String getUsernameFromRequest(HttpServletRequest request) {
-        // TODO: 从JWT令牌中解析用户名
-        // 这里返回一个模拟的用户名
-        return "测试用户";
+        String username = request.getHeader("X-Username");
+        return username != null ? username : "未知用户";
     }
 }

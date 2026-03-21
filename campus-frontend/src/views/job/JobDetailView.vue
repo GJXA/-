@@ -2,6 +2,7 @@
 import { ref, reactive, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { jobApi } from '@/api'
 import {
   Briefcase,
   Location,
@@ -87,35 +88,7 @@ const hasApplied = ref(false)
 const loading = ref(true)
 
 // 相关职位推荐
-const relatedJobs = ref<any[]>([
-  {
-    id: 5,
-    title: '咖啡店店员',
-    company: '校园咖啡厅',
-    salary: '18-22元/小时',
-    location: '北京校区',
-    workType: 'part_time' as const,
-    deadline: '2026-04-05'
-  },
-  {
-    id: 6,
-    title: '数据录入员',
-    company: '教务处',
-    salary: '20元/小时',
-    location: '线上',
-    workType: 'part_time' as const,
-    deadline: '2026-04-10'
-  },
-  {
-    id: 7,
-    title: '校园导游',
-    company: '招生办公室',
-    salary: '25-30元/小时',
-    location: '上海校区',
-    workType: 'part_time' as const,
-    deadline: '2026-04-15'
-  }
-])
+const relatedJobs = ref<any[]>([])
 
 // 计算是否已过期
 const isExpired = computed(() => {
@@ -164,122 +137,73 @@ const workTypeName = computed(() => {
   return types[job.value.workType] || job.value.workType
 })
 
+// 加载相关职位
+const loadRelatedJobs = async (jobType: string) => {
+  try {
+    const response = await jobApi.getJobList({
+      page: 1,
+      size: 3,
+      keyword: ''
+    })
+    // 过滤掉当前职位，并按类型筛选
+    const related = (response.records || response.data?.records || []).filter((j: any) => j.id !== job.value.id && j.jobType === jobType)
+    // 映射字段以匹配模板
+    relatedJobs.value = related.slice(0, 3).map((j: any) => ({
+      id: j.id,
+      title: j.title,
+      company: j.companyName || j.company,
+      salary: j.salary ? `${j.salary}元/小时` : '面议',
+      location: j.location,
+      workType: j.workType,
+      deadline: j.deadline || j.applicationDeadline
+    }))
+  } catch (error) {
+    console.error('加载相关职位失败:', error)
+    relatedJobs.value = []
+  }
+}
+
 // 加载工作详情
 const loadJobDetail = async () => {
   loading.value = true
   const jobId = Number(route.params.id)
 
   try {
-    // TODO: 调用后端 API
-    // const response = await jobApi.getJobDetail(jobId)
-    // job.value = response.data.data
-
-    // 模拟API延迟
-    await new Promise(resolve => setTimeout(resolve, 800))
-
-    // 模拟数据（从列表中获取或生成）
-    const sampleJobs = [
-      {
-        id: 1,
-        title: '校园外卖配送员',
-        company: '美团校园',
-        description: `负责校园内外卖配送工作，时间灵活，多劳多得。主要工作内容包括：
-        1. 接收并确认外卖订单
-        2. 按照指定路线进行配送
-        3. 确保食品在配送过程中保持完好
-        4. 与顾客保持良好沟通
-        5. 处理异常情况并及时上报
-
-        工作要求：
-        • 需要自备电动车
-        • 熟悉校园周边路线
-        • 具备良好的时间管理能力
-        • 能够承受一定的工作压力`,
-        salary: '18-25元/小时',
-        salaryMin: 18,
-        salaryMax: 25,
-        location: '北京校区',
-        jobType: 'delivery' as const,
-        workType: 'part_time' as const,
-        deadline: '2026-03-31',
-        requirements: [
-          '需自备电动车',
-          '时间灵活，能接受晚班',
-          '责任心强，有服务意识',
-          '身体健康，能适应户外工作',
-          '熟悉校园周边路线优先'
-        ],
-        benefits: [
-          '提供专业培训',
-          '多劳多得，收入稳定',
-          '工作时间自由灵活',
-          '提供工作服装',
-          '表现优秀者可获得额外奖金'
-        ],
-        contact: {
-          name: '张经理',
-          phone: '13800138001',
-          email: 'zhang@meituan.com'
-        },
-        createdAt: '2026-03-15',
-        viewCount: 1245,
-        applyCount: 89,
-        tags: ['外卖', '配送', '灵活时间', '校园'],
-        status: 'active' as const,
-        workHours: '每天3-8小时，可自由选择时段',
-        education: '不限学历',
-        experience: '无经验要求，提供培训',
-        applicationDeadline: '2026-03-30'
+    const response = await jobApi.getJobDetail(jobId)
+    // 映射后端数据到前端数据结构
+    const jobData = response
+    job.value = {
+      id: jobData.id || 0,
+      title: jobData.title || '',
+      company: jobData.companyName || jobData.company || '',
+      description: jobData.description || '',
+      salary: jobData.salary ? `${jobData.salary}元/小时` : '',
+      salaryMin: jobData.salaryMin || jobData.salary || 0,
+      salaryMax: jobData.salaryMax || jobData.salary || 0,
+      location: jobData.location || '',
+      jobType: jobData.jobType || '',
+      workType: jobData.workType as 'part_time' | 'full_time' | 'internship' || 'part_time',
+      deadline: jobData.deadline || jobData.applicationDeadline || '',
+      requirements: jobData.requirements ? jobData.requirements.split(',') : [],
+      benefits: jobData.benefits ? jobData.benefits.split(',') : [],
+      contact: {
+        name: jobData.contactName || jobData.publisherName || '',
+        phone: jobData.contactPhone || '',
+        email: jobData.contactEmail || ''
       },
-      {
-        id: 2,
-        title: '高中数学家教',
-        company: '个人',
-        description: '辅导高中生数学，每周2-3次，每次2小时。主要针对高考数学进行系统辅导，帮助学生掌握数学思维方法和解题技巧。',
-        salary: '80-120元/小时',
-        salaryMin: 80,
-        salaryMax: 120,
-        location: '上海校区',
-        jobType: 'tutor' as const,
-        workType: 'part_time' as const,
-        deadline: '2026-04-10',
-        requirements: [
-          '数学或相关专业在校生/毕业生',
-          '有家教经验者优先',
-          '沟通能力强，有耐心',
-          '熟悉高中数学教材和考点',
-          '能够制定个性化教学方案'
-        ],
-        benefits: [
-          '时间自由安排',
-          '待遇优厚',
-          '可长期合作',
-          '积累教学经验',
-          '良好的工作环境'
-        ],
-        contact: {
-          name: '王女士',
-          phone: '13800138002',
-          email: 'wang@example.com'
-        },
-        createdAt: '2026-03-14',
-        viewCount: 890,
-        applyCount: 45,
-        tags: ['家教', '数学', '高中', '辅导'],
-        status: 'active' as const,
-        workHours: '周末或工作日晚间，具体时间可协商',
-        education: '本科及以上学历',
-        experience: '有相关教学经验优先',
-        applicationDeadline: '2026-04-05'
-      }
-    ]
+      createdAt: jobData.createTime || '',
+      viewCount: jobData.viewCount || 0,
+      applyCount: jobData.applyCount || 0,
+      tags: jobData.tags || [],
+      status: jobData.status || 'active',
+      workHours: jobData.workHours || '',
+      education: jobData.education || '',
+      experience: jobData.experience || '',
+      applicationDeadline: jobData.applicationDeadline || ''
+    }
 
-    // 使用示例数据
-    const foundJob = sampleJobs.find(j => j.id === jobId)
-    job.value = foundJob || job.value
-
-    // 更新浏览计数
-    job.value.viewCount++
+    // 加载相关职位
+    await loadRelatedJobs(job.value.jobType)
 
   } catch (error) {
     console.error('加载工作详情失败:', error)
@@ -313,11 +237,8 @@ const submitApplication = async () => {
       return
     }
 
-    // TODO: 调用后端 API
-    // await jobApi.applyJob(job.value.id, applyForm)
-
-    // 模拟申请提交
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    // 调用后端 API
+    await jobApi.applyJob(job.value.id, applyForm)
 
     hasApplied.value = true
     showApplyForm.value = false

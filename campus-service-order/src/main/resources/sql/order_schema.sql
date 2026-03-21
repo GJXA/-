@@ -33,11 +33,9 @@ CREATE TABLE IF NOT EXISTS `orders` (
     `cancel_reason` varchar(500) COMMENT '取消原因',
     `expire_time` datetime NOT NULL COMMENT '订单过期时间',
     `seller_id` bigint(20) NOT NULL COMMENT '卖家ID',
-    `seller_nickname` varchar(100) COMMENT '卖家昵称',
-    `buyer_nickname` varchar(100) COMMENT '买家昵称',
-    `deleted` tinyint(1) NOT NULL DEFAULT 0 COMMENT '逻辑删除：0-未删除，1-已删除',
-    `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `is_deleted` tinyint(1) NOT NULL DEFAULT 0 COMMENT '逻辑删除：0-未删除，1-已删除',
+    `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     `version` int(11) NOT NULL DEFAULT 0 COMMENT '版本号（乐观锁）',
     PRIMARY KEY (`id`),
     UNIQUE KEY `uk_order_no` (`order_no`),
@@ -46,7 +44,7 @@ CREATE TABLE IF NOT EXISTS `orders` (
     KEY `idx_product_id` (`product_id`),
     KEY `idx_order_status` (`order_status`),
     KEY `idx_payment_status` (`payment_status`),
-    KEY `idx_create_time` (`create_time`),
+    KEY `idx_created_at` (`created_at`),
     KEY `idx_expire_time` (`expire_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='订单表';
 
@@ -60,11 +58,11 @@ CREATE TABLE IF NOT EXISTS `order_operation_log` (
     `old_status` varchar(100) COMMENT '旧状态（JSON格式）',
     `new_status` varchar(100) COMMENT '新状态（JSON格式）',
     `operation_remark` varchar(500) COMMENT '操作备注',
-    `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     PRIMARY KEY (`id`),
     KEY `idx_order_id` (`order_id`),
     KEY `idx_operator_id` (`operator_id`),
-    KEY `idx_create_time` (`create_time`)
+    KEY `idx_created_at` (`created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='订单操作记录表';
 
 -- 退款记录表
@@ -83,14 +81,14 @@ CREATE TABLE IF NOT EXISTS `order_refund` (
     `approve_remark` varchar(500) COMMENT '审批备注',
     `refund_time` datetime COMMENT '退款时间',
     `refund_voucher` varchar(200) COMMENT '退款凭证',
-    `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`),
     UNIQUE KEY `uk_refund_no` (`refund_no`),
     KEY `idx_order_id` (`order_id`),
     KEY `idx_applicant_id` (`applicant_id`),
     KEY `idx_refund_status` (`refund_status`),
-    KEY `idx_create_time` (`create_time`)
+    KEY `idx_created_at` (`created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='退款记录表';
 
 -- 发货信息表
@@ -103,8 +101,8 @@ CREATE TABLE IF NOT EXISTS `order_delivery` (
     `delivery_status` tinyint(4) NOT NULL DEFAULT 0 COMMENT '发货状态：0-已发货，1-运输中，2-已签收',
     `estimated_arrival` datetime COMMENT '预计到达时间',
     `actual_arrival` datetime COMMENT '实际到达时间',
-    `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`),
     KEY `idx_order_id` (`order_id`),
     KEY `idx_express_number` (`express_number`),
@@ -132,10 +130,11 @@ SELECT
 FROM `orders` o
 LEFT JOIN `order_delivery` od ON o.id = od.order_id AND od.delivery_status != 3
 LEFT JOIN `order_refund` orf ON o.id = orf.order_id AND orf.refund_status IN (0, 1, 3)
-WHERE o.deleted = 0;
+WHERE o.is_deleted = 0;
 
 -- 创建存储过程：取消超时订单
 DELIMITER //
+DROP PROCEDURE IF EXISTS `sp_cancel_expired_orders`//
 CREATE PROCEDURE `sp_cancel_expired_orders`()
 BEGIN
     DECLARE done INT DEFAULT FALSE;
@@ -145,7 +144,7 @@ BEGIN
         SELECT id, order_no FROM orders
         WHERE order_status = 0
           AND payment_status = 0
-          AND deleted = 0
+          AND is_deleted = 0
           AND expire_time < NOW();
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
 
@@ -162,12 +161,12 @@ BEGIN
         SET order_status = 4,
             cancel_time = NOW(),
             cancel_reason = '超时未支付，自动取消',
-            update_time = NOW()
+            updated_at = NOW()
         WHERE id = v_order_id;
 
         -- 记录操作日志
         INSERT INTO order_operation_log
-            (order_id, operation_type, operator_id, operator_type, operation_remark, create_time)
+            (order_id, operation_type, operator_id, operator_type, operation_remark, created_at)
         VALUES
             (v_order_id, 'CANCEL', 0, 'SYSTEM', '系统自动取消超时未支付订单', NOW());
     END LOOP;
@@ -178,10 +177,5 @@ DELIMITER ;
 
 -- 创建定时事件：每天凌晨执行取消超时订单
 -- 注意：需要确保事件调度器已启用（SET GLOBAL event_scheduler = ON;）
-CREATE EVENT IF NOT EXISTS `event_cancel_expired_orders`
-ON SCHEDULE EVERY 1 DAY
-STARTS (TIMESTAMP(CURRENT_DATE) + INTERVAL 1 DAY)
-DO
-    CALL sp_cancel_expired_orders();
 
 -- 注释：在生产环境中，建议使用应用程序的定时任务而不是数据库事件

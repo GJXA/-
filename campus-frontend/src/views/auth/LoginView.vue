@@ -3,7 +3,7 @@ import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/store/user'
 import { ElMessage } from 'element-plus'
-import { User, Lock } from '@element-plus/icons-vue'
+import { User, Lock, Message, ChatRound } from '@element-plus/icons-vue'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -152,11 +152,11 @@ const handleKeyup = (event: KeyboardEvent) => {
 
           <div class="social-login">
             <el-button class="social-button">
-              <img src="https://static.cdn.com/wechat.svg" alt="微信" />
+              <el-icon size="20"><Message /></el-icon>
               微信登录
             </el-button>
             <el-button class="social-button">
-              <img src="https://static.cdn.com/qq.svg" alt="QQ" />
+              <el-icon size="20"><ChatRound /></el-icon>
               QQ登录
             </el-button>
           </div>
@@ -346,7 +346,7 @@ const handleKeyup = (event: KeyboardEvent) => {
   background-color: var(--color-gray-50);
 }
 
-.social-button img {
+.social-button .el-icon {
   width: 20px;
   height: 20px;
 }

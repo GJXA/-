@@ -3,6 +3,7 @@ import { ref, reactive, onMounted, computed, onBeforeMount, onUpdated, onUnmount
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Search, Filter, Sort } from '@element-plus/icons-vue'
+import { productApi } from '@/api'
 
 const router = useRouter()
 const route = useRoute()
@@ -18,93 +19,10 @@ const filterForm = reactive({
 })
 
 // 商品分类
-const categories = ref([
-  { id: 1, name: '电子产品', count: 245 },
-  { id: 2, name: '学习资料', count: 189 },
-  { id: 3, name: '生活用品', count: 312 },
-  { id: 4, name: '服装鞋帽', count: 156 },
-  { id: 5, name: '运动器材', count: 98 },
-  { id: 6, name: '其他', count: 76 }
-])
+const categories = ref<any[]>([])
 
 // 商品列表数据
-const products = ref([
-  {
-    id: 1,
-    title: '二手 MacBook Pro 2023',
-    description: '13英寸 M2芯片，16GB内存，512GB SSD，电池循环次数120次，外观完好',
-    price: 6500,
-    originalPrice: 8999,
-    images: [
-      'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w-400&h=300&fit=crop'
-    ],
-    category: '电子产品',
-    categoryId: 1,
-    seller: {
-      id: 101,
-      name: '张三',
-      avatar: '',
-      rating: 4.8
-    },
-    location: '北京校区',
-    status: 'available', // available, sold, reserved
-    createdAt: '2026-03-15',
-    viewCount: 1245,
-    likeCount: 89,
-    condition: '9成新',
-    tags: ['苹果', '笔记本电脑', 'M2芯片']
-  },
-  {
-    id: 2,
-    title: '大学物理教材全套',
-    description: '包含大学物理上下册、习题集，几乎全新，有少量笔记',
-    price: 120,
-    originalPrice: 300,
-    images: [
-      'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400&h=300&fit=crop'
-    ],
-    category: '学习资料',
-    categoryId: 2,
-    seller: {
-      id: 102,
-      name: '李四',
-      avatar: '',
-      rating: 4.9
-    },
-    location: '上海校区',
-    status: 'available',
-    createdAt: '2026-03-14',
-    viewCount: 567,
-    likeCount: 45,
-    condition: '几乎全新',
-    tags: ['教材', '物理', '学习资料']
-  },
-  {
-    id: 3,
-    title: '自行车（捷安特）',
-    description: '捷安特山地车，21速，轮胎新换，刹车灵敏，带车锁',
-    price: 800,
-    originalPrice: 1500,
-    images: [
-      'https://images.unsplash.com/photo-1484920274317-87885fcbc504?w=400&h=300&fit=crop'
-    ],
-    category: '生活用品',
-    categoryId: 3,
-    seller: {
-      id: 103,
-      name: '王五',
-      avatar: '',
-      rating: 4.7
-    },
-    location: '广州校区',
-    status: 'available',
-    createdAt: '2026-03-12',
-    viewCount: 890,
-    likeCount: 67,
-    condition: '8成新',
-    tags: ['自行车', '交通工具', '运动']
-  }
-])
+const products = ref<any[]>([])
 
 // 分页
 const pagination = reactive({
@@ -124,44 +42,67 @@ const filteredProducts = computed(() => {
   if (filterForm.keyword) {
     const keyword = filterForm.keyword.toLowerCase()
     filtered = filtered.filter(product =>
-      product.title.toLowerCase().includes(keyword) ||
-      product.description.toLowerCase().includes(keyword) ||
-      product.tags.some(tag => tag.toLowerCase().includes(keyword))
+      product.title?.toLowerCase().includes(keyword) ||
+      product.description?.toLowerCase().includes(keyword) ||
+      (product.tags && product.tags.some((tag: string) => tag.toLowerCase().includes(keyword)))
     )
   }
 
   // 分类筛选
   if (filterForm.categoryId) {
-    filtered = filtered.filter(product => product.categoryId === parseInt(filterForm.categoryId))
+    filtered = filtered.filter(product =>
+      product.categoryId === parseInt(filterForm.categoryId) ||
+      product.category?.id === parseInt(filterForm.categoryId)
+    )
   }
 
-  // 价格筛选
+  // 价格筛选（处理BigDecimal或数字）
   if (filterForm.minPrice) {
-    filtered = filtered.filter(product => product.price >= parseInt(filterForm.minPrice))
+    filtered = filtered.filter(product => {
+      const price = typeof product.price === 'number' ? product.price : parseFloat(product.price || 0)
+      return price >= parseInt(filterForm.minPrice)
+    })
   }
   if (filterForm.maxPrice) {
-    filtered = filtered.filter(product => product.price <= parseInt(filterForm.maxPrice))
+    filtered = filtered.filter(product => {
+      const price = typeof product.price === 'number' ? product.price : parseFloat(product.price || 0)
+      return price <= parseInt(filterForm.maxPrice)
+    })
   }
 
   // 位置筛选
   if (filterForm.location) {
-    filtered = filtered.filter(product => product.location.includes(filterForm.location))
+    filtered = filtered.filter(product =>
+      product.location?.includes(filterForm.location)
+    )
   }
 
   // 排序
   switch (filterForm.sortBy) {
     case 'price_asc':
-      filtered.sort((a, b) => a.price - b.price)
+      filtered.sort((a, b) => {
+        const priceA = typeof a.price === 'number' ? a.price : parseFloat(a.price || 0)
+        const priceB = typeof b.price === 'number' ? b.price : parseFloat(b.price || 0)
+        return priceA - priceB
+      })
       break
     case 'price_desc':
-      filtered.sort((a, b) => b.price - a.price)
+      filtered.sort((a, b) => {
+        const priceA = typeof a.price === 'number' ? a.price : parseFloat(a.price || 0)
+        const priceB = typeof b.price === 'number' ? b.price : parseFloat(b.price || 0)
+        return priceB - priceA
+      })
       break
     case 'popularity':
-      filtered.sort((a, b) => b.viewCount - a.viewCount)
+      filtered.sort((a, b) => (b.viewCount || 0) - (a.viewCount || 0))
       break
     case 'newest':
     default:
-      filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      filtered.sort((a, b) => {
+        const dateA = a.createTime ? new Date(a.createTime).getTime() : 0
+        const dateB = b.createTime ? new Date(b.createTime).getTime() : 0
+        return dateB - dateA
+      })
   }
 
   return filtered
@@ -185,28 +126,78 @@ const resetFilters = () => {
   loadProducts()
 }
 
+// 加载商品分类
+const loadCategories = async () => {
+  try {
+    const response = await productApi.getCategories()
+    // 响应可能是分页格式，尝试从records或data字段获取
+    categories.value = response.records || response.data?.records || response.data || []
+    console.log('✅ ProductList: categories loaded, count:', categories.value.length)
+  } catch (error) {
+    console.error('❌ ProductList: loadCategories error:', error)
+    ElMessage.error('加载商品分类失败')
+    categories.value = []
+  }
+}
+
 // 加载商品数据
 const loadProducts = async () => {
   console.log('🔄 ProductList: loadProducts called, loading state:', loading.value)
   loading.value = true
   try {
-    // TODO: 调用后端 API
-    // const response = await productApi.getProductList({
-    //   page: pagination.currentPage,
-    //   size: pagination.pageSize,
-    //   ...filterForm
-    // })
+    // 构建API参数
+    const params: any = {
+      page: pagination.currentPage,
+      size: pagination.pageSize
+    }
 
-    console.log('⏳ ProductList: simulating API delay...')
-    // 模拟延迟
-    await new Promise(resolve => setTimeout(resolve, 500))
+    // 添加筛选条件
+    if (filterForm.keyword) params.keyword = filterForm.keyword
+    if (filterForm.categoryId) params.categoryId = parseInt(filterForm.categoryId)
+    if (filterForm.location) params.location = filterForm.location
 
-    // 模拟更新分页数据
-    pagination.total = 45
-    console.log('✅ ProductList: data loaded, products count:', products.value.length)
+    // 价格筛选 - 可能需要通过其他参数处理
+    // 注意：后端API可能不支持minPrice/maxPrice，这里保留但可能无效
+    if (filterForm.minPrice) params.minPrice = parseInt(filterForm.minPrice)
+    if (filterForm.maxPrice) params.maxPrice = parseInt(filterForm.maxPrice)
+
+    // 排序映射
+    let sortField = 'create_time'
+    let sortDirection = 'desc'
+    switch (filterForm.sortBy) {
+      case 'price_asc':
+        sortField = 'price'
+        sortDirection = 'asc'
+        break
+      case 'price_desc':
+        sortField = 'price'
+        sortDirection = 'desc'
+        break
+      case 'popularity':
+        sortField = 'view_count'
+        sortDirection = 'desc'
+        break
+      case 'newest':
+      default:
+        sortField = 'create_time'
+        sortDirection = 'desc'
+    }
+    params.sortField = sortField
+    params.sortDirection = sortDirection
+
+    const response = await productApi.getProductList(params)
+    // 响应可能是分页格式，尝试从records或data字段获取
+    const records = response.records || response.data?.records || response.data || []
+    products.value = records
+
+    // 更新分页总数
+    pagination.total = response.total || response.data?.total || records.length
+
+    console.log('✅ ProductList: products loaded, count:', products.value.length, 'total:', pagination.total)
   } catch (error) {
     console.error('❌ ProductList: loadProducts error:', error)
     ElMessage.error('加载商品列表失败')
+    products.value = []
   } finally {
     loading.value = false
     console.log('🏁 ProductList: loadProducts completed, loading state:', loading.value)
@@ -223,6 +214,9 @@ const handlePageChange = (page: number) => {
   pagination.currentPage = page
   loadProducts()
 }
+
+
+
 
 // 收藏商品
 const toggleLike = (productId: number, event: Event) => {
@@ -245,6 +239,8 @@ onMounted(() => {
   if (route.query.keyword) {
     filterForm.keyword = route.query.keyword as string
   }
+  // 加载分类和商品列表
+  loadCategories()
   loadProducts()
 })
 
@@ -398,7 +394,7 @@ onUnmounted(() => {
                 ]"
                 :key="price.label"
                 class="quick-filter-btn"
-                @click="filterForm.minPrice = price.min; filterForm.maxPrice = price.max || ''; handleSearch()"
+                @click="filterForm.minPrice = String(price.min); filterForm.maxPrice = price.max?.toString() || ''; handleSearch()"
               >
                 {{ price.label }}
               </el-button>

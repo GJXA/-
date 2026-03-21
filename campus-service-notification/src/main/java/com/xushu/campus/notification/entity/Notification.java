@@ -84,20 +84,43 @@ public class Notification {
      */
     private LocalDateTime expireTime;
 
+
+
+
+    /**
+     * 发送人ID（系统通知时为0）
+     */
+    private Long senderId;
+
+
+    /**
+     * 逻辑删除标志：0-未删除，1-已删除
+     */
+    @TableLogic
+    private Integer isDeleted;
+
+    /**
+     * 创建时间
+     */
+    @TableField(fill = FieldFill.INSERT)
+    private LocalDateTime createdAt;
+
+    /**
+     * 更新时间
+     */
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    private LocalDateTime updatedAt;
+
+    /**
+     * 版本号（乐观锁）
+     */
+    @Version
+    private Integer version;
+
     /**
      * 邮件发送状态：0-未发送，1-发送中，2-发送成功，3-发送失败
      */
     private Integer emailStatus;
-
-    /**
-     * 邮件发送失败原因
-     */
-    private String emailFailureReason;
-
-    /**
-     * 邮件发送重试次数
-     */
-    private Integer emailRetryCount;
 
     /**
      * 短信发送状态：0-未发送，1-发送中，2-发送成功，3-发送失败
@@ -105,63 +128,15 @@ public class Notification {
     private Integer smsStatus;
 
     /**
-     * 短信发送失败原因
-     */
-    private String smsFailureReason;
-
-    /**
-     * 短信发送重试次数
-     */
-    private Integer smsRetryCount;
-
-    /**
-     * WebSocket发送状态：0-未发送，1-发送成功，2-发送失败
+     * WebSocket发送状态：0-未发送，1-发送中，2-发送成功，3-发送失败
      */
     private Integer websocketStatus;
 
     /**
-     * 发送人ID（系统通知时为0）
+     * 发送人姓名（瞬态字段，不存储到数据库）
      */
-    private Long senderId;
-
-    /**
-     * 发送人名称
-     */
+    @TableField(exist = false)
     private String senderName;
-
-    /**
-     * 接收人邮箱（冗余存储，方便邮件发送）
-     */
-    private String receiverEmail;
-
-    /**
-     * 接收人手机号（冗余存储，方便短信发送）
-     */
-    private String receiverPhone;
-
-    /**
-     * 逻辑删除标志：0-未删除，1-已删除
-     */
-    @TableLogic
-    private Integer deleted;
-
-    /**
-     * 创建时间
-     */
-    @TableField(fill = FieldFill.INSERT)
-    private LocalDateTime createTime;
-
-    /**
-     * 更新时间
-     */
-    @TableField(fill = FieldFill.INSERT_UPDATE)
-    private LocalDateTime updateTime;
-
-    /**
-     * 版本号（乐观锁）
-     */
-    @Version
-    private Integer version;
 
     /**
      * 是否需要发送邮件

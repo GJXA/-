@@ -181,9 +181,11 @@ public class Job {
     private String publisherType;
 
     /**
-     * 发布者昵称/名称
+     * 发布者姓名（瞬态字段，不存储到数据库）
      */
+    @TableField(exist = false)
     private String publisherName;
+
 
     /**
      * 审核人ID
@@ -204,19 +206,19 @@ public class Job {
      * 逻辑删除标志：0-未删除，1-已删除
      */
     @TableLogic
-    private Integer deleted;
+    private Integer isDeleted;
 
     /**
      * 创建时间
      */
     @TableField(fill = FieldFill.INSERT)
-    private LocalDateTime createTime;
+    private LocalDateTime createdAt;
 
     /**
      * 更新时间
      */
     @TableField(fill = FieldFill.INSERT_UPDATE)
-    private LocalDateTime updateTime;
+    private LocalDateTime updatedAt;
 
     /**
      * 版本号（乐观锁）

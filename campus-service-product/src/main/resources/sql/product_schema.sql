@@ -19,8 +19,7 @@ CREATE TABLE IF NOT EXISTS `products` (
   `view_count` int DEFAULT 0 COMMENT '浏览次数',
   `like_count` int DEFAULT 0 COMMENT '点赞数',
   `favorite_count` int DEFAULT 0 COMMENT '收藏数',
-  `location` varchar(100) COMMENT '位置',
-  `address` varchar(200) COMMENT '详细地址',
+  `address` varchar(300) COMMENT '详细地址（包含位置信息）',
   `contact_phone` varchar(20) COMMENT '联系电话',
   `contact_name` varchar(50) COMMENT '联系人姓名',
   `quality_level` varchar(20) COMMENT '成色：NEW-全新，LIKE_NEW-几乎全新，USED-使用过',
@@ -29,14 +28,9 @@ CREATE TABLE IF NOT EXISTS `products` (
   `is_top` tinyint DEFAULT 0 COMMENT '是否置顶',
   `top_weight` int DEFAULT 0 COMMENT '置顶权重',
   `is_recommended` tinyint DEFAULT 0 COMMENT '是否推荐',
-  `auditor_id` bigint COMMENT '审核人ID',
-  `audit_time` datetime COMMENT '审核时间',
-  `audit_remark` varchar(500) COMMENT '审核备注',
-  `sold_time` datetime COMMENT '售出时间',
-  `buyer_id` bigint COMMENT '买家ID',
-  `deleted` tinyint DEFAULT 0 COMMENT '逻辑删除：0-未删除，1-已删除',
-  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `is_deleted` tinyint DEFAULT 0 COMMENT '逻辑删除：0-未删除，1-已删除',
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `version` int DEFAULT 0 COMMENT '版本号（乐观锁）',
   INDEX idx_user_id(`user_id`),
   INDEX idx_category_id(`category_id`),
@@ -45,7 +39,7 @@ CREATE TABLE IF NOT EXISTS `products` (
   INDEX idx_is_top(`is_top`),
   INDEX idx_is_recommended(`is_recommended`),
   INDEX idx_price(`price`),
-  INDEX idx_location(`location`)
+  INDEX idx_address(`address`(100))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='商品表';
 
 -- 商品分类表
@@ -57,10 +51,10 @@ CREATE TABLE IF NOT EXISTS `product_categories` (
   `description` varchar(200) COMMENT '描述',
   `icon` varchar(200) COMMENT '图标',
   `sort_order` int DEFAULT 0 COMMENT '排序',
-  `enabled` tinyint DEFAULT 1 COMMENT '是否启用',
-  `deleted` tinyint DEFAULT 0 COMMENT '逻辑删除：0-未删除，1-已删除',
-  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `is_enabled` tinyint DEFAULT 1 COMMENT '是否启用',
+  `is_deleted` tinyint DEFAULT 0 COMMENT '逻辑删除：0-未删除，1-已删除',
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   INDEX idx_parent_id(`parent_id`),
   INDEX idx_code(`code`),
   INDEX idx_sort_order(`sort_order`)
@@ -74,8 +68,8 @@ CREATE TABLE IF NOT EXISTS `product_images` (
   `thumbnail_url` varchar(500) COMMENT '缩略图URL',
   `sort_order` int DEFAULT 0 COMMENT '排序',
   `is_main` tinyint DEFAULT 0 COMMENT '是否主图：0-否，1-是',
-  `deleted` tinyint DEFAULT 0 COMMENT '逻辑删除：0-未删除，1-已删除',
-  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `is_deleted` tinyint DEFAULT 0 COMMENT '逻辑删除：0-未删除，1-已删除',
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   INDEX idx_product_id(`product_id`),
   INDEX idx_sort_order(`sort_order`),
   INDEX idx_is_main(`is_main`)
@@ -99,7 +93,7 @@ CREATE TABLE IF NOT EXISTS `product_likes` (
   `id` bigint PRIMARY KEY AUTO_INCREMENT COMMENT '点赞ID',
   `product_id` bigint NOT NULL COMMENT '商品ID',
   `user_id` bigint NOT NULL COMMENT '用户ID',
-  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   UNIQUE KEY uk_product_user(`product_id`, `user_id`),
   INDEX idx_product_id(`product_id`),
   INDEX idx_user_id(`user_id`)
@@ -115,14 +109,14 @@ CREATE TABLE IF NOT EXISTS `product_comments` (
   `rating` tinyint COMMENT '评分（1-5）',
   `status` tinyint DEFAULT 1 COMMENT '状态：0-隐藏，1-显示，2-审核中',
   `like_count` int DEFAULT 0 COMMENT '点赞数',
-  `deleted` tinyint DEFAULT 0 COMMENT '逻辑删除：0-未删除，1-已删除',
-  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `is_deleted` tinyint DEFAULT 0 COMMENT '逻辑删除：0-未删除，1-已删除',
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   INDEX idx_product_id(`product_id`),
   INDEX idx_user_id(`user_id`),
   INDEX idx_parent_id(`parent_id`),
   INDEX idx_status(`status`),
-  INDEX idx_create_time(`create_time`)
+  INDEX idx_created_at(`created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='商品评论表';
 
 -- 商品举报表
@@ -137,9 +131,9 @@ CREATE TABLE IF NOT EXISTS `product_reports` (
   `processor_id` bigint COMMENT '处理人ID',
   `process_time` datetime COMMENT '处理时间',
   `process_result` varchar(500) COMMENT '处理结果',
-  `deleted` tinyint DEFAULT 0 COMMENT '逻辑删除：0-未删除，1-已删除',
-  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `is_deleted` tinyint DEFAULT 0 COMMENT '逻辑删除：0-未删除，1-已删除',
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   INDEX idx_product_id(`product_id`),
   INDEX idx_reporter_id(`reporter_id`),
   INDEX idx_status(`status`)
@@ -156,14 +150,14 @@ CREATE TABLE IF NOT EXISTS `product_statistics` (
   `total_comments` int DEFAULT 0 COMMENT '总评论数',
   `total_sales` int DEFAULT 0 COMMENT '总销量',
   `statistics_date` date NOT NULL COMMENT '统计日期',
-  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   UNIQUE KEY uk_statistics(`product_id`, `category_id`, `statistics_date`),
   INDEX idx_category_id(`category_id`),
   INDEX idx_statistics_date(`statistics_date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='商品统计数据表';
 
 -- 初始化商品分类数据
-INSERT INTO `product_categories` (`parent_id`, `name`, `code`, `description`, `sort_order`) VALUES
+INSERT IGNORE INTO `product_categories` (`parent_id`, `name`, `code`, `description`, `sort_order`) VALUES
 (0, '电子产品', 'ELECTRONICS', '手机、电脑、平板等', 1),
 (0, '学习用品', 'STUDY_SUPPLIES', '书籍、文具、教材等', 2),
 (0, '生活用品', 'DAILY_NECESSITIES', '日用品、化妆品等', 3),
@@ -172,14 +166,14 @@ INSERT INTO `product_categories` (`parent_id`, `name`, `code`, `description`, `s
 (0, '其他', 'OTHER', '其他物品', 6);
 
 -- 电子产品子分类
-INSERT INTO `product_categories` (`parent_id`, `name`, `code`, `description`, `sort_order`) VALUES
+INSERT IGNORE INTO `product_categories` (`parent_id`, `name`, `code`, `description`, `sort_order`) VALUES
 (1, '手机', 'PHONE', '智能手机、功能机', 1),
 (1, '电脑', 'COMPUTER', '笔记本电脑、台式机', 2),
 (1, '平板', 'TABLET', '平板电脑', 3),
 (1, '数码配件', 'DIGITAL_ACCESSORIES', '耳机、充电器、数据线等', 4);
 
 -- 学习用品子分类
-INSERT INTO `product_categories` (`parent_id`, `name`, `code`, `description`, `sort_order`) VALUES
+INSERT IGNORE INTO `product_categories` (`parent_id`, `name`, `code`, `description`, `sort_order`) VALUES
 (2, '教材', 'TEXTBOOK', '各专业教材', 1),
 (2, '参考书', 'REFERENCE_BOOK', '考研、考证参考书', 2),
 (2, '文具', 'STATIONERY', '笔、本子、文具盒等', 3),
@@ -192,11 +186,11 @@ SELECT
     pc.name as category_name,
     pc.code as category_code,
     (SELECT COUNT(*) FROM product_likes pl WHERE pl.product_id = p.id) as actual_like_count,
-    (SELECT COUNT(*) FROM product_comments pc WHERE pc.product_id = p.id AND pc.status = 1 AND pc.deleted = 0) as actual_comment_count,
-    (SELECT image_url FROM product_images pi WHERE pi.product_id = p.id AND pi.is_main = 1 AND pi.deleted = 0 LIMIT 1) as main_image
+    (SELECT COUNT(*) FROM product_comments pc WHERE pc.product_id = p.id AND pc.status = 1 AND pc.is_deleted = 0) as actual_comment_count,
+    (SELECT image_url FROM product_images pi WHERE pi.product_id = p.id AND pi.is_main = 1 AND pi.is_deleted = 0 LIMIT 1) as main_image
 FROM `products` p
 LEFT JOIN `product_categories` pc ON p.category_id = pc.id
-WHERE p.deleted = 0;
+WHERE p.is_deleted = 0;
 
 -- 创建热门商品视图
 CREATE OR REPLACE VIEW `hot_products_view` AS
@@ -208,29 +202,30 @@ SELECT
     p.like_count,
     p.favorite_count,
     pc.name as category_name,
-    (SELECT image_url FROM product_images pi WHERE pi.product_id = p.id AND pi.is_main = 1 AND pi.deleted = 0 LIMIT 1) as main_image,
+    (SELECT image_url FROM product_images pi WHERE pi.product_id = p.id AND pi.is_main = 1 AND pi.is_deleted = 0 LIMIT 1) as main_image,
     ROW_NUMBER() OVER (PARTITION BY p.category_id ORDER BY (p.view_count * 0.3 + p.like_count * 0.4 + p.favorite_count * 0.3) DESC) as hot_rank
 FROM `products` p
 LEFT JOIN `product_categories` pc ON p.category_id = pc.id
 WHERE p.status = 1
-  AND p.deleted = 0
+  AND p.is_deleted = 0
   AND p.expire_time > NOW();
 
 -- 创建索引优化
 CREATE INDEX `idx_products_composite` ON `products` (`status`, `category_id`, `publish_time`);
-CREATE INDEX `idx_products_search` ON `products` (`title`, `description`(100), `location`);
+CREATE INDEX `idx_products_search` ON `products` (`title`, `description`(100), `address`(100));
 CREATE INDEX `idx_categories_tree` ON `product_categories` (`parent_id`, `sort_order`);
 CREATE INDEX `idx_view_logs_composite` ON `product_view_logs` (`product_id`, `view_time`);
 
 -- 创建存储过程：更新商品统计数据
 DELIMITER //
+DROP PROCEDURE IF EXISTS `sp_update_product_statistics`//
 CREATE PROCEDURE `sp_update_product_statistics`()
 BEGIN
     DECLARE done INT DEFAULT FALSE;
     DECLARE v_product_id BIGINT;
     DECLARE v_category_id BIGINT;
     DECLARE cur CURSOR FOR
-        SELECT id, category_id FROM products WHERE deleted = 0;
+        SELECT id, category_id FROM products WHERE is_deleted = 0;
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
 
     OPEN cur;
@@ -242,7 +237,7 @@ BEGIN
         END IF;
 
         INSERT INTO product_statistics
-            (product_id, category_id, total_views, total_likes, total_favorites, total_comments, statistics_date, create_time)
+            (product_id, category_id, total_views, total_likes, total_favorites, total_comments, statistics_date, created_at)
         SELECT
             v_product_id,
             v_category_id,
@@ -256,14 +251,14 @@ BEGIN
         LEFT JOIN product_view_logs pvl ON p.id = pvl.product_id
         LEFT JOIN product_likes pl ON p.id = pl.product_id
         LEFT JOIN user_favorites uf ON uf.target_type = 'PRODUCT' AND uf.target_id = p.id
-        LEFT JOIN product_comments pc ON p.id = pc.product_id AND pc.status = 1 AND pc.deleted = 0
+        LEFT JOIN product_comments pc ON p.id = pc.product_id AND pc.status = 1 AND pc.is_deleted = 0
         WHERE p.id = v_product_id
         ON DUPLICATE KEY UPDATE
             total_views = VALUES(total_views),
             total_likes = VALUES(total_likes),
             total_favorites = VALUES(total_favorites),
             total_comments = VALUES(total_comments),
-            create_time = NOW();
+            created_at = NOW();
     END LOOP;
 
     CLOSE cur;

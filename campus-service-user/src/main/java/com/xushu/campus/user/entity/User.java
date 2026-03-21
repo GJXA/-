@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -11,7 +12,7 @@ import java.time.LocalDateTime;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@TableName("user")
+@TableName("users")
 public class User {
 
     /**
@@ -66,21 +67,67 @@ public class User {
     private Integer status;
 
     /**
+     * 生日
+     */
+    private LocalDate birthday;
+
+    /**
+     * 学校
+     */
+    private String school;
+
+    /**
+     * 专业
+     */
+    private String major;
+
+    /**
+     * 年级
+     */
+    private String grade;
+
+    /**
+     * 地址
+     */
+    private String address;
+
+    /**
+     * 个性签名
+     */
+    private String signature;
+
+    /**
+     * 最后登录时间
+     */
+    private LocalDateTime lastLoginTime;
+
+    /**
+     * 最后登录IP
+     */
+    private String lastLoginIp;
+
+    /**
      * 创建时间
      */
-    @TableField(fill = FieldFill.INSERT)
+    @TableField(value = "created_at", fill = FieldFill.INSERT)
     private LocalDateTime createTime;
 
     /**
      * 更新时间
      */
-    @TableField(fill = FieldFill.INSERT_UPDATE)
+    @TableField(value = "updated_at", fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updateTime;
 
     /**
      * 逻辑删除标志
      */
     @TableLogic
+    @TableField("is_deleted")
     private Integer deleted;
 
+    /**
+     * 版本号（乐观锁）
+     */
+    @Version
+    private Integer version;
 }

@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref, computed, onBeforeMount, onMounted, onUpdated, onUnmounted } from 'vue'
+import { ref, onBeforeMount, onMounted, onUpdated, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { productApi, jobApi } from '@/api'
 import { Search, Promotion, Lock, Clock, Star, ArrowRight, Location, Money } from '@element-plus/icons-vue'
 
 // 图标别名定义
@@ -10,97 +11,44 @@ const Shield = Lock
 
 const router = useRouter()
 
+// 加载状态
+const loading = ref(false)
+
 // 热门商品数据
-const featuredProducts = ref([
-  {
-    id: 1,
-    title: '二手 MacBook Pro',
-    price: 4500,
-    originalPrice: 8000,
-    image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400&h=300&fit=crop',
-    category: '电子产品',
-    location: '北京校区',
-    rating: 4.8,
-    reviewCount: 124
-  },
-  {
-    id: 2,
-    title: '大学物理教材套装',
-    price: 80,
-    originalPrice: 200,
-    image: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400&h=300&fit=crop',
-    category: '学习资料',
-    location: '上海校区',
-    rating: 4.5,
-    reviewCount: 56
-  },
-  {
-    id: 3,
-    title: '自行车（九成新）',
-    price: 300,
-    originalPrice: 800,
-    image: 'https://images.unsplash.com/photo-1484920274317-87885fcbc504?w=400&h=300&fit=crop',
-    category: '生活用品',
-    location: '广州校区',
-    rating: 4.9,
-    reviewCount: 89
-  },
-  {
-    id: 4,
-    title: '耳机 Sony WH-1000XM4',
-    price: 1200,
-    originalPrice: 2000,
-    image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=300&fit=crop',
-    category: '电子产品',
-    location: '深圳校区',
-    rating: 4.7,
-    reviewCount: 203
+const featuredProducts = ref<any[]>([])
+
+// 获取热门商品
+const fetchFeaturedProducts = async () => {
+  try {
+    loading.value = true
+    const response = await productApi.getFeaturedProducts()
+    // 响应是分页数据，包含records字段
+    featuredProducts.value = response.records || response.data?.records || response.data || []
+  } catch (error) {
+    console.error('获取热门商品失败:', error)
+    featuredProducts.value = []
+  } finally {
+    loading.value = false
   }
-])
+}
 
 // 最新兼职数据
-const recentJobs = ref([
-  {
-    id: 1,
-    title: '校园外卖配送员',
-    company: '美团校园',
-    salary: '18-25元/小时',
-    location: '北京校区',
-    type: '兼职',
-    deadline: '2026-03-31',
-    requirements: '需自备电动车，时间灵活'
-  },
-  {
-    id: 2,
-    title: '图书馆管理员助理',
-    company: '校图书馆',
-    salary: '15元/小时',
-    location: '上海校区',
-    type: '校内兼职',
-    deadline: '2026-04-15',
-    requirements: '图书管理专业优先，每周至少20小时'
-  },
-  {
-    id: 3,
-    title: '家教（高中数学）',
-    company: '个人',
-    salary: '80-120元/小时',
-    location: '广州校区',
-    type: '家教',
-    deadline: '2026-04-10',
-    requirements: '数学专业，有家教经验优先'
-  },
-  {
-    id: 4,
-    title: '活动策划助理',
-    company: '学生会',
-    salary: '面议',
-    location: '深圳校区',
-    type: '校内工作',
-    deadline: '2026-03-25',
-    requirements: '有活动策划经验，沟通能力强'
+const recentJobs = ref<any[]>([])
+
+// 获取最新兼职
+const fetchRecentJobs = async () => {
+  try {
+    loading.value = true
+    const response = await jobApi.getRecentJobs()
+    // 响应是分页数据，包含records字段
+    recentJobs.value = response.records || response.data?.records || response.data || []
+  } catch (error) {
+    console.error('获取最新兼职失败:', error)
+    recentJobs.value = []
+  } finally {
+    loading.value = false
   }
-])
+}
 
 // 平台特色
 const platformFeatures = [
@@ -171,7 +119,9 @@ onBeforeMount(() => {
 })
 
 onMounted(() => {
-  console.log('🏠 Home: onMounted')
+  // 加载首页数据
+  fetchFeaturedProducts()
+  fetchRecentJobs()
 })
 
 onUpdated(() => {

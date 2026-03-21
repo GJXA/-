@@ -2,29 +2,34 @@
 import { ref, reactive, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/store/user'
+import { userApi } from '@/api'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { User, Message, Phone, Location, Edit, Camera, Lock, History, Star, ShoppingCart, Briefcase } from '@element-plus/icons-vue'
+import { User, Message, Phone, Location, Edit, Camera, Lock, Clock, Star, ShoppingCart, Briefcase, Setting, SwitchButton, Delete, Goods } from '@element-plus/icons-vue'
 
 const router = useRouter()
 const userStore = useUserStore()
 
-// 用户信息
-const userInfo = ref({
-  id: 1,
-  username: '张三',
-  email: 'zhangsan@example.com',
-  phone: '13800138000',
-  avatar: '',
-  bio: '热爱生活，喜欢尝试新鲜事物的大学生',
-  gender: 'male',
-  birthday: '2000-01-01',
-  location: '北京市海淀区',
-  school: '北京大学',
-  major: '计算机科学',
-  grade: '大三',
-  registerTime: '2025-09-01',
-  lastLogin: '2026-03-18 14:30:00'
-})
+// 加载状态
+const loading = ref(false)
+
+// 用户信息 - 使用 store 中的用户信息
+const userInfo = computed(() => userStore.userInfo)
+
+// 初始化编辑表单
+const initEditForm = () => {
+  if (userInfo.value) {
+    editForm.username = userInfo.value.username || ''
+    editForm.email = userInfo.value.email || ''
+    editForm.phone = userInfo.value.phone || ''
+    editForm.bio = userInfo.value.signature || ''
+    editForm.gender = userInfo.value.gender === 1 ? 'male' : userInfo.value.gender === 2 ? 'female' : ''
+    editForm.birthday = userInfo.value.birthday || ''
+    editForm.location = userInfo.value.address || ''
+    editForm.school = userInfo.value.school || ''
+    editForm.major = userInfo.value.major || ''
+    editForm.grade = userInfo.value.grade || ''
+  }
+}
 
 // 编辑表单
 const editForm = reactive({
@@ -53,101 +58,85 @@ const activeTab = ref('profile')
 // 统计信息
 const stats = ref({
   products: {
-    published: 12,
-    sold: 8,
-    buying: 3
+    published: 0,
+    sold: 0,
+    buying: 0
   },
   orders: {
-    total: 15,
-    pending: 2,
-    completed: 10
+    total: 0,
+    pending: 0,
+    completed: 0
   },
   jobs: {
-    published: 5,
-    applied: 7,
-    hired: 3
+    published: 0,
+    applied: 0,
+    hired: 0
   },
-  rating: 4.8,
-  creditScore: 750
+  rating: 0,
+  creditScore: 0
 })
 
 // 最近活动
-const recentActivities = ref([
-  {
-    id: 1,
-    type: 'order',
-    action: 'purchased',
-    title: '购买了 "二手 MacBook Pro"',
-    time: '2026-03-18 14:30:00',
-    amount: 6500
-  },
-  {
-    id: 2,
-    type: 'product',
-    action: 'published',
-    title: '发布了 "大学物理教材"',
-    time: '2026-03-17 10:15:00'
-  },
-  {
-    id: 3,
-    type: 'job',
-    action: 'applied',
-    title: '申请了 "校园外卖配送员"',
-    time: '2026-03-16 16:20:00'
-  },
-  {
-    id: 4,
-    type: 'order',
-    action: 'completed',
-    title: '完成了 "自行车" 订单',
-    time: '2026-03-15 09:45:00',
-    amount: 800
-  },
-  {
-    id: 5,
-    type: 'review',
-    action: 'rated',
-    title: '评价了 "耳机 Sony WH-1000XM4"',
-    time: '2026-03-14 18:30:00',
-    rating: 5
-  }
-])
+const recentActivities = ref<any[]>([])
 
-// 加载状态
-const loading = ref(false)
+// 对话框状态
 const editDialogVisible = ref(false)
 const passwordDialogVisible = ref(false)
 
 // 头像上传
 const handleAvatarUpload = (file: any) => {
-  // TODO: 实际上传逻辑
   const reader = new FileReader()
-  reader.onload = (e) => {
-    userInfo.value.avatar = e.target?.result as string
-    ElMessage.success('头像上传成功')
+  reader.onload = async (e) => {
+    try {
+      // 使用base64数据作为头像URL
+      const base64 = e.target?.result as string
+
+      // 调用API更新用户头像
+      await userApi.updateUserInfo({ avatarUrl: base64 })
+
+      // 更新store中的用户信息
+      if (userInfo.value) {
+        const updatedUser = { ...userInfo.value, avatarUrl: base64 }
+        userStore.setUserInfo(updatedUser)
+      }
+
+      ElMessage.success('头像上传成功')
+    } catch (error) {
+      console.error('头像上传失败:', error)
+      ElMessage.error('头像上传失败')
+    }
   }
   reader.readAsDataURL(file)
 }
 
-// 初始化编辑表单
-const initEditForm = () => {
-  Object.assign(editForm, userInfo.value)
-  editDialogVisible.value = true
-}
+// 初始化编辑表单（已在前面的initEditForm函数中定义）
 
 // 保存个人信息
 const saveProfile = async () => {
   try {
     loading.value = true
 
-    // TODO: 调用更新用户信息 API
-    // await userApi.updateUserInfo(editForm)
+    // 准备更新数据（映射到后端字段名）
+    const updateData = {
+      realName: editForm.username, // 前端显示为用户名，后端存储为真实姓名
+      email: editForm.email,
+      phone: editForm.phone,
+      signature: editForm.bio, // 前端bio对应后端signature
+      gender: editForm.gender === 'male' ? 1 : editForm.gender === 'female' ? 2 : 0,
+      birthday: editForm.birthday,
+      address: editForm.location, // 前端location对应后端address
+      school: editForm.school,
+      major: editForm.major,
+      grade: editForm.grade
+    }
 
-    Object.assign(userInfo.value, editForm)
+    // 调用更新用户信息 API
+    const updatedUser = await userApi.updateUserInfo(updateData)
+    userStore.setUserInfo(updatedUser)
     ElMessage.success('个人信息更新成功')
     editDialogVisible.value = false
-  } catch (error) {
-    ElMessage.error('更新失败')
+  } catch (error: any) {
+    ElMessage.error(error.message || '更新失败')
   } finally {
     loading.value = false
   }
@@ -168,16 +157,36 @@ const changePassword = async () => {
   try {
     loading.value = true
 
-    // TODO: 调用修改密码 API
-    // await userApi.changePassword(passwordForm)
+    // 调用修改密码 API
+    if (!userInfo.value?.id) {
+      throw new Error('用户信息获取失败')
+    }
+    await userApi.changePassword(userInfo.value.id, passwordForm.oldPassword, passwordForm.newPassword)
 
     ElMessage.success('密码修改成功')
     passwordDialogVisible.value = false
     passwordForm.oldPassword = ''
     passwordForm.newPassword = ''
     passwordForm.confirmPassword = ''
+  } catch (error: any) {
+    console.error('密码修改失败:', error)
+    ElMessage.error(error.response?.data?.message || error.message || '密码修改失败')
+  } finally {
+    loading.value = false
+  }
+}
+
+// 获取用户信息
+const fetchUserInfo = async () => {
+  if (loading.value) return
+
+  try {
+    loading.value = true
+    const userData = await userApi.getUserInfo()
+    userStore.setUserInfo(userData)
+    initEditForm()
   } catch (error) {
-    ElMessage.error('密码修改失败')
+    ElMessage.error('获取用户信息失败')
   } finally {
     loading.value = false
   }
@@ -230,9 +239,12 @@ const navigateTo = (path: string) => {
 
 // 初始化
 onMounted(() => {
-  // 从 store 加载用户信息
+  // 如果store中已有用户信息，初始化编辑表单
   if (userStore.userInfo) {
-    Object.assign(userInfo.value, userStore.userInfo)
+    initEditForm()
+  } else {
+    // 否则从API获取用户信息
+    fetchUserInfo()
   }
 })
 </script>
@@ -246,8 +258,8 @@ onMounted(() => {
           <!-- 头像区域 -->
           <div class="avatar-section">
             <div class="avatar-wrapper">
-              <el-avatar :size="120" :src="userInfo.avatar">
-                {{ userInfo.username?.charAt(0) }}
+              <el-avatar :size="120" :src="userInfo?.avatarUrl">
+                {{ userInfo?.username?.charAt(0) }}
               </el-avatar>
               <el-upload
                 class="avatar-upload"
@@ -270,26 +282,26 @@ onMounted(() => {
 
           <!-- 用户信息 -->
           <div class="user-info">
-            <h1 class="username">{{ userInfo.username }}</h1>
+            <h1 class="username">{{ userInfo?.username }}</h1>
             <div class="user-meta">
               <div class="meta-item">
                 <Message class="meta-icon" />
-                {{ userInfo.email }}
+                {{ userInfo?.email }}
               </div>
               <div class="meta-item">
                 <Phone class="meta-icon" />
-                {{ userInfo.phone }}
+                {{ userInfo?.phone }}
               </div>
               <div class="meta-item">
                 <Location class="meta-icon" />
-                {{ userInfo.location }}
+                {{ userInfo?.address }}
               </div>
             </div>
-            <p class="user-bio" v-if="userInfo.bio">
-              {{ userInfo.bio }}
+            <p class="user-bio" v-if="userInfo?.signature">
+              {{ userInfo?.signature }}
             </p>
             <div class="user-school">
-              {{ userInfo.school }} · {{ userInfo.major }} · {{ userInfo.grade }}
+              {{ userInfo?.school }} · {{ userInfo?.major }} · {{ userInfo?.grade }}
             </div>
           </div>
 
@@ -328,7 +340,7 @@ onMounted(() => {
                 <span>我的商品</span>
               </el-menu-item>
               <el-menu-item index="orders" @click="navigateTo('/orders')">
-                <el-icon><History /></el-icon>
+                <el-icon><Clock /></el-icon>
                 <span>我的订单</span>
               </el-menu-item>
               <el-menu-item index="jobs" @click="navigateTo('/jobs')">
@@ -407,27 +419,27 @@ onMounted(() => {
                 <div class="detail-grid">
                   <div class="detail-item">
                     <label class="detail-label">用户名</label>
-                    <div class="detail-value">{{ userInfo.username }}</div>
+                    <div class="detail-value">{{ userInfo?.username }}</div>
                   </div>
                   <div class="detail-item">
                     <label class="detail-label">邮箱</label>
-                    <div class="detail-value">{{ userInfo.email }}</div>
+                    <div class="detail-value">{{ userInfo?.email }}</div>
                   </div>
                   <div class="detail-item">
                     <label class="detail-label">手机号</label>
-                    <div class="detail-value">{{ userInfo.phone }}</div>
+                    <div class="detail-value">{{ userInfo?.phone }}</div>
                   </div>
                   <div class="detail-item">
                     <label class="detail-label">性别</label>
-                    <div class="detail-value">{{ userInfo.gender === 'male' ? '男' : '女' }}</div>
+                    <div class="detail-value">{{ userInfo?.gender === 1 ? '男' : userInfo?.gender === 2 ? '女' : '未知' }}</div>
                   </div>
                   <div class="detail-item">
                     <label class="detail-label">生日</label>
-                    <div class="detail-value">{{ userInfo.birthday }}</div>
+                    <div class="detail-value">{{ userInfo?.birthday }}</div>
                   </div>
                   <div class="detail-item">
                     <label class="detail-label">所在地</label>
-                    <div class="detail-value">{{ userInfo.location }}</div>
+                    <div class="detail-value">{{ userInfo?.address }}</div>
                   </div>
                 </div>
               </div>
@@ -437,15 +449,15 @@ onMounted(() => {
                 <div class="detail-grid">
                   <div class="detail-item">
                     <label class="detail-label">学校</label>
-                    <div class="detail-value">{{ userInfo.school }}</div>
+                    <div class="detail-value">{{ userInfo?.school }}</div>
                   </div>
                   <div class="detail-item">
                     <label class="detail-label">专业</label>
-                    <div class="detail-value">{{ userInfo.major }}</div>
+                    <div class="detail-value">{{ userInfo?.major }}</div>
                   </div>
                   <div class="detail-item">
                     <label class="detail-label">年级</label>
-                    <div class="detail-value">{{ userInfo.grade }}</div>
+                    <div class="detail-value">{{ userInfo?.grade }}</div>
                   </div>
                 </div>
               </div>
@@ -453,7 +465,7 @@ onMounted(() => {
               <div class="detail-section">
                 <h3 class="section-title">个人简介</h3>
                 <div class="bio-content">
-                  {{ userInfo.bio || '暂无个人简介' }}
+                  {{ userInfo?.signature || '暂无个人简介' }}
                 </div>
               </div>
 
@@ -462,11 +474,11 @@ onMounted(() => {
                 <div class="detail-grid">
                   <div class="detail-item">
                     <label class="detail-label">注册时间</label>
-                    <div class="detail-value">{{ userInfo.registerTime }}</div>
+                    <div class="detail-value">{{ userInfo?.createTime }}</div>
                   </div>
                   <div class="detail-item">
                     <label class="detail-label">最后登录</label>
-                    <div class="detail-value">{{ userInfo.lastLogin }}</div>
+                    <div class="detail-value">{{ userInfo?.lastLoginTime }}</div>
                   </div>
                 </div>
               </div>
@@ -525,7 +537,7 @@ onMounted(() => {
               <div class="setting-item">
                 <div class="setting-info">
                   <h3 class="setting-title">手机验证</h3>
-                  <p class="setting-desc">已绑定手机: {{ userInfo.phone }}</p>
+                  <p class="setting-desc">已绑定手机: {{ userInfo?.phone }}</p>
                 </div>
                 <el-button>
                   更换手机
@@ -535,7 +547,7 @@ onMounted(() => {
               <div class="setting-item">
                 <div class="setting-info">
                   <h3 class="setting-title">邮箱验证</h3>
-                  <p class="setting-desc">已绑定邮箱: {{ userInfo.email }}</p>
+                  <p class="setting-desc">已绑定邮箱: {{ userInfo?.email }}</p>
                 </div>
                 <el-button>
                   更换邮箱

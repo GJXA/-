@@ -4,6 +4,7 @@ import lombok.Data;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
+import java.time.LocalDate;
 
 /**
  * 更新用户信息请求DTO
@@ -43,4 +44,33 @@ public class UpdateUserRequest {
      */
     private Integer gender;
 
+    /**
+     * 生日
+     */
+    private LocalDate birthday;
+
+    /**
+     * 学校
+     */
+    private String school;
+
+    /**
+     * 专业
+     */
+    private String major;
+
+    /**
+     * 年级
+     */
+    private String grade;
+
+    /**
+     * 地址
+     */
+    private String address;
+
+    /**
+     * 个性签名
+     */
+    private String signature;
 }

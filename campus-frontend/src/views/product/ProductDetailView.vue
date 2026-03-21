@@ -2,65 +2,18 @@
 import { ref, reactive, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { ShoppingCart, Heart, Share, Star, Location, Clock, Eye, Message, Phone } from '@element-plus/icons-vue'
+import { ShoppingCart, Share, Location, Clock, Message, Phone } from '@element-plus/icons-vue'
+import { productApi } from '@/api'
 
 const route = useRoute()
 const router = useRouter()
 
-const productId = computed(() => route.params.id)
+
+// 加载状态
+const loading = ref(true)
 
 // 商品详情数据
-const product = ref({
-  id: 1,
-  title: '二手 MacBook Pro 2023',
-  description: '13英寸 M2芯片，16GB内存，512GB SSD。电池循环次数120次，外观完好无划痕，屏幕无亮点坏点。包装盒、充电器、原装数据线齐全。因换新电脑而出售，性能强劲，适合学习和办公使用。',
-  price: 6500,
-  originalPrice: 8999,
-  images: [
-    'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800&h=600&fit=crop',
-    'https://images.unsplash.com/photo-1545235617-9465d2a55698?w=800&h=600&fit=crop',
-    'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=800&h=600&fit=crop'
-  ],
-  category: '电子产品',
-  categoryId: 1,
-  seller: {
-    id: 101,
-    name: '张三',
-    avatar: '',
-    rating: 4.8,
-    joinTime: '2025-09-01',
-    location: '北京校区',
-    productCount: 12,
-    positiveReviews: 95
-  },
-  condition: '9成新',
-  location: '北京校区',
-  status: 'available', // available, sold, reserved
-  createdAt: '2026-03-15',
-  updatedAt: '2026-03-18',
-  viewCount: 1245,
-  likeCount: 89,
-  tags: ['苹果', '笔记本电脑', 'M2芯片', 'MacBook', '学习办公'],
-  specifications: [
-    { key: '品牌', value: 'Apple' },
-    { key: '型号', value: 'MacBook Pro 13英寸' },
-    { key: '处理器', value: 'Apple M2芯片' },
-    { key: '内存', value: '16GB' },
-    { key: '硬盘', value: '512GB SSD' },
-    { key: '屏幕', value: '13.3英寸 Retina显示屏' },
-    { key: '电池健康度', value: '92%' },
-    { key: '购买时间', value: '2023年9月' },
-    { key: '保修情况', value: '已过保' },
-    { key: '配件', value: '充电器、数据线、包装盒' }
-  ],
-  shippingInfo: {
-    method: '快递/自提',
-    cost: '包邮',
-    location: '北京市海淀区',
-    deliveryTime: '1-3天'
-  },
-  returnPolicy: '支持7天无理由退货'
-})
+const product = ref<any>(null)
 
 // 当前图片索引
 const currentImageIndex = ref(0)
@@ -68,67 +21,106 @@ const currentImageIndex = ref(0)
 // 购买数量
 const quantity = ref(1)
 
-// 加载状态
-const loading = ref(false)
 const liked = ref(false)
 
-// 相关商品
-const relatedProducts = ref([
-  {
-    id: 2,
-    title: 'MacBook Air M1',
-    price: 4500,
-    image: 'https://images.unsplash.com/photo-1541807084-5c52b6b3adef?w=400&h=300&fit=crop',
-    condition: '8成新',
-    location: '北京校区'
-  },
-  {
-    id: 3,
-    title: 'iPad Pro 2022',
-    price: 3800,
-    image: 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400&h=300&fit=crop',
-    condition: '9成新',
-    location: '上海校区'
-  },
-  {
-    id: 4,
-    title: 'ThinkPad X1 Carbon',
-    price: 5200,
-    image: 'https://images.unsplash.com/photo-1593640408182-31c70c8268f5?w=400&h=300&fit=crop',
-    condition: '85新',
-    location: '广州校区'
+// 加载相关商品
+const loadRelatedProducts = async (categoryId: number) => {
+  try {
+    const response = await productApi.getProductList({
+      page: 1,
+      size: 3,
+      categoryId: categoryId
+    })
+    // 过滤掉当前商品
+    const related = (response.records || response.data?.records || []).filter((p: any) => p.id !== product.value?.id)
+    // 映射字段以匹配模板
+    relatedProducts.value = related.slice(0, 3).map((p: any) => ({
+      id: p.id,
+      title: p.title || p.name,
+      price: p.price,
+      image: p.images?.[0] || p.imageUrl || '',
+      condition: p.condition || '未知',
+      location: p.location || '未知'
+    }))
+  } catch (error) {
+    console.error('加载相关商品失败:', error)
+    relatedProducts.value = []
   }
-])
+}
+
+// 加载商品详情
+const loadProductDetail = async () => {
+  try {
+    loading.value = true
+    const productId = parseInt(route.params.id as string)
+
+    if (!productId || isNaN(productId)) {
+      ElMessage.error('商品ID无效')
+      router.push('/products')
+      return
+    }
+
+    // 调用API获取商品详情
+    const response = await productApi.getProductDetail(productId)
+
+    // 映射后端数据到前端数据结构
+    // 注意：后端返回的数据结构可能与前端期望的不同，这里需要根据实际情况调整
+    product.value = {
+      id: response.id || 0,
+      title: response.name || response.title || '',
+      description: response.description || '',
+      price: response.price || 0,
+      originalPrice: response.originalPrice || response.marketPrice || response.price,
+      images: response.images || response.imageUrls || [],
+      category: response.categoryName || response.category || '',
+      categoryId: response.categoryId || 0,
+      seller: {
+        id: response.userId || response.sellerId || 0,
+        name: response.sellerName || response.username || '未知卖家',
+        avatar: response.avatarUrl || response.sellerAvatar || '',
+        rating: response.rating || 4.5,
+        joinTime: response.createTime || '未知',
+        location: response.location || response.address || '',
+        productCount: response.productCount || 0,
+        positiveReviews: response.positiveReviews || 95
+      },
+      condition: response.condition || '未知',
+      location: response.location || response.address || '',
+      status: response.status || 'available',
+      createdAt: response.createTime || '',
+      updatedAt: response.updateTime || '',
+      viewCount: response.viewCount || 0,
+      likeCount: response.likeCount || 0,
+      tags: response.tags || response.keywords || [],
+      specifications: response.specifications || response.attributes || [],
+      shippingInfo: response.shippingInfo || {
+        method: '快递/自提',
+        cost: '包邮',
+        location: response.location || '',
+        deliveryTime: '1-3天'
+      },
+      returnPolicy: response.returnPolicy || '支持7天无理由退货'
+    }
+
+    console.log('✅ ProductDetail: 商品详情加载成功', product.value)
+    // 加载相关商品
+    if (product.value?.categoryId) {
+      await loadRelatedProducts(product.value.categoryId)
+    }
+  } catch (error) {
+    console.error('❌ ProductDetail: 加载商品详情失败', error)
+    ElMessage.error('加载商品详情失败')
+    router.push('/products')
+  } finally {
+    loading.value = false
+  }
+}
+
+// 相关商品
+const relatedProducts = ref<any[]>([])
 
 // 评论数据
-const reviews = ref([
-  {
-    id: 1,
-    user: {
-      name: '李四',
-      avatar: '',
-      rating: 4.9
-    },
-    rating: 5,
-    comment: '商品非常满意，卖家很负责，电脑运行流畅，物超所值！',
-    images: [],
-    createdAt: '2026-03-17',
-    likes: 12
-  },
-  {
-    id: 2,
-    user: {
-      name: '王五',
-      avatar: '',
-      rating: 4.7
-    },
-    rating: 4,
-    comment: '电脑成色不错，电池健康度也还可以，就是有点小划痕，但不影响使用。',
-    images: [],
-    createdAt: '2026-03-16',
-    likes: 5
-  }
-])
+const reviews = ref<any[]>([])
 
 // 新评论
 const newReview = reactive({
@@ -148,14 +140,21 @@ const selectImage = (index: number) => {
 }
 
 // 收藏商品
-const toggleLike = () => {
-  liked.value = !liked.value
-  if (liked.value) {
-    product.value.likeCount++
-    ElMessage.success('已添加到收藏')
-  } else {
-    product.value.likeCount--
-    ElMessage.info('已取消收藏')
+const toggleLike = async () => {
+  try {
+    if (liked.value) {
+      await productApi.unlikeProduct(product.value.id)
+      product.value.likeCount--
+      ElMessage.info('已取消收藏')
+    } else {
+      await productApi.likeProduct(product.value.id)
+      product.value.likeCount++
+      ElMessage.success('已添加到收藏')
+    }
+    liked.value = !liked.value
+  } catch (error) {
+    console.error('操作失败:', error)
+    ElMessage.error('操作失败，请稍后重试')
   }
 }
 
@@ -210,78 +209,41 @@ const addToCart = () => {
 
 // 联系卖家
 const contactSeller = () => {
-  ElMessage.info(`卖家电话: ${product.value.seller.phone || '13800138000'}`)
+  const phone = product.value?.seller?.phone || product.value?.contactPhone || '暂无联系方式'
+  ElMessage.info(`卖家电话: ${phone}`)
 }
 
 // 提交评论
 const submitReview = () => {
-  if (!newReview.comment.trim()) {
-    ElMessage.warning('请输入评论内容')
-    return
-  }
-
-  const review = {
-    id: reviews.value.length + 1,
-    user: {
-      name: '当前用户',
-      avatar: '',
-      rating: 5.0
-    },
-    rating: newReview.rating,
-    comment: newReview.comment,
-    images: newReview.images,
-    createdAt: new Date().toISOString().split('T')[0],
-    likes: 0
-  }
-
-  reviews.value.unshift(review)
-  newReview.rating = 5
-  newReview.comment = ''
-  newReview.images = []
-  ElMessage.success('评论发表成功')
+  ElMessage.info('评论功能暂未开放')
+  // TODO: 调用评论API
 }
 
-// 加载商品详情
-const loadProductDetail = async () => {
-  loading.value = true
-  try {
-    // TODO: 调用后端 API
-    // const response = await productApi.getProductDetail(Number(productId.value))
-    // product.value = response.data
-
-    // 模拟延迟
-    await new Promise(resolve => setTimeout(resolve, 500))
-  } catch (error) {
-    ElMessage.error('加载商品详情失败')
-  } finally {
-    loading.value = false
-  }
-}
 
 // 初始化
 onMounted(() => {
   loadProductDetail()
-  // 增加浏览次数
-  product.value.viewCount++
 })
 </script>
 
 <template>
-  <div class="product-detail-container">
+  <div v-if="loading" class="loading-container">
+    <el-skeleton :rows="10" animated />
+  </div>
+
+  <div v-else-if="product" class="product-detail-container">
     <div class="container">
       <!-- 面包屑导航 -->
       <div class="breadcrumb">
         <el-breadcrumb separator="/">
           <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
           <el-breadcrumb-item :to="{ path: '/products' }">二手商品</el-breadcrumb-item>
-          <el-breadcrumb-item :to="{ path: `/products?category=${product.categoryId}` }">
-            {{ product.category }}
+          <el-breadcrumb-item :to="{ path: `/products?category=${product?.categoryId}` }">
+            {{ product?.category }}
           </el-breadcrumb-item>
-          <el-breadcrumb-item>{{ product.title }}</el-breadcrumb-item>
+          <el-breadcrumb-item>{{ product?.title }}</el-breadcrumb-item>
         </el-breadcrumb>
       </div>
-
-      <div v-if="loading" class="loading-container">
         <el-skeleton :rows="10" animated />
       </div>
 
@@ -547,7 +509,7 @@ onMounted(() => {
                   <div class="overall-rating">
                     <div class="rating-score">4.5</div>
                     <div class="rating-stars">
-                      <el-rate v-model="4.5" disabled />
+                      <el-rate :model-value="4.5" disabled />
                     </div>
                     <div class="rating-count">{{ reviews.length }} 条评价</div>
                   </div>

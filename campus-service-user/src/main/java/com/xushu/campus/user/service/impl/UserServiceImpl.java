@@ -215,6 +215,30 @@ public class UserServiceImpl implements UserService {
             user.setGender(request.getGender());
         }
 
+        if (request.getBirthday() != null) {
+            user.setBirthday(request.getBirthday());
+        }
+
+        if (StringUtils.hasText(request.getSchool())) {
+            user.setSchool(request.getSchool());
+        }
+
+        if (StringUtils.hasText(request.getMajor())) {
+            user.setMajor(request.getMajor());
+        }
+
+        if (StringUtils.hasText(request.getGrade())) {
+            user.setGrade(request.getGrade());
+        }
+
+        if (StringUtils.hasText(request.getAddress())) {
+            user.setAddress(request.getAddress());
+        }
+
+        if (StringUtils.hasText(request.getSignature())) {
+            user.setSignature(request.getSignature());
+        }
+
         user.setUpdateTime(LocalDateTime.now());
         userMapper.updateById(user);
 

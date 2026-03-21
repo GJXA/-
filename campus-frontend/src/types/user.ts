@@ -3,8 +3,21 @@ export interface UserInfo {
   username: string
   email: string
   phone: string
-  avatar: string
-  role: 'USER' | 'ADMIN'
+  avatarUrl: string
+  roles: string[]
+  realName?: string
+  studentId?: string
+  gender?: number
+  status?: number
+  createTime?: string
+  updateTime?: string
+  school?: string
+  major?: string
+  grade?: string
+  address?: string
+  signature?: string
+  birthday?: string
+  lastLoginTime?: string
 }
 
 export interface LoginRequest {
@@ -20,6 +33,9 @@ export interface RegisterRequest {
 }
 
 export interface LoginResponse {
-  token: string
-  userInfo: UserInfo
+  accessToken: string
+  refreshToken: string
+  tokenType: string
+  expiresIn: number
+  user: UserInfo
 }

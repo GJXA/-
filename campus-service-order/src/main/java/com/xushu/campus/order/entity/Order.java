@@ -139,32 +139,25 @@ public class Order {
      */
     private Long sellerId;
 
-    /**
-     * 卖家昵称（冗余存储）
-     */
-    private String sellerNickname;
 
-    /**
-     * 买家昵称（冗余存储）
-     */
-    private String buyerNickname;
 
     /**
      * 逻辑删除标志：0-未删除，1-已删除
      */
     @TableLogic
+    @TableField("is_deleted")
     private Integer deleted;
 
     /**
      * 创建时间
      */
-    @TableField(fill = FieldFill.INSERT)
+    @TableField(value = "created_at", fill = FieldFill.INSERT)
     private LocalDateTime createTime;
 
     /**
      * 更新时间
      */
-    @TableField(fill = FieldFill.INSERT_UPDATE)
+    @TableField(value = "updated_at", fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updateTime;
 
     /**
@@ -172,5 +165,17 @@ public class Order {
      */
     @Version
     private Integer version;
+
+    /**
+     * 买家昵称（瞬态字段，不存储到数据库）
+     */
+    @TableField(exist = false)
+    private String buyerNickname;
+
+    /**
+     * 卖家昵称（瞬态字段，不存储到数据库）
+     */
+    @TableField(exist = false)
+    private String sellerNickname;
 
 }

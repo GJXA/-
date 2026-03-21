@@ -287,11 +287,17 @@ public class JobApplicationController {
     // ========== 私有方法 ==========
 
     /**
-     * 从请求中获取用户ID（模拟实现）
+     * 从请求中获取用户ID
      */
     private Long getUserIdFromRequest(HttpServletRequest request) {
-        // TODO: 从JWT令牌中解析用户ID
-        // 这里返回一个模拟的用户ID
-        return 1L;
+        String userIdStr = request.getHeader("X-User-Id");
+        if (userIdStr == null) {
+            throw new IllegalArgumentException("用户未登录");
+        }
+        try {
+            return Long.parseLong(userIdStr);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("无效的用户ID格式");
+        }
     }
 }

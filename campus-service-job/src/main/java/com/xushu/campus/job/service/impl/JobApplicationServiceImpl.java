@@ -40,7 +40,7 @@ public class JobApplicationServiceImpl implements JobApplicationService {
 
         // 1. 检查兼职是否存在且可申请
         Job job = jobMapper.selectById(request.getJobId());
-        if (job == null || job.getDeleted() == 1) {
+        if (job == null || job.getIsDeleted() == 1) {
             throw new BusinessException("兼职不存在或已被删除");
         }
 
@@ -62,7 +62,7 @@ public class JobApplicationServiceImpl implements JobApplicationService {
 
         // 5. 检查是否已申请过
         JobApplication existingApplication = jobApplicationMapper.selectByApplicantAndJob(applicantId, request.getJobId());
-        if (existingApplication != null && existingApplication.getDeleted() == 0) {
+        if (existingApplication != null && existingApplication.getIsDeleted() == 0) {
             throw new BusinessException("您已申请过该兼职");
         }
 
@@ -110,7 +110,7 @@ public class JobApplicationServiceImpl implements JobApplicationService {
 
         // 1. 检查申请记录是否存在
         JobApplication application = jobApplicationMapper.selectById(applicationId);
-        if (application == null || application.getDeleted() == 1) {
+        if (application == null || application.getIsDeleted() == 1) {
             throw new BusinessException("申请记录不存在或已被删除");
         }
 
@@ -126,7 +126,7 @@ public class JobApplicationServiceImpl implements JobApplicationService {
 
         // 4. 更新申请状态为已取消
         application.setStatus(JobConstants.ApplicationStatus.CANCELLED);
-        application.setUpdateTime(LocalDateTime.now());
+        application.setUpdatedAt(LocalDateTime.now());
 
         int result = jobApplicationMapper.updateById(application);
         if (result <= 0) {
@@ -147,7 +147,7 @@ public class JobApplicationServiceImpl implements JobApplicationService {
 
         // 1. 检查申请记录是否存在
         JobApplication application = jobApplicationMapper.selectById(applicationId);
-        if (application == null || application.getDeleted() == 1) {
+        if (application == null || application.getIsDeleted() == 1) {
             throw new BusinessException("申请记录不存在或已被删除");
         }
 
@@ -158,7 +158,7 @@ public class JobApplicationServiceImpl implements JobApplicationService {
 
         // 3. 检查兼职是否存在
         Job job = jobMapper.selectById(application.getJobId());
-        if (job == null || job.getDeleted() == 1) {
+        if (job == null || job.getIsDeleted() == 1) {
             throw new BusinessException("兼职不存在或已被删除");
         }
 
@@ -177,7 +177,7 @@ public class JobApplicationServiceImpl implements JobApplicationService {
         application.setProcessorId(processorId);
         application.setProcessorName("系统"); // TODO: 获取处理人姓名
         application.setProcessRemark(processRemark);
-        application.setUpdateTime(LocalDateTime.now());
+        application.setUpdatedAt(LocalDateTime.now());
 
         int result = jobApplicationMapper.updateById(application);
         if (result <= 0) {
@@ -210,7 +210,7 @@ public class JobApplicationServiceImpl implements JobApplicationService {
 
         // 1. 检查申请记录是否存在
         JobApplication application = jobApplicationMapper.selectById(applicationId);
-        if (application == null || application.getDeleted() == 1) {
+        if (application == null || application.getIsDeleted() == 1) {
             throw new BusinessException("申请记录不存在或已被删除");
         }
 
@@ -221,7 +221,7 @@ public class JobApplicationServiceImpl implements JobApplicationService {
 
         // 3. 检查操作权限（发布者可以安排面试）
         Job job = jobMapper.selectById(application.getJobId());
-        if (job == null || job.getDeleted() == 1) {
+        if (job == null || job.getIsDeleted() == 1) {
             throw new BusinessException("兼职不存在或已被删除");
         }
         if (!job.getPublisherId().equals(processorId)) {
@@ -233,7 +233,7 @@ public class JobApplicationServiceImpl implements JobApplicationService {
         application.setInterviewTime(LocalDateTime.parse(interviewTime)); // TODO: 时间格式转换
         application.setInterviewLocation(interviewLocation);
         application.setInterviewRemark(interviewRemark);
-        application.setUpdateTime(LocalDateTime.now());
+        application.setUpdatedAt(LocalDateTime.now());
 
         int result = jobApplicationMapper.updateById(application);
         if (result <= 0) {
@@ -252,7 +252,7 @@ public class JobApplicationServiceImpl implements JobApplicationService {
 
         // 1. 检查申请记录是否存在
         JobApplication application = jobApplicationMapper.selectById(applicationId);
-        if (application == null || application.getDeleted() == 1) {
+        if (application == null || application.getIsDeleted() == 1) {
             throw new BusinessException("申请记录不存在或已被删除");
         }
 
@@ -263,7 +263,7 @@ public class JobApplicationServiceImpl implements JobApplicationService {
 
         // 3. 检查操作权限（发布者可以发送录用通知）
         Job job = jobMapper.selectById(application.getJobId());
-        if (job == null || job.getDeleted() == 1) {
+        if (job == null || job.getIsDeleted() == 1) {
             throw new BusinessException("兼职不存在或已被删除");
         }
         if (!job.getPublisherId().equals(processorId)) {
@@ -274,7 +274,7 @@ public class JobApplicationServiceImpl implements JobApplicationService {
         // 4. 发送录用通知
         application.setOfferTime(LocalDateTime.now());
         application.setOfferContent(offerContent);
-        application.setUpdateTime(LocalDateTime.now());
+        application.setUpdatedAt(LocalDateTime.now());
 
         int result = jobApplicationMapper.updateById(application);
         if (result <= 0) {
@@ -293,7 +293,7 @@ public class JobApplicationServiceImpl implements JobApplicationService {
 
         // 1. 检查申请记录是否存在
         JobApplication application = jobApplicationMapper.selectById(applicationId);
-        if (application == null || application.getDeleted() == 1) {
+        if (application == null || application.getIsDeleted() == 1) {
             throw new BusinessException("申请记录不存在或已被删除");
         }
 
@@ -317,7 +317,7 @@ public class JobApplicationServiceImpl implements JobApplicationService {
         application.setConfirmStatus(newConfirmStatus);
         application.setConfirmTime(LocalDateTime.now());
         application.setConfirmRemark(confirmRemark);
-        application.setUpdateTime(LocalDateTime.now());
+        application.setUpdatedAt(LocalDateTime.now());
 
         int result = jobApplicationMapper.updateById(application);
         if (result <= 0) {
@@ -336,13 +336,13 @@ public class JobApplicationServiceImpl implements JobApplicationService {
 
         // 1. 检查申请记录是否存在
         JobApplication application = jobApplicationMapper.selectById(applicationId);
-        if (application == null || application.getDeleted() == 1) {
+        if (application == null || application.getIsDeleted() == 1) {
             throw new BusinessException("申请记录不存在或已被删除");
         }
 
         // 2. 检查操作权限（发布者可以记录工作时间）
         Job job = jobMapper.selectById(application.getJobId());
-        if (job == null || job.getDeleted() == 1) {
+        if (job == null || job.getIsDeleted() == 1) {
             throw new BusinessException("兼职不存在或已被删除");
         }
         if (!job.getPublisherId().equals(publisherId)) {
@@ -358,7 +358,7 @@ public class JobApplicationServiceImpl implements JobApplicationService {
         // 4. 记录工作时间
         application.setActualStartTime(LocalDateTime.parse(actualStartTime)); // TODO: 时间格式转换
         application.setActualEndTime(LocalDateTime.parse(actualEndTime));
-        application.setUpdateTime(LocalDateTime.now());
+        application.setUpdatedAt(LocalDateTime.now());
 
         int result = jobApplicationMapper.updateById(application);
         if (result <= 0) {
@@ -377,13 +377,13 @@ public class JobApplicationServiceImpl implements JobApplicationService {
 
         // 1. 检查申请记录是否存在
         JobApplication application = jobApplicationMapper.selectById(applicationId);
-        if (application == null || application.getDeleted() == 1) {
+        if (application == null || application.getIsDeleted() == 1) {
             throw new BusinessException("申请记录不存在或已被删除");
         }
 
         // 2. 检查操作权限（发布者可以添加工作评价）
         Job job = jobMapper.selectById(application.getJobId());
-        if (job == null || job.getDeleted() == 1) {
+        if (job == null || job.getIsDeleted() == 1) {
             throw new BusinessException("兼职不存在或已被删除");
         }
         if (!job.getPublisherId().equals(publisherId)) {
@@ -405,7 +405,7 @@ public class JobApplicationServiceImpl implements JobApplicationService {
         application.setWorkEvaluation(workEvaluation);
         application.setEvaluationScore(evaluationScore);
         application.setEvaluationTime(LocalDateTime.now());
-        application.setUpdateTime(LocalDateTime.now());
+        application.setUpdatedAt(LocalDateTime.now());
 
         int result = jobApplicationMapper.updateById(application);
         if (result <= 0) {
@@ -422,7 +422,7 @@ public class JobApplicationServiceImpl implements JobApplicationService {
         log.debug("获取申请详情: applicationId={}", applicationId);
 
         JobApplication application = jobApplicationMapper.selectById(applicationId);
-        if (application == null || application.getDeleted() == 1) {
+        if (application == null || application.getIsDeleted() == 1) {
             throw new BusinessException("申请记录不存在或已被删除");
         }
 
@@ -439,7 +439,7 @@ public class JobApplicationServiceImpl implements JobApplicationService {
 
         // 构建查询条件
         LambdaQueryWrapper<JobApplication> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(JobApplication::getDeleted, 0)
+        queryWrapper.eq(JobApplication::getIsDeleted, 0)
                    .eq(JobApplication::getApplicantId, applicantId)
                    .orderByDesc(JobApplication::getApplyTime);
 
@@ -468,7 +468,7 @@ public class JobApplicationServiceImpl implements JobApplicationService {
 
         // 构建查询条件
         LambdaQueryWrapper<JobApplication> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(JobApplication::getDeleted, 0)
+        queryWrapper.eq(JobApplication::getIsDeleted, 0)
                    .eq(JobApplication::getJobId, jobId)
                    .orderByDesc(JobApplication::getApplyTime);
 
@@ -497,7 +497,7 @@ public class JobApplicationServiceImpl implements JobApplicationService {
 
         // 构建查询条件
         LambdaQueryWrapper<JobApplication> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(JobApplication::getDeleted, 0)
+        queryWrapper.eq(JobApplication::getIsDeleted, 0)
                    .eq(JobApplication::getPublisherId, publisherId)
                    .orderByDesc(JobApplication::getApplyTime);
 
@@ -534,7 +534,7 @@ public class JobApplicationServiceImpl implements JobApplicationService {
 
         // 构建查询条件
         LambdaQueryWrapper<JobApplication> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(JobApplication::getDeleted, 0)
+        queryWrapper.eq(JobApplication::getIsDeleted, 0)
                    .eq(JobApplication::getStatus, status)
                    .orderByDesc(JobApplication::getApplyTime);
 
@@ -563,7 +563,7 @@ public class JobApplicationServiceImpl implements JobApplicationService {
 
         // 构建查询条件
         LambdaQueryWrapper<JobApplication> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(JobApplication::getDeleted, 0)
+        queryWrapper.eq(JobApplication::getIsDeleted, 0)
                    .eq(JobApplication::getStatus, JobConstants.ApplicationStatus.PENDING)
                    .orderByAsc(JobApplication::getApplyTime);
 
@@ -592,7 +592,7 @@ public class JobApplicationServiceImpl implements JobApplicationService {
 
         // 构建查询条件
         LambdaQueryWrapper<JobApplication> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(JobApplication::getDeleted, 0)
+        queryWrapper.eq(JobApplication::getIsDeleted, 0)
                    .isNotNull(JobApplication::getInterviewTime)
                    .orderByAsc(JobApplication::getInterviewTime);
 
@@ -621,7 +621,7 @@ public class JobApplicationServiceImpl implements JobApplicationService {
 
         // 构建查询条件
         LambdaQueryWrapper<JobApplication> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(JobApplication::getDeleted, 0)
+        queryWrapper.eq(JobApplication::getIsDeleted, 0)
                    .isNotNull(JobApplication::getOfferTime)
                    .orderByDesc(JobApplication::getOfferTime);
 
@@ -650,7 +650,7 @@ public class JobApplicationServiceImpl implements JobApplicationService {
 
         // 构建查询条件
         LambdaQueryWrapper<JobApplication> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(JobApplication::getDeleted, 0)
+        queryWrapper.eq(JobApplication::getIsDeleted, 0)
                    .eq(JobApplication::getConfirmStatus, JobConstants.ConfirmStatus.CONFIRMED)
                    .orderByDesc(JobApplication::getConfirmTime);
 
@@ -674,7 +674,7 @@ public class JobApplicationServiceImpl implements JobApplicationService {
         log.debug("检查是否已申请: jobId={}, applicantId={}", jobId, applicantId);
 
         JobApplication application = jobApplicationMapper.selectByApplicantAndJob(applicantId, jobId);
-        return application != null && application.getDeleted() == 0;
+        return application != null && application.getIsDeleted() == 0;
     }
 
     @Override
@@ -696,7 +696,7 @@ public class JobApplicationServiceImpl implements JobApplicationService {
 
         // 1. 获取兼职信息
         Job job = jobMapper.selectById(jobId);
-        if (job == null || job.getDeleted() == 1) {
+        if (job == null || job.getIsDeleted() == 1) {
             log.warn("兼职不存在或已被删除: jobId={}", jobId);
             return;
         }

@@ -1,0 +1,81 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ----------------------< com.xushu:campus-gateway >----------------------
+[INFO] Building Campus Gateway Module 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] >>> spring-boot:3.4.7:run (default-cli) > test-compile @ campus-gateway >>>
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ campus-gateway ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 0 resource from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.13.0:compile (default-compile) @ campus-gateway ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ campus-gateway ---
+[INFO] skip non existing resourceDirectory F:\claude code\Campus\campus-gateway\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.13.0:testCompile (default-testCompile) @ campus-gateway ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] <<< spring-boot:3.4.7:run (default-cli) < test-compile @ campus-gateway <<<
+[INFO] 
+[INFO] 
+[INFO] --- spring-boot:3.4.7:run (default-cli) @ campus-gateway ---
+[INFO] Attaching agents: []
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.4.7)
+
+2026-03-22T02:35:24.657+08:00  INFO 559616 --- [campus-gateway] [           main] c.x.campus.gateway.GatewayApplication    : Starting GatewayApplication using Java 17.0.14 with PID 559616 (F:\claude code\Campus\campus-gateway\target\classes started by g1982 in F:\claude code\Campus\campus-gateway)
+2026-03-22T02:35:24.658+08:00 DEBUG 559616 --- [campus-gateway] [           main] c.x.campus.gateway.GatewayApplication    : Running with Spring Boot v3.4.7, Spring v6.2.8
+2026-03-22T02:35:24.659+08:00  INFO 559616 --- [campus-gateway] [           main] c.x.campus.gateway.GatewayApplication    : No active profile set, falling back to 1 default profile: "default"
+2026-03-22T02:35:25.100+08:00  INFO 559616 --- [campus-gateway] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Multiple Spring Data modules found, entering strict repository configuration mode
+2026-03-22T02:35:25.102+08:00  INFO 559616 --- [campus-gateway] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+2026-03-22T02:35:25.126+08:00  INFO 559616 --- [campus-gateway] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 9 ms. Found 0 Redis repository interfaces.
+2026-03-22T02:35:25.255+08:00  INFO 559616 --- [campus-gateway] [           main] o.s.cloud.context.scope.GenericScope     : BeanFactory id=f512b494-4446-3e88-a811-2f040324d6ae
+2026-03-22T02:35:26.551+08:00 DEBUG 559616 --- [campus-gateway] [           main] o.s.c.gateway.config.GatewayProperties   : Routes supplied from Gateway Properties: [RouteDefinition{id='campus-service-user', predicates=[PredicateDefinition{name='Path', args={_genkey_0=/api/users/**}}], filters=[FilterDefinition{name='RequestRateLimiter', args={redis-rate-limiter.replenishRate=10, redis-rate-limiter.burstCapacity=20, key-resolver=#{@ipKeyResolver}}}], uri=http://localhost:8081, order=0, metadata={}, enabled=true}, RouteDefinition{id='campus-service-product', predicates=[PredicateDefinition{name='Path', args={_genkey_0=/api/products/**}}], filters=[], uri=http://localhost:8082, order=0, metadata={}, enabled=true}, RouteDefinition{id='campus-service-order', predicates=[PredicateDefinition{name='Path', args={_genkey_0=/api/orders/**}}], filters=[], uri=http://localhost:8083, order=0, metadata={}, enabled=true}, RouteDefinition{id='campus-service-job', predicates=[PredicateDefinition{name='Path', args={_genkey_0=/api/jobs/**}}], filters=[], uri=http://localhost:8084, order=0, metadata={}, enabled=true}, RouteDefinition{id='campus-service-job-applications', predicates=[PredicateDefinition{name='Path', args={_genkey_0=/api/job-applications/**}}], filters=[], uri=http://localhost:8084, order=0, metadata={}, enabled=true}, RouteDefinition{id='campus-service-notification', predicates=[PredicateDefinition{name='Path', args={_genkey_0=/api/notifications/**}}], filters=[], uri=http://localhost:8085, order=0, metadata={}, enabled=true}, RouteDefinition{id='swagger-ui', predicates=[PredicateDefinition{name='Path', args={_genkey_0=/swagger-ui/**}}], filters=[FilterDefinition{name='StripPrefix', args={_genkey_0=1}}], uri=http://localhost:8081, order=0, metadata={}, enabled=true}, RouteDefinition{id='api-docs', predicates=[PredicateDefinition{name='Path', args={_genkey_0=/v3/api-docs/**}}], filters=[FilterDefinition{name='StripPrefix', args={_genkey_0=1}}], uri=http://localhost:8081, order=0, metadata={}, enabled=true}]
+2026-03-22T02:35:26.608+08:00  INFO 559616 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [After]
+2026-03-22T02:35:26.608+08:00  INFO 559616 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Before]
+2026-03-22T02:35:26.608+08:00  INFO 559616 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Between]
+2026-03-22T02:35:26.608+08:00  INFO 559616 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Cookie]
+2026-03-22T02:35:26.608+08:00  INFO 559616 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Header]
+2026-03-22T02:35:26.608+08:00  INFO 559616 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Host]
+2026-03-22T02:35:26.608+08:00  INFO 559616 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Method]
+2026-03-22T02:35:26.608+08:00  INFO 559616 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Path]
+2026-03-22T02:35:26.608+08:00  INFO 559616 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Query]
+2026-03-22T02:35:26.608+08:00  INFO 559616 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [ReadBody]
+2026-03-22T02:35:26.608+08:00  INFO 559616 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [RemoteAddr]
+2026-03-22T02:35:26.608+08:00  INFO 559616 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [XForwardedRemoteAddr]
+2026-03-22T02:35:26.608+08:00  INFO 559616 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Weight]
+2026-03-22T02:35:26.608+08:00  INFO 559616 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [CloudFoundryRouteService]
+2026-03-22T02:35:26.727+08:00  WARN 559616 --- [campus-gateway] [           main] iguration$LoadBalancerCaffeineWarnLogger : Spring Cloud LoadBalancer is currently working with the default cache. While this cache implementation is useful for development and tests, it's recommended to use Caffeine cache in production.You can switch to using Caffeine cache, by adding it and org.springframework.cache.caffeine.CaffeineCacheManager to the classpath.
+2026-03-22T02:35:26.857+08:00  INFO 559616 --- [campus-gateway] [           main] o.s.b.web.embedded.netty.NettyWebServer  : Netty started on port 8080 (http)
+2026-03-22T02:35:27.332+08:00 DEBUG 559616 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition campus-service-user applying {_genkey_0=/api/users/**} to Path
+2026-03-22T02:35:27.340+08:00 DEBUG 559616 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition campus-service-user applying filter {redis-rate-limiter.replenishRate=10, redis-rate-limiter.burstCapacity=20, key-resolver=#{@ipKeyResolver}} to RequestRateLimiter
+2026-03-22T02:35:27.348+08:00 DEBUG 559616 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition matched: campus-service-user
+2026-03-22T02:35:27.348+08:00 DEBUG 559616 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition campus-service-product applying {_genkey_0=/api/products/**} to Path
+2026-03-22T02:35:27.349+08:00 DEBUG 559616 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition matched: campus-service-product
+2026-03-22T02:35:27.349+08:00 DEBUG 559616 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition campus-service-order applying {_genkey_0=/api/orders/**} to Path
+2026-03-22T02:35:27.349+08:00 DEBUG 559616 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition matched: campus-service-order
+2026-03-22T02:35:27.349+08:00 DEBUG 559616 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition campus-service-job applying {_genkey_0=/api/jobs/**} to Path
+2026-03-22T02:35:27.349+08:00 DEBUG 559616 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition matched: campus-service-job
+2026-03-22T02:35:27.350+08:00 DEBUG 559616 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition campus-service-job-applications applying {_genkey_0=/api/job-applications/**} to Path
+2026-03-22T02:35:27.350+08:00 DEBUG 559616 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition matched: campus-service-job-applications
+2026-03-22T02:35:27.350+08:00 DEBUG 559616 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition campus-service-notification applying {_genkey_0=/api/notifications/**} to Path
+2026-03-22T02:35:27.350+08:00 DEBUG 559616 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition matched: campus-service-notification
+2026-03-22T02:35:27.350+08:00 DEBUG 559616 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition swagger-ui applying {_genkey_0=/swagger-ui/**} to Path
+2026-03-22T02:35:27.351+08:00 DEBUG 559616 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition swagger-ui applying filter {_genkey_0=1} to StripPrefix
+2026-03-22T02:35:27.351+08:00 DEBUG 559616 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition matched: swagger-ui
+2026-03-22T02:35:27.351+08:00 DEBUG 559616 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition api-docs applying {_genkey_0=/v3/api-docs/**} to Path
+2026-03-22T02:35:27.352+08:00 DEBUG 559616 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition api-docs applying filter {_genkey_0=1} to StripPrefix
+2026-03-22T02:35:27.352+08:00 DEBUG 559616 --- [campus-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition matched: api-docs
+2026-03-22T02:35:27.367+08:00  INFO 559616 --- [campus-gateway] [           main] c.x.campus.gateway.GatewayApplication    : Started GatewayApplication in 3.255 seconds (process running for 3.645)

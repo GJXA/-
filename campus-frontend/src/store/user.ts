@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import type { UserInfo } from '../types/user'
+import { userApi } from '../api'
 
 interface UserState {
   token: string | null
@@ -33,29 +34,29 @@ export const useUserStore = defineStore('user', {
       localStorage.removeItem('token')
     },
 
-    // 模拟登录
+    // 登录
     async login(credentials: { username: string; password: string }) {
-      // TODO: 调用实际登录接口
-      const mockToken = 'mock-jwt-token-123456'
-      this.setToken(mockToken)
-
-      const mockUserInfo: UserInfo = {
-        id: 1,
-        username: credentials.username,
-        email: `${credentials.username}@example.com`,
-        phone: '13800138000',
-        avatar: '',
-        role: 'USER'
+      try {
+        const response = await userApi.login(credentials)
+        // response 已经是 LoginResponse 对象 (accessToken, user)
+        const { accessToken, user } = response
+        this.setToken(accessToken)
+        this.setUserInfo(user)
+        return Promise.resolve()
+      } catch (error: any) {
+        throw new Error(error.response?.data?.message || '登录失败')
       }
-      this.setUserInfo(mockUserInfo)
-
-      return Promise.resolve()
     },
 
-    // 模拟注册
-    async register(_userData: { username: string; password: string; email: string }) {
-      // TODO: 调用实际注册接口
-      return Promise.resolve()
+    // 注册
+    async register(userData: { username: string; password: string; email: string }) {
+      try {
+        const response = await userApi.register(userData)
+        // 假设注册成功后自动登录或返回成功信息
+        return Promise.resolve(response)
+      } catch (error: any) {
+        throw new Error(error.response?.data?.message || '注册失败')
+      }
     },
 
     // 模拟退出

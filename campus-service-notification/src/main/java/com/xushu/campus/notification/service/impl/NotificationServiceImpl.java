@@ -127,7 +127,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public NotificationDTO getNotificationById(Long id) throws BusinessException {
         Notification notification = notificationMapper.selectById(id);
-        if (notification == null || notification.getDeleted() == 1) {
+        if (notification == null || notification.getIsDeleted() == 1) {
             throw new BusinessException("通知不存在");
         }
         return convertToDTO(notification);
@@ -138,7 +138,7 @@ public class NotificationServiceImpl implements NotificationService {
         Page<Notification> pageParam = new Page<>(page, size);
         LambdaQueryWrapper<Notification> wrapper = Wrappers.lambdaQuery();
         wrapper.eq(Notification::getUserId, userId)
-               .eq(Notification::getDeleted, 0)
+               .eq(Notification::getIsDeleted, 0)
                .orderByDesc(Notification::getSendTime);
 
         IPage<Notification> result = notificationMapper.selectPage(pageParam, wrapper);
@@ -159,7 +159,7 @@ public class NotificationServiceImpl implements NotificationService {
         LambdaQueryWrapper<Notification> wrapper = Wrappers.lambdaQuery();
         wrapper.eq(Notification::getUserId, userId)
                .eq(Notification::getStatus, status)
-               .eq(Notification::getDeleted, 0)
+               .eq(Notification::getIsDeleted, 0)
                .orderByDesc(Notification::getSendTime);
 
         IPage<Notification> result = notificationMapper.selectPage(pageParam, wrapper);
@@ -180,7 +180,7 @@ public class NotificationServiceImpl implements NotificationService {
         LambdaQueryWrapper<Notification> wrapper = Wrappers.lambdaQuery();
         wrapper.eq(Notification::getUserId, userId)
                .eq(Notification::getType, type)
-               .eq(Notification::getDeleted, 0)
+               .eq(Notification::getIsDeleted, 0)
                .orderByDesc(Notification::getSendTime);
 
         IPage<Notification> result = notificationMapper.selectPage(pageParam, wrapper);
@@ -207,7 +207,7 @@ public class NotificationServiceImpl implements NotificationService {
 
         // 构建查询条件
         LambdaQueryWrapper<Notification> wrapper = Wrappers.lambdaQuery();
-        wrapper.eq(Notification::getDeleted, 0);
+        wrapper.eq(Notification::getIsDeleted, 0);
 
         if (request.getUserId() != null) {
             wrapper.eq(Notification::getUserId, request.getUserId());
@@ -255,9 +255,9 @@ public class NotificationServiceImpl implements NotificationService {
             }
         } else if ("create_time".equals(request.getSortField())) {
             if ("asc".equals(request.getSortDirection())) {
-                wrapper.orderByAsc(Notification::getCreateTime);
+                wrapper.orderByAsc(Notification::getCreatedAt);
             } else {
-                wrapper.orderByDesc(Notification::getCreateTime);
+                wrapper.orderByDesc(Notification::getCreatedAt);
             }
         } else {
             if ("asc".equals(request.getSortDirection())) {
@@ -283,7 +283,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Transactional(rollbackFor = Exception.class)
     public void markAsRead(Long id, Long userId) throws BusinessException {
         Notification notification = notificationMapper.selectById(id);
-        if (notification == null || notification.getDeleted() == 1) {
+        if (notification == null || notification.getIsDeleted() == 1) {
             throw new BusinessException("通知不存在");
         }
 
@@ -308,7 +308,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Transactional(rollbackFor = Exception.class)
     public void deleteNotification(Long id, Long userId) throws BusinessException {
         Notification notification = notificationMapper.selectById(id);
-        if (notification == null || notification.getDeleted() == 1) {
+        if (notification == null || notification.getIsDeleted() == 1) {
             throw new BusinessException("通知不存在");
         }
 
@@ -316,7 +316,7 @@ public class NotificationServiceImpl implements NotificationService {
             throw new BusinessException("无权删除此通知");
         }
 
-        notification.setDeleted(1);
+        notification.setIsDeleted(1);
         notificationMapper.updateById(notification);
     }
 
@@ -355,7 +355,7 @@ public class NotificationServiceImpl implements NotificationService {
         log.info("发送通知: {}", notificationId);
 
         Notification notification = notificationMapper.selectById(notificationId);
-        if (notification == null || notification.getDeleted() == 1) {
+        if (notification == null || notification.getIsDeleted() == 1) {
             throw new BusinessException("通知不存在");
         }
 
@@ -374,7 +374,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Transactional(rollbackFor = Exception.class)
     public void updateNotificationStatus(Long id, Integer status) throws BusinessException {
         Notification notification = notificationMapper.selectById(id);
-        if (notification == null || notification.getDeleted() == 1) {
+        if (notification == null || notification.getIsDeleted() == 1) {
             throw new BusinessException("通知不存在");
         }
 
@@ -385,7 +385,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public boolean checkNotificationBelongsToUser(Long id, Long userId) {
         Notification notification = notificationMapper.selectById(id);
-        if (notification == null || notification.getDeleted() == 1) {
+        if (notification == null || notification.getIsDeleted() == 1) {
             return false;
         }
         return notification.getUserId().equals(userId);
@@ -405,7 +405,7 @@ public class NotificationServiceImpl implements NotificationService {
         NotificationStatisticsDTO statistics = new NotificationStatisticsDTO();
         statistics.setTotalCount(notificationMapper.selectCount(Wrappers.<Notification>lambdaQuery()
                 .eq(Notification::getUserId, userId)
-                .eq(Notification::getDeleted, 0)));
+                .eq(Notification::getIsDeleted, 0)));
         statistics.setUnreadCount(notificationMapper.countUnreadByUserId(userId));
         // 其他统计数据需要实现...
         return statistics;

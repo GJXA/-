@@ -3,6 +3,7 @@ import { ref, reactive, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Search, Filter, Briefcase, Location, Money, Clock } from '@element-plus/icons-vue'
+import { jobApi } from '@/api'
 
 const router = useRouter()
 
@@ -16,151 +17,33 @@ const filterForm = reactive({
   sortBy: 'newest' // newest, salary_high, salary_low, deadline
 })
 
-// 工作类型
-const jobTypes = ref([
-  { id: 'campus', name: '校内兼职', count: 56 },
-  { id: 'tutor', name: '家教', count: 34 },
-  { id: 'delivery', name: '配送', count: 28 },
-  { id: 'internship', name: '实习', count: 45 },
-  { id: 'other', name: '其他', count: 23 }
-])
+// 工作类型（动态从数据中获取）
+const jobTypes = computed(() => {
+  const types = [
+    { id: 'campus', name: '校内兼职', count: 0 },
+    { id: 'tutor', name: '家教', count: 0 },
+    { id: 'delivery', name: '配送', count: 0 },
+    { id: 'internship', name: '实习', count: 0 },
+    { id: 'other', name: '其他', count: 0 }
+  ]
+  // 根据实际数据更新计数
+  types.forEach(type => {
+    type.count = jobs.value.filter(job => job.jobType === type.id).length
+  })
+  return types
+})
 
-// 工作地点
-const locations = ref([
-  '北京校区', '上海校区', '广州校区', '深圳校区', '线上', '其他'
-])
+// 工作地点（从数据中动态获取）
+const locations = computed(() => {
+  const locationSet = new Set<string>()
+  jobs.value.forEach(job => {
+    if (job.location) locationSet.add(job.location)
+  })
+  return Array.from(locationSet)
+})
 
 // 兼职列表数据
-const jobs = ref([
-  {
-    id: 1,
-    title: '校园外卖配送员',
-    company: '美团校园',
-    description: '负责校园内外卖配送工作，时间灵活，多劳多得',
-    salary: '18-25元/小时',
-    salaryMin: 18,
-    salaryMax: 25,
-    location: '北京校区',
-    jobType: 'delivery',
-    workType: 'part_time',
-    deadline: '2026-03-31',
-    requirements: [
-      '需自备电动车',
-      '时间灵活，能接受晚班',
-      '责任心强，有服务意识'
-    ],
-    benefits: [
-      '提供培训',
-      '多劳多得，收入稳定',
-      '工作时间自由'
-    ],
-    contact: {
-      name: '张经理',
-      phone: '13800138001',
-      email: 'zhang@meituan.com'
-    },
-    createdAt: '2026-03-15',
-    viewCount: 1245,
-    applyCount: 89,
-    tags: ['外卖', '配送', '灵活时间']
-  },
-  {
-    id: 2,
-    title: '高中数学家教',
-    company: '个人',
-    description: '辅导高中生数学，每周2-3次，每次2小时',
-    salary: '80-120元/小时',
-    salaryMin: 80,
-    salaryMax: 120,
-    location: '上海校区',
-    jobType: 'tutor',
-    workType: 'part_time',
-    deadline: '2026-04-10',
-    requirements: [
-      '数学或相关专业',
-      '有家教经验者优先',
-      '沟通能力强，有耐心'
-    ],
-    benefits: [
-      '时间自由安排',
-      '待遇优厚',
-      '可长期合作'
-    ],
-    contact: {
-      name: '王女士',
-      phone: '13800138002',
-      email: 'wang@example.com'
-    },
-    createdAt: '2026-03-14',
-    viewCount: 890,
-    applyCount: 45,
-    tags: ['家教', '数学', '高中']
-  },
-  {
-    id: 3,
-    title: '图书馆管理员助理',
-    company: '校图书馆',
-    description: '协助图书馆日常管理、图书整理、读者服务等工作',
-    salary: '15元/小时',
-    salaryMin: 15,
-    salaryMax: 15,
-    location: '广州校区',
-    jobType: 'campus',
-    workType: 'part_time',
-    deadline: '2026-04-15',
-    requirements: [
-      '图书管理专业优先',
-      '每周至少工作20小时',
-      '细心耐心，责任心强'
-    ],
-    benefits: [
-      '工作环境好',
-      '提供实习证明',
-      '工作时间固定'
-    ],
-    contact: {
-      name: '李老师',
-      phone: '13800138003',
-      email: 'li@library.edu'
-    },
-    createdAt: '2026-03-12',
-    viewCount: 678,
-    applyCount: 34,
-    tags: ['校内', '图书馆', '管理']
-  },
-  {
-    id: 4,
-    title: '活动策划助理',
-    company: '学生会',
-    description: '协助学生会活动策划、组织、执行等工作',
-    salary: '面议',
-    salaryMin: 0,
-    salaryMax: 0,
-    location: '深圳校区',
-    jobType: 'campus',
-    workType: 'part_time',
-    deadline: '2026-03-25',
-    requirements: [
-      '有活动策划经验',
-      '沟通能力强',
-      '团队合作精神'
-    ],
-    benefits: [
-      '积累组织经验',
-      '认识更多同学',
-      '参与校园活动'
-    ],
-    contact: {
-      name: '学生会',
-      phone: '13800138004',
-      email: 'student@campus.edu'
-    },
-    createdAt: '2026-03-10',
-    viewCount: 456,
-    applyCount: 23,
-    tags: ['活动策划', '学生会', '组织']
-  }
-])
+const jobs = ref<any[]>([])
 
 // 分页
 const pagination = reactive({
@@ -180,16 +63,17 @@ const filteredJobs = computed(() => {
   if (filterForm.keyword) {
     const keyword = filterForm.keyword.toLowerCase()
     filtered = filtered.filter(job =>
-      job.title.toLowerCase().includes(keyword) ||
-      job.description.toLowerCase().includes(keyword) ||
-      job.company.toLowerCase().includes(keyword) ||
-      job.tags.some(tag => tag.toLowerCase().includes(keyword))
+      job.title?.toLowerCase().includes(keyword) ||
+      job.description?.toLowerCase().includes(keyword) ||
+      job.companyName?.toLowerCase().includes(keyword) ||
+      job.requirements?.toLowerCase().includes(keyword) ||
+      job.benefits?.toLowerCase().includes(keyword)
     )
   }
 
   // 工作类型筛选
   if (filterForm.jobType) {
-    filtered = filtered.filter(job => job.jobType === filterForm.jobType)
+    filtered = filtered.filter(job => job.jobType === filterForm.jobType || job.category === filterForm.jobType)
   }
 
   // 地点筛选
@@ -197,19 +81,24 @@ const filteredJobs = computed(() => {
     filtered = filtered.filter(job => job.location === filterForm.location)
   }
 
-  // 工作类型筛选
+  // 工作类型筛选（workType映射到jobType或category）
   if (filterForm.workType) {
-    filtered = filtered.filter(job => job.workType === filterForm.workType)
+    filtered = filtered.filter(job => {
+      // 简单映射：part_time -> 'part_time', full_time -> 'full_time', internship -> 'internship'
+      // 实际需要根据后端字段调整
+      return job.jobType === filterForm.workType || job.workType === filterForm.workType
+    })
   }
 
-  // 薪资范围筛选
+  // 薪资范围筛选（后端salary是BigDecimal，转换为数字）
   if (filterForm.salaryRange) {
     const [min, max] = filterForm.salaryRange.split('-').map(Number)
     filtered = filtered.filter(job => {
+      const salary = typeof job.salary === 'number' ? job.salary : parseFloat(job.salary || 0)
       if (max) {
-        return job.salaryMin >= min && job.salaryMax <= max
+        return salary >= min && salary <= max
       } else {
-        return job.salaryMin >= min
+        return salary >= min
       }
     })
   }
@@ -217,17 +106,35 @@ const filteredJobs = computed(() => {
   // 排序
   switch (filterForm.sortBy) {
     case 'salary_high':
-      filtered.sort((a, b) => b.salaryMax - a.salaryMax)
+      filtered.sort((a, b) => {
+        const salaryA = typeof a.salary === 'number' ? a.salary : parseFloat(a.salary || 0)
+        const salaryB = typeof b.salary === 'number' ? b.salary : parseFloat(b.salary || 0)
+        return salaryB - salaryA
+      })
       break
     case 'salary_low':
-      filtered.sort((a, b) => a.salaryMin - b.salaryMin)
+      filtered.sort((a, b) => {
+        const salaryA = typeof a.salary === 'number' ? a.salary : parseFloat(a.salary || 0)
+        const salaryB = typeof b.salary === 'number' ? b.salary : parseFloat(b.salary || 0)
+        return salaryA - salaryB
+      })
       break
     case 'deadline':
-      filtered.sort((a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime())
+      filtered.sort((a, b) => {
+        const dateA = a.deadline ? new Date(a.deadline).getTime() : 0
+        const dateB = b.deadline ? new Date(b.deadline).getTime() : 0
+        return dateA - dateB
+      })
       break
     case 'newest':
     default:
-      filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      filtered.sort((a, b) => {
+        const dateA = a.publishTime ? new Date(a.publishTime).getTime() :
+                     a.createTime ? new Date(a.createTime).getTime() : 0
+        const dateB = b.publishTime ? new Date(b.publishTime).getTime() :
+                     b.createTime ? new Date(b.createTime).getTime() : 0
+        return dateB - dateA
+      })
   }
 
   return filtered
@@ -255,20 +162,61 @@ const resetFilters = () => {
 const loadJobs = async () => {
   loading.value = true
   try {
-    // TODO: 调用后端 API
-    // const response = await jobApi.getJobList({
-    //   page: pagination.currentPage,
-    //   size: pagination.pageSize,
-    //   ...filterForm
-    // })
+    // 构建API参数
+    const params: any = {
+      page: pagination.currentPage,
+      size: pagination.pageSize
+    }
 
-    // 模拟延迟
-    await new Promise(resolve => setTimeout(resolve, 500))
+    // 添加筛选条件
+    if (filterForm.keyword) params.keyword = filterForm.keyword
+    if (filterForm.location) params.location = filterForm.location
+    if (filterForm.jobType) params.jobType = filterForm.jobType
+    if (filterForm.workType) params.workType = filterForm.workType
 
-    // 模拟更新分页数据
-    pagination.total = 48
+    // 排序映射
+    let sortField = 'publish_time'
+    let sortDirection = 'desc'
+    switch (filterForm.sortBy) {
+      case 'salary_high':
+        sortField = 'salary'
+        sortDirection = 'desc'
+        break
+      case 'salary_low':
+        sortField = 'salary'
+        sortDirection = 'asc'
+        break
+      case 'deadline':
+        sortField = 'deadline'
+        sortDirection = 'asc'
+        break
+      case 'newest':
+      default:
+        sortField = 'publish_time'
+        sortDirection = 'desc'
+    }
+    params.sortField = sortField
+    params.sortDirection = sortDirection
+
+    const response = await jobApi.getJobList(params)
+    // 响应可能是分页格式，尝试从records或data字段获取
+    const records = response.records || response.data?.records || response.data || []
+    jobs.value = records
+
+    // 更新分页总数
+    pagination.total = response.total || response.data?.total || records.length
+
+    // 更新工作类型统计（简单示例，实际应从后端获取分类统计）
+    updateJobTypeStats(records)
+
+    // 更新地点列表（从现有数据中提取唯一地点）
+    updateLocationList(records)
+
+    console.log('✅ JobList: jobs loaded, count:', jobs.value.length, 'total:', pagination.total)
   } catch (error) {
+    console.error('❌ JobList: loadJobs error:', error)
     ElMessage.error('加载兼职列表失败')
+    jobs.value = []
   } finally {
     loading.value = false
   }
@@ -291,8 +239,42 @@ const handlePageChange = (page: number) => {
   loadJobs()
 }
 
+// 更新工作类型统计
+const updateJobTypeStats = (jobs: any[]) => {
+  // 统计每种类型的工作数量
+  const typeCounts: Record<string, number> = {}
+  jobs.forEach(job => {
+    const type = job.jobType || 'other'
+    typeCounts[type] = (typeCounts[type] || 0) + 1
+  })
+
+  // 更新jobTypes的count字段
+  jobTypes.value = jobTypes.value.map(type => ({
+    ...type,
+    count: typeCounts[type.id] || 0
+  }))
+}
+
+// 更新地点列表
+const updateLocationList = (jobs: any[]) => {
+  const locationSet = new Set<string>()
+  jobs.forEach(job => {
+    if (job.location) {
+      locationSet.add(job.location)
+    }
+  })
+
+  // 如果有数据，更新地点列表
+  if (locationSet.size > 0) {
+    locations.value = Array.from(locationSet)
+  }
+}
+
+
+
+
 // 分享工作
-const shareJob = (jobId: number, event: Event) => {
+const shareJob = (_jobId: number, event: Event) => {
   event.stopPropagation()
   ElMessage.success('链接已复制到剪贴板')
 }
