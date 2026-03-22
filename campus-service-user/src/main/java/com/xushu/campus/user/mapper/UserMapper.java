@@ -5,6 +5,8 @@ import com.xushu.campus.user.entity.User;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Options;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -17,25 +19,25 @@ public interface UserMapper extends BaseMapper<User> {
     /**
      * 根据用户名查询用户
      */
-    @Select("SELECT * FROM users WHERE username = #{username} AND is_deleted = 0")
+    @Select("SELECT * FROM users WHERE username = #{username} AND (is_deleted = 0 OR is_deleted IS NULL)")
     User selectByUsername(@Param("username") String username);
 
     /**
      * 根据邮箱查询用户
      */
-    @Select("SELECT * FROM users WHERE email = #{email} AND is_deleted = 0")
+    @Select("SELECT * FROM users WHERE email = #{email} AND (is_deleted = 0 OR is_deleted IS NULL)")
     User selectByEmail(@Param("email") String email);
 
     /**
      * 根据手机号查询用户
      */
-    @Select("SELECT * FROM users WHERE phone = #{phone} AND is_deleted = 0")
+    @Select("SELECT * FROM users WHERE phone = #{phone} AND (is_deleted = 0 OR is_deleted IS NULL)")
     User selectByPhone(@Param("phone") String phone);
 
     /**
      * 根据学号查询用户
      */
-    @Select("SELECT * FROM users WHERE student_id = #{studentId} AND is_deleted = 0")
+    @Select("SELECT * FROM users WHERE student_id = #{studentId} AND (is_deleted = 0 OR is_deleted IS NULL)")
     User selectByStudentId(@Param("studentId") String studentId);
 
     /**
@@ -43,5 +45,13 @@ public interface UserMapper extends BaseMapper<User> {
      */
     @Select("UPDATE users SET last_login_time = NOW(), updated_at = NOW() WHERE id = #{userId}")
     void updateLastLoginTime(@Param("userId") Long userId);
+
+    /**
+     * 插入用户（自定义insert方法）
+     */
+    @Options(useGeneratedKeys = true, keyProperty = "user.id", keyColumn = "id")
+    @Insert("INSERT INTO users (username, password, email, phone, real_name, student_id, avatar_url, gender, status, birthday, school, major, grade, address, signature, last_login_time, last_login_ip, is_deleted, created_at, updated_at, version) " +
+            "VALUES (#{user.username}, #{user.password}, #{user.email}, #{user.phone}, #{user.realName}, #{user.studentId}, #{user.avatarUrl}, #{user.gender}, #{user.status}, #{user.birthday}, #{user.school}, #{user.major}, #{user.grade}, #{user.address}, #{user.signature}, #{user.lastLoginTime}, #{user.lastLoginIp}, #{user.isDeleted}, #{user.createTime}, #{user.updateTime}, #{user.version})")
+    int insertUser(@Param("user") User user);
 
 }

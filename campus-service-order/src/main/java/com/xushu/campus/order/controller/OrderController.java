@@ -24,7 +24,7 @@ import jakarta.validation.constraints.NotNull;
 @Slf4j
 @Validated
 @RestController
-@RequestMapping("/api/orders")
+@RequestMapping("/orders")
 @RequiredArgsConstructor
 @Tag(name = "订单管理", description = "订单创建、支付、发货、退款等接口")
 public class OrderController {

@@ -54,18 +54,19 @@ public class UserServiceImpl implements UserService {
         BeanUtils.copyProperties(request, user);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setStatus(1); // 正常状态
+        user.setIsDeleted(0); // 逻辑删除标志
         user.setCreateTime(LocalDateTime.now());
         user.setUpdateTime(LocalDateTime.now());
 
         // 3. 保存用户
-        userMapper.insert(user);
+        userMapper.insertUser(user);
 
         // 4. 分配默认角色
         UserRole userRole = new UserRole();
         userRole.setUserId(user.getId());
         userRole.setRoleCode(DEFAULT_ROLE);
         userRole.setCreateTime(LocalDateTime.now());
-        userRoleMapper.insert(userRole);
+        userRoleMapper.insertUserRole(userRole);
 
         // 5. 返回用户信息
         return convertToUserDTO(user);
@@ -122,7 +123,7 @@ public class UserServiceImpl implements UserService {
 
         Long userId = JwtUtil.getUserIdFromToken(refreshToken);
         User user = userMapper.selectById(userId);
-        if (user == null || user.getDeleted() == 1) {
+        if (user == null || (user.getIsDeleted() != null && user.getIsDeleted() == 1)) {
             throw BusinessException.unauthorized("用户不存在");
         }
 
@@ -152,7 +153,7 @@ public class UserServiceImpl implements UserService {
         log.debug("获取用户信息: userId={}", userId);
 
         User user = userMapper.selectById(userId);
-        if (user == null || user.getDeleted() == 1) {
+        if (user == null || (user.getIsDeleted() != null && user.getIsDeleted() == 1)) {
             throw BusinessException.notFound("用户不存在");
         }
 
@@ -164,7 +165,7 @@ public class UserServiceImpl implements UserService {
         log.debug("根据用户名获取用户信息: username={}", username);
 
         User user = userMapper.selectByUsername(username);
-        if (user == null || user.getDeleted() == 1) {
+        if (user == null || (user.getIsDeleted() != null && user.getIsDeleted() == 1)) {
             throw BusinessException.notFound("用户不存在");
         }
 
@@ -177,7 +178,7 @@ public class UserServiceImpl implements UserService {
         log.info("更新用户信息: userId={}", userId);
 
         User user = userMapper.selectById(userId);
-        if (user == null || user.getDeleted() == 1) {
+        if (user == null || (user.getIsDeleted() != null && user.getIsDeleted() == 1)) {
             throw BusinessException.notFound("用户不存在");
         }
 
@@ -251,7 +252,7 @@ public class UserServiceImpl implements UserService {
         log.info("修改密码: userId={}", userId);
 
         User user = userMapper.selectById(userId);
-        if (user == null || user.getDeleted() == 1) {
+        if (user == null || (user.getIsDeleted() != null && user.getIsDeleted() == 1)) {
             throw BusinessException.notFound("用户不存在");
         }
 
@@ -272,7 +273,7 @@ public class UserServiceImpl implements UserService {
         log.info("重置密码: username={}, email={}", username, email);
 
         User user = findUserByIdentifier(username);
-        if (user == null || user.getDeleted() == 1) {
+        if (user == null || (user.getIsDeleted() != null && user.getIsDeleted() == 1)) {
             throw BusinessException.notFound("用户不存在");
         }
 
@@ -297,7 +298,7 @@ public class UserServiceImpl implements UserService {
         log.info("禁用用户: userId={}", userId);
 
         User user = userMapper.selectById(userId);
-        if (user == null || user.getDeleted() == 1) {
+        if (user == null || (user.getIsDeleted() != null && user.getIsDeleted() == 1)) {
             throw BusinessException.notFound("用户不存在");
         }
 
@@ -312,7 +313,7 @@ public class UserServiceImpl implements UserService {
         log.info("启用用户: userId={}", userId);
 
         User user = userMapper.selectById(userId);
-        if (user == null || user.getDeleted() == 1) {
+        if (user == null || (user.getIsDeleted() != null && user.getIsDeleted() == 1)) {
             throw BusinessException.notFound("用户不存在");
         }
 
@@ -329,7 +330,7 @@ public class UserServiceImpl implements UserService {
 
         List<User> users = userMapper.selectBatchIds(userIds);
         return users.stream()
-                .filter(user -> user.getDeleted() == 0)
+                .filter(user -> user.getIsDeleted() == null || user.getIsDeleted() == 0)
                 .map(this::convertToUserDTO)
                 .collect(Collectors.toList());
     }
@@ -337,25 +338,25 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean checkUsernameAvailable(String username) {
         User user = userMapper.selectByUsername(username);
-        return user == null || user.getDeleted() == 1;
+        return user == null || (user.getIsDeleted() != null && user.getIsDeleted() == 1);
     }
 
     @Override
     public boolean checkEmailAvailable(String email) {
         User user = userMapper.selectByEmail(email);
-        return user == null || user.getDeleted() == 1;
+        return user == null || (user.getIsDeleted() != null && user.getIsDeleted() == 1);
     }
 
     @Override
     public boolean checkPhoneAvailable(String phone) {
         User user = userMapper.selectByPhone(phone);
-        return user == null || user.getDeleted() == 1;
+        return user == null || (user.getIsDeleted() != null && user.getIsDeleted() == 1);
     }
 
     @Override
     public boolean checkStudentIdAvailable(String studentId) {
         User user = userMapper.selectByStudentId(studentId);
-        return user == null || user.getDeleted() == 1;
+        return user == null || (user.getIsDeleted() != null && user.getIsDeleted() == 1);
     }
 
     /**
@@ -388,17 +389,17 @@ public class UserServiceImpl implements UserService {
      */
     private User findUserByIdentifier(String identifier) {
         User user = userMapper.selectByUsername(identifier);
-        if (user != null && user.getDeleted() == 0) {
+        if (user != null && (user.getIsDeleted() == null || user.getIsDeleted() == 0)) {
             return user;
         }
 
         user = userMapper.selectByEmail(identifier);
-        if (user != null && user.getDeleted() == 0) {
+        if (user != null && (user.getIsDeleted() == null || user.getIsDeleted() == 0)) {
             return user;
         }
 
         user = userMapper.selectByPhone(identifier);
-        if (user != null && user.getDeleted() == 0) {
+        if (user != null && (user.getIsDeleted() == null || user.getIsDeleted() == 0)) {
             return user;
         }
 

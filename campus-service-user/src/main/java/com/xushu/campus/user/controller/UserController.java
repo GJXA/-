@@ -22,7 +22,7 @@ import java.util.List;
 @Slf4j
 @Validated
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/users")
 @RequiredArgsConstructor
 @Tag(name = "用户管理", description = "用户注册、登录、信息管理接口")
 public class UserController {

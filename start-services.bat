@@ -49,9 +49,9 @@ echo =========================================
 echo.
 
 REM 启动用户服务 (端口8081) - 已禁用
-REM start "用户服务" cmd /c "cd campus-service-user && ../mvnw spring-boot:run -Dspring-boot.run.jvmArguments=-Dserver.port=8081 -DskipTests > ..\logs\user-service.log 2>&1"
-REM echo 启动用户服务 (端口8081)...
-REM timeout /t 5 /nobreak >nul
+start "用户服务" cmd /c "cd campus-service-user && ../mvnw spring-boot:run -Dspring-boot.run.jvmArguments=-Dserver.port=8081 -DskipTests > ..\logs\user-service.log 2>&1"
+echo 启动用户服务 (端口8081)...
+timeout /t 5 /nobreak >nul
 
 REM 启动商品服务 (端口8082)
 start "商品服务" cmd /c "cd campus-service-product && ../mvnw spring-boot:run -Dspring-boot.run.jvmArguments=-Dserver.port=8082 -DskipTests > ..\logs\product-service.log 2>&1"
@@ -59,19 +59,19 @@ echo 启动商品服务 (端口8082)...
 timeout /t 5 /nobreak >nul
 
 REM 启动订单服务 (端口8083) - 已禁用
-REM start "订单服务" cmd /c "cd campus-service-order && ../mvnw spring-boot:run -Dspring-boot.run.jvmArguments=-Dserver.port=8083 -DskipTests > ..\logs\order-service.log 2>&1"
-REM echo 启动订单服务 (端口8083)...
-REM timeout /t 5 /nobreak >nul
+start "订单服务" cmd /c "cd campus-service-order && ../mvnw spring-boot:run -Dspring-boot.run.jvmArguments=-Dserver.port=8083 -DskipTests > ..\logs\order-service.log 2>&1"
+echo 启动订单服务 (端口8083)...
+timeout /t 5 /nobreak >nul
 
 REM 启动兼职服务 (端口8084) - 已禁用
-REM start "兼职服务" cmd /c "cd campus-service-job && ../mvnw spring-boot:run -Dspring-boot.run.jvmArguments=-Dserver.port=8084 -DskipTests > ..\logs\job-service.log 2>&1"
-REM echo 启动兼职服务 (端口8084)...
-REM timeout /t 5 /nobreak >nul
+start "兼职服务" cmd /c "cd campus-service-job && ../mvnw spring-boot:run -Dspring-boot.run.jvmArguments=-Dserver.port=8084 -DskipTests > ..\logs\job-service.log 2>&1"
+echo 启动兼职服务 (端口8084)...
+timeout /t 5 /nobreak >nul
 
 REM 启动网关服务 (端口8080) - 已禁用
-REM start "网关服务" cmd /c "cd campus-gateway && ../mvnw spring-boot:run -Dspring-boot.run.jvmArguments=-Dserver.port=8080 -DskipTests > ..\logs\gateway.log 2>&1"
-REM echo 启动网关服务 (端口8080)...
-REM timeout /t 10 /nobreak >nul
+start "网关服务" cmd /c "cd campus-gateway && ../mvnw spring-boot:run -Dspring-boot.run.jvmArguments=-Dserver.port=8080 -DskipTests > ..\logs\gateway.log 2>&1"
+echo 启动网关服务 (端口8080)...
+timeout /t 10 /nobreak >nul
 
 echo.
 echo =========================================
@@ -92,11 +92,11 @@ timeout /t 30 /nobreak >nul
 
 echo.
 echo 停止所有服务...
-REM taskkill /FI "WINDOWTITLE eq 用户服务" /F >nul 2>&1
+taskkill /FI "WINDOWTITLE eq 用户服务" /F >nul 2>&1
 taskkill /FI "WINDOWTITLE eq 商品服务" /F >nul 2>&1
-REM taskkill /FI "WINDOWTITLE eq 订单服务" /F >nul 2>&1
-REM taskkill /FI "WINDOWTITLE eq 兼职服务" /F >nul 2>&1
-REM taskkill /FI "WINDOWTITLE eq 网关服务" /F >nul 2>&1
+taskkill /FI "WINDOWTITLE eq 订单服务" /F >nul 2>&1
+taskkill /FI "WINDOWTITLE eq 兼职服务" /F >nul 2>&1
+taskkill /FI "WINDOWTITLE eq 网关服务" /F >nul 2>&1
 
 echo 服务已停止
 timeout /t 2 /nobreak >nul

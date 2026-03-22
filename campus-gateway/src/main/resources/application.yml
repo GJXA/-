@@ -23,56 +23,62 @@ spring:
       routes:
         # 用户服务路由
         - id: campus-service-user
-          uri: http://localhost:8081
+          uri: lb://campus-service-user
           predicates:
             - Path=/api/users/**
           filters:
-            - name: RequestRateLimiter
-              args:
-                redis-rate-limiter.replenishRate: 10 # 每秒令牌生成速率
-                redis-rate-limiter.burstCapacity: 20 # 令牌桶容量
-                key-resolver: "#{@ipKeyResolver}"
+            - StripPrefix=1
 
         # 商品服务路由
         - id: campus-service-product
-          uri: http://localhost:8082
+          uri: lb://campus-service-product
           predicates:
             - Path=/api/products/**
+          filters:
+            - StripPrefix=1
 
         # 订单服务路由
         - id: campus-service-order
-          uri: http://localhost:8083
+          uri: lb://campus-service-order
           predicates:
             - Path=/api/orders/**
+          filters:
+            - StripPrefix=1
 
         # 兼职服务路由
         - id: campus-service-job
-          uri: http://localhost:8084
+          uri: lb://campus-service-job
           predicates:
             - Path=/api/jobs/**
+          filters:
+            - StripPrefix=1
 
         # 兼职申请服务路由
         - id: campus-service-job-applications
-          uri: http://localhost:8084
+          uri: lb://campus-service-job
           predicates:
             - Path=/api/job-applications/**
+          filters:
+            - StripPrefix=1
 
         # 通知服务路由
         - id: campus-service-notification
-          uri: http://localhost:8085
+          uri: lb://campus-service-notification
           predicates:
             - Path=/api/notifications/**
+          filters:
+            - StripPrefix=1
 
         # 公共API文档路由
         - id: swagger-ui
-          uri: http://localhost:8081 # 可以指向任意服务，实际项目中应该统一文档
+          uri: lb://campus-service-user # 可以指向任意服务，实际项目中应该统一文档
           predicates:
             - Path=/swagger-ui/**
           filters:
             - StripPrefix=1
 
         - id: api-docs
-          uri: http://localhost:8081
+          uri: lb://campus-service-user
           predicates:
             - Path=/v3/api-docs/**
           filters:

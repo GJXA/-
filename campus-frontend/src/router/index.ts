@@ -79,7 +79,7 @@ const router = createRouter({
 })
 
 // 路由守卫：检查认证
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, from) => {
   console.log('🚦 Route guard:')
   console.log('  From:', from.path)
   console.log('  To:', to.path)
@@ -94,10 +94,10 @@ router.beforeEach((to, from, next) => {
 
   if (to.meta.requiresAuth && !isAuthenticated) {
     console.log('  ⚠️ Redirecting to login')
-    next('/login')
-  } else {
-    next()
+    return '/login'
   }
+  // 允许导航继续
+  return true
 })
 
 export default router

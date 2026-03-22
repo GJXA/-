@@ -22,7 +22,7 @@ import java.util.List;
 @Slf4j
 @Validated
 @RestController
-@RequestMapping("/api/job-applications")
+@RequestMapping("/job-applications")
 @RequiredArgsConstructor
 @Tag(name = "兼职申请管理", description = "兼职申请、处理、状态跟踪接口")
 public class JobApplicationController {

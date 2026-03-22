@@ -121,9 +121,8 @@ public class User {
     /**
      * 逻辑删除标志
      */
-    @TableLogic
     @TableField("is_deleted")
-    private Integer deleted;
+    private Integer isDeleted;
 
     /**
      * 版本号（乐观锁）

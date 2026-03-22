@@ -25,7 +25,7 @@ import java.util.UUID;
 @Slf4j
 @Validated
 @RestController
-@RequestMapping("/api/payments")
+@RequestMapping("/payments")
 @RequiredArgsConstructor
 @Tag(name = "模拟支付", description = "模拟支付接口（仅用于开发和测试）")
 public class PaymentController {

@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@TableName("user_role")
+@TableName("user_roles")
 public class UserRole {
 
     /**
