@@ -25,6 +25,14 @@ const quantity = ref(1)
 
 const liked = ref(false)
 
+// 状态码转换: Integer -> String (后端返回Integer，前端期望String)
+const convertStatus = (status: number) => {
+  if (status === 1) return 'available'   // 上架 -> 可购买
+  if (status === 2) return 'reserved'     // 下架 -> 已预定
+  if (status === 3) return 'sold'        // 已售出
+  return 'available'                     // 默认上架
+}
+
 // 加载相关商品
 const loadRelatedProducts = async (categoryId: number) => {
   try {
@@ -88,7 +96,7 @@ const loadProductDetail = async () => {
       },
       condition: response.condition || '未知',
       location: response.location || response.address || '',
-      status: response.status || 'available',
+      status: convertStatus(response.status),
       createdAt: response.createTime || '',
       updatedAt: response.updateTime || '',
       viewCount: response.viewCount || 0,
