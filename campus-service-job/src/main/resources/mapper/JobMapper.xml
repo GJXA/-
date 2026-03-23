@@ -36,13 +36,13 @@
         <result column="is_recommended" property="isRecommended"/>
         <result column="publisher_id" property="publisherId"/>
         <result column="publisher_type" property="publisherType"/>
-        <result column="publisher_name" property="publisherName"/>
+        <!-- publisherName is a transient field, not stored in DB -->
         <result column="auditor_id" property="auditorId"/>
         <result column="audit_time" property="auditTime"/>
         <result column="audit_remark" property="auditRemark"/>
-        <result column="deleted" property="deleted"/>
-        <result column="create_time" property="createTime"/>
-        <result column="update_time" property="updateTime"/>
+        <result column="is_deleted" property="isDeleted"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
         <result column="version" property="version"/>
     </resultMap>
 
@@ -52,15 +52,15 @@
         contact_name, contact_phone, contact_email, company_name, company_description,
         company_logo, requirements, benefits, status, view_count, favorite_count,
         publish_time, deadline, is_top, top_weight, is_recommended, publisher_id,
-        publisher_type, publisher_name, auditor_id, audit_time, audit_remark,
-        deleted, create_time, update_time, version
+        publisher_type, auditor_id, audit_time, audit_remark,
+        is_deleted, created_at, updated_at, version
     </sql>
 
     <select id="searchJobs" resultMap="BaseResultMap">
         SELECT
         <include refid="Base_Column_List"/>
         FROM jobs
-        WHERE deleted = 0
+        WHERE is_deleted = 0
         <if test="request.keyword != null and request.keyword != ''">
             AND (
                 title LIKE CONCAT('%', #{request.keyword}, '%')

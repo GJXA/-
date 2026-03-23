@@ -49,7 +49,7 @@ public class JobServiceImpl implements JobService {
         job.setPublisherName(publisherName);
 
         // 设置默认值
-        job.setStatus(JobConstants.JobStatus.PENDING); // 待审核
+        job.setStatus(JobConstants.JobStatus.RECRUITING); // 直接设置为招聘中，无需审核
         job.setViewCount(0);
         job.setFavoriteCount(0);
         job.setAppliedCount(0);

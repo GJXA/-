@@ -30,6 +30,7 @@ const form = reactive({
   salaryMax: null as number | null,
   salaryType: 'hour' as 'hour' | 'day' | 'month' | 'negotiable',
   salaryDescription: '' as string,
+  recruitCount: 1 as number,
   location: '',
   address: '' as string,
   jobType: '' as 'campus' | 'tutor' | 'delivery' | 'internship' | 'other',
@@ -53,53 +54,54 @@ const form = reactive({
   endDate: '' as string
 })
 
-// 类型映射函数
+// 类型映射函数 - 映射到后端 CreateJobRequest DTO
 const mapToBackendTypes = (frontendData: typeof form) => {
-  // 映射jobType
-  const jobTypeMap: Record<typeof form.jobType, string> = {
-    'campus': 'PART_TIME',
-    'tutor': 'FREELANCE',
-    'delivery': 'PART_TIME',
-    'internship': 'INTERNSHIP',
-    'other': 'PROJECT'
+  // 映射workType到后端jobType
+  const jobTypeMap: Record<string, string> = {
+    'part_time': 'PART_TIME',
+    'full_time': 'FULL_TIME',
+    'internship': 'INTERNSHIP'
   }
 
-  // 映射salaryType
-  const salaryTypeMap: Record<typeof form.salaryType, string> = {
-    'hour': 'HOURLY',
-    'day': 'DAILY',
-    'month': 'MONTHLY',
-    'negotiable': 'NEGOTIABLE'
+  // 映射前端jobType到后端category
+  const categoryMap: Record<string, string> = {
+    'campus': 'OTHER',
+    'tutor': 'TUTOR',
+    'delivery': 'PROMOTION',
+    'internship': 'OTHER',
+    'other': 'OTHER'
   }
 
-  // 映射workType到workLocationType（假设所有都是现场办公）
-  const workLocationType = 'ONSITE'
+  // 映射salaryType到后端salaryUnit
+  const salaryUnitMap: Record<string, string> = {
+    'hour': 'HOUR',
+    'day': 'DAY',
+    'month': 'MONTH',
+    'negotiable': 'PROJECT'
+  }
 
   return {
     title: frontendData.title,
     description: frontendData.description,
-    company: frontendData.company,
-    companyLogo: frontendData.companyLogo || undefined,
-    companyDescription: frontendData.companyDescription || undefined,
-    jobType: jobTypeMap[frontendData.jobType] as any,
-    salaryType: salaryTypeMap[frontendData.salaryType] as any,
-    salaryMin: frontendData.salaryMin || undefined,
-    salaryMax: frontendData.salaryMax || undefined,
-    salaryDescription: frontendData.salaryDescription || undefined,
-    workLocationType: workLocationType as any,
+    salary: frontendData.salaryType === 'negotiable' ? 0 : frontendData.salaryMin,
+    salaryUnit: salaryUnitMap[frontendData.salaryType],
+    jobType: jobTypeMap[frontendData.workType],
+    category: categoryMap[frontendData.jobType],
     location: frontendData.location,
     address: frontendData.address || undefined,
-    workHours: frontendData.workHours || undefined,
-    requirements: frontendData.requirements.join('; ') || '',
-    responsibilities: frontendData.responsibilities || '',
-    benefits: frontendData.benefits.join('; ') || undefined,
-    contactPerson: frontendData.contact.name,
+    startDate: frontendData.startDate || undefined,
+    endDate: frontendData.endDate || undefined,
+    workTime: frontendData.workHours || undefined,
+    recruitCount: frontendData.recruitCount,
+    contactName: frontendData.contact.name,
     contactPhone: frontendData.contact.phone,
     contactEmail: frontendData.contact.email,
-    contactWechat: frontendData.contact.wechat || undefined,
-    deadline: frontendData.deadline || undefined,
-    startDate: frontendData.startDate || undefined,
-    endDate: frontendData.endDate || undefined
+    companyName: frontendData.company,
+    companyLogo: frontendData.companyLogo || undefined,
+    companyDescription: frontendData.companyDescription || undefined,
+    requirements: frontendData.requirements.join('; ') || undefined,
+    benefits: frontendData.benefits.join('; ') || undefined,
+    deadlineDate: frontendData.deadline || undefined
   }
 }
 
@@ -143,6 +145,15 @@ const rules = {
   'contact.email': [
     { required: true, message: '请输入联系人邮箱', trigger: 'blur' },
     { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur' }
+  ],
+  recruitCount: [
+    { required: true, message: '请输入招聘人数', trigger: 'blur' }
+  ],
+  startDate: [
+    { required: true, message: '请选择工作开始日期', trigger: 'change' }
+  ],
+  endDate: [
+    { required: true, message: '请选择工作结束日期', trigger: 'change' }
   ]
 }
 
@@ -269,7 +280,8 @@ const submitForm = async () => {
     if (!form.title || !form.company || !form.description ||
         !form.salaryMin || !form.location || !form.jobType ||
         !form.workType || !form.deadline || !form.contact.name ||
-        !form.contact.phone || !form.contact.email) {
+        !form.contact.phone || !form.contact.email ||
+        !form.startDate || !form.endDate || !form.recruitCount) {
       ElMessage.error('请填写所有必填项')
       return
     }
@@ -315,6 +327,7 @@ const resetForm = () => {
       salaryMax: null,
       salaryType: 'hour',
       salaryDescription: '',
+      recruitCount: 1,
       location: '',
       address: '',
       jobType: '' as any,
@@ -525,7 +538,17 @@ onMounted(() => {
               />
             </el-form-item>
 
-            <!-- 工作时长和学历要求 -->
+            <!-- 招聘人数和工作时长 -->
+            <el-form-item label="招聘人数" prop="recruitCount" class="form-item-half">
+              <el-input-number
+                v-model="form.recruitCount"
+                :min="1"
+                :precision="0"
+                placeholder="招聘人数"
+                style="width: 100%"
+              />
+            </el-form-item>
+
             <el-form-item label="工作时长" class="form-item-half">
               <el-input
                 v-model="form.workHours"
@@ -534,6 +557,30 @@ onMounted(() => {
               />
             </el-form-item>
 
+            <!-- 工作日期 -->
+            <el-form-item label="工作开始日期" prop="startDate" class="form-item-half">
+              <el-date-picker
+                v-model="form.startDate"
+                type="date"
+                placeholder="选择工作开始日期"
+                value-format="YYYY-MM-DD"
+                style="width: 100%"
+                :disabled-date="disabledDate"
+              />
+            </el-form-item>
+
+            <el-form-item label="工作结束日期" prop="endDate" class="form-item-half">
+              <el-date-picker
+                v-model="form.endDate"
+                type="date"
+                placeholder="选择工作结束日期"
+                value-format="YYYY-MM-DD"
+                style="width: 100%"
+                :disabled-date="disabledDate"
+              />
+            </el-form-item>
+
+            <!-- 学历要求和经验 -->
             <el-form-item label="学历要求" class="form-item-half">
               <el-select
                 v-model="form.education"
@@ -549,11 +596,10 @@ onMounted(() => {
               </el-select>
             </el-form-item>
 
-            <!-- 经验要求 -->
-            <el-form-item label="经验要求" class="form-item-full">
+            <el-form-item label="经验要求" class="form-item-half">
               <el-input
                 v-model="form.experience"
-                placeholder="例如：有家教经验者优先、无经验要求、需要相关工作经验等"
+                placeholder="例如：有家教经验者优先"
               />
             </el-form-item>
           </div>

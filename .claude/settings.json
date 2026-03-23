@@ -16,7 +16,19 @@
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8081/actuator/health)",
       "Read(//c/Program Files/MySQL/MySQL Server 8.0/bin/**)",
       "Bash(curl -v http://localhost:8082/api/products/categories)",
-      "Bash(powershell -Command \"Get-Command mysql.exe -ErrorAction SilentlyContinue\")"
+      "Bash(powershell -Command \"Get-Command mysql.exe -ErrorAction SilentlyContinue\")",
+      "Bash(where mysql:*)",
+      "Read(//c/Program Files/**)",
+      "Read(//c/ProgramData/MySQL/**)",
+      "Read(//c//**)",
+      "Bash(reg query:*)",
+      "Bash(powershell -Command \"Get-ChildItem -Path ''C:\\\\Program Files'',''C:\\\\Program Files \\(x86\\)'' -Filter mysql.exe -Recurse -ErrorAction SilentlyContinue | Select-Object -First 5 -ExpandProperty FullName\")",
+      "Read(//f/Program Files/MySQL//**)",
+      "Bash(MYSQL=\"/f/Program Files/MySQL/MySQL Server 8.0/bin/mysql.exe\")",
+      "Bash(__NEW_LINE_1775e78bdc93b61b__ echo:*)",
+      "Bash(\"$MYSQL\" -u root -p123456 -e \"SELECT COUNT\\(*\\) as ''用户数'' FROM campus_user.users; SELECT COUNT\\(*\\) as ''角色数'' FROM campus_user.user_roles; SELECT COUNT\\(*\\) as ''地址数'' FROM campus_user.user_addresses; SELECT COUNT\\(*\\) as ''钱包数'' FROM campus_user.user_wallets;\")",
+      "Bash(\"$MYSQL\" -u root -p123456 -e \"SELECT COUNT\\(*\\) as ''商品数'' FROM campus_product.products; SELECT COUNT\\(*\\) as ''分类数'' FROM campus_product.product_categories; SELECT COUNT\\(*\\) as ''点赞数'' FROM campus_product.product_likes; SELECT COUNT\\(*\\) as ''评论数'' FROM campus_product.product_comments;\")",
+      "Bash(\"$MYSQL\" -u root -p123456 -e \"SELECT COUNT\\(*\\) as ''兼职数'' FROM campus_job.jobs; SELECT COUNT\\(*\\) as ''申请数'' FROM campus_job.job_applications; SELECT COUNT\\(*\\) as ''分类数'' FROM campus_job.job_categories; SELECT COUNT\\(*\\) as ''收藏数'' FROM campus_job.job_favorites;\")"
     ]
   }
 }
