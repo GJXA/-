@@ -488,9 +488,9 @@ onUnmounted(() => {
                     </el-tag>
                   </div>
 
-                  <div class="product-seller">
+                  <div class="product-seller" v-if="product.seller">
                     <el-avatar :size="24" :src="product.seller.avatar">
-                      {{ product.seller.name.charAt(0) }}
+                      {{ product.seller.name?.charAt(0) }}
                     </el-avatar>
                     <span class="seller-name">{{ product.seller.name }}</span>
                     <el-rate
