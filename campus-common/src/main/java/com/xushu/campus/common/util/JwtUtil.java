@@ -52,6 +52,21 @@ public class JwtUtil {
     }
 
     /**
+     * 静态设置方法 - 用于网关配置
+     */
+    public static void setSecretStatic(String secret) {
+        JwtUtil.secret = secret;
+    }
+
+    public static void setExpirationStatic(Long expiration) {
+        JwtUtil.expiration = expiration;
+    }
+
+    public static void setRefreshExpirationStatic(Long refreshExpiration) {
+        JwtUtil.refreshExpiration = refreshExpiration;
+    }
+
+    /**
      * 生成密钥
      */
     private static SecretKey getSigningKey() {

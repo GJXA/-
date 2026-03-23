@@ -146,12 +146,12 @@ const loadRelatedJobs = async (jobType: string) => {
       keyword: ''
     })
     // 过滤掉当前职位，并按类型筛选
-    const related = (response.records || response.data?.records || []).filter((j: any) => j.id !== job.value.id && j.jobType === jobType)
+    const related = (response.records || []).filter((j: any) => j.id !== job.value.id && j.jobType === jobType)
     // 映射字段以匹配模板
     relatedJobs.value = related.slice(0, 3).map((j: any) => ({
       id: j.id,
       title: j.title,
-      company: j.companyName || j.company,
+      company: j.company,
       salary: j.salary ? `${j.salary}元/小时` : '面议',
       location: j.location,
       workType: j.workType,
@@ -175,31 +175,33 @@ const loadJobDetail = async () => {
     job.value = {
       id: jobData.id || 0,
       title: jobData.title || '',
-      company: jobData.companyName || jobData.company || '',
+      company: jobData.company || '',
       description: jobData.description || '',
-      salary: jobData.salary ? `${jobData.salary}元/小时` : '',
-      salaryMin: jobData.salaryMin || jobData.salary || 0,
-      salaryMax: jobData.salaryMax || jobData.salary || 0,
+      salary: jobData.salaryMin || jobData.salaryMax ? `${jobData.salaryMin || ''}-${jobData.salaryMax || ''}` : '',
+      salaryMin: jobData.salaryMin || 0,
+      salaryMax: jobData.salaryMax || 0,
       location: jobData.location || '',
       jobType: jobData.jobType || '',
-      workType: jobData.workType as 'part_time' | 'full_time' | 'internship' || 'part_time',
-      deadline: jobData.deadline || jobData.applicationDeadline || '',
+      workType: jobData.workLocationType === 'ONSITE' ? 'part_time' :
+               jobData.workLocationType === 'REMOTE' ? 'internship' : 'full_time',
+      deadline: jobData.deadline || '',
       requirements: jobData.requirements ? jobData.requirements.split(',') : [],
       benefits: jobData.benefits ? jobData.benefits.split(',') : [],
       contact: {
-        name: jobData.contactName || jobData.publisherName || '',
+        name: jobData.contactPerson || '',
         phone: jobData.contactPhone || '',
         email: jobData.contactEmail || ''
       },
       createdAt: jobData.createTime || '',
       viewCount: jobData.viewCount || 0,
-      applyCount: jobData.applyCount || 0,
+      applyCount: jobData.applicationCount || 0,
       tags: jobData.tags || [],
-      status: jobData.status || 'active',
+      status: jobData.status === 'PUBLISHED' ? 'active' :
+              jobData.status === 'FILLED' || jobData.status === 'EXPIRED' ? 'closed' : 'filled',
       workHours: jobData.workHours || '',
       education: jobData.education || '',
       experience: jobData.experience || '',
-      applicationDeadline: jobData.applicationDeadline || ''
+      applicationDeadline: jobData.deadline || ''
     }
 
     // 加载相关职位
@@ -238,7 +240,13 @@ const submitApplication = async () => {
     }
 
     // 调用后端 API
-    await jobApi.applyJob(job.value.id, applyForm)
+    const applicationData = {
+      jobId: job.value.id,
+      resumeUrl: applyForm.resume || undefined,
+      coverLetter: applyForm.coverLetter || undefined,
+      applicantNote: applyForm.skills ? `技能：${applyForm.skills}` : undefined
+    }
+    await jobApi.applyJob(applicationData)
 
     hasApplied.value = true
     showApplyForm.value = false
@@ -301,7 +309,7 @@ watch(() => route.params.id, () => {
   <div class="job-detail-container">
     <!-- 返回按钮 -->
     <div class="back-section">
-      <el-button type="text" @click="goBack" class="back-btn">
+      <el-button type="link" @click="goBack" class="back-btn">
         <el-icon><ArrowLeft /></el-icon>
         返回兼职列表
       </el-button>

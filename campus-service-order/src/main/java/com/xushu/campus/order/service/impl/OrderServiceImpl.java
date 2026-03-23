@@ -5,11 +5,14 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xushu.campus.common.exception.BusinessException;
+import com.xushu.campus.common.model.Result;
 import com.xushu.campus.order.constant.OrderConstants;
 import com.xushu.campus.order.dto.*;
 import com.xushu.campus.order.entity.Order;
+import com.xushu.campus.order.feign.ProductFeignClient;
 import com.xushu.campus.order.mapper.OrderMapper;
 import com.xushu.campus.order.service.OrderService;
+import com.xushu.campus.product.dto.ProductDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -35,20 +38,20 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 
     private final OrderMapper orderMapper;
     private final RedisTemplate<String, Object> redisTemplate;
+    private final ProductFeignClient productFeignClient;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public OrderDTO createOrder(Long userId, CreateOrderRequest request) {
         log.info("创建订单: userId={}, productId={}", userId, request.getProductId());
 
-        // 1. 验证商品信息（简化版本，暂时跳过Feign调用）
-        // TODO: 实际项目中需要通过Feign调用商品服务获取商品信息
-        ProductDTO productDTO = new ProductDTO();
-        productDTO.setId(request.getProductId());
-        productDTO.setUserId(999L); // 临时占位，实际应从商品服务获取
-        productDTO.setPrice(request.getProductPrice() != null ? request.getProductPrice() : new BigDecimal("100.00"));
-        productDTO.setStatus(1); // 假设商品已上架
-        productDTO.setTitle(request.getProductTitle() != null ? request.getProductTitle() : "临时商品");
+        // 1. 通过Feign调用商品服务获取商品信息
+        Result<ProductDTO> productResult = productFeignClient.getProductById(request.getProductId());
+        if (!productResult.isSuccess() || productResult.getData() == null) {
+            throw BusinessException.paramError("商品不存在或获取失败");
+        }
+
+        ProductDTO productDTO = productResult.getData();
 
         // 商品验证
         if (!productDTO.getStatus().equals(1)) { // 商品状态：1-上架中
@@ -716,54 +719,4 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         log.debug("清除订单缓存: orderId={}", orderId);
     }
 
-    /**
-     * 简化版的商品DTO（用于测试，实际项目应从商品服务获取）
-     */
-    private static class ProductDTO {
-        private Long id;
-        private Long userId;
-        private String title;
-        private BigDecimal price;
-        private Integer status;
-
-        public Long getId() {
-            return id;
-        }
-
-        public void setId(Long id) {
-            this.id = id;
-        }
-
-        public Long getUserId() {
-            return userId;
-        }
-
-        public void setUserId(Long userId) {
-            this.userId = userId;
-        }
-
-        public String getTitle() {
-            return title;
-        }
-
-        public void setTitle(String title) {
-            this.title = title;
-        }
-
-        public BigDecimal getPrice() {
-            return price;
-        }
-
-        public void setPrice(BigDecimal price) {
-            this.price = price;
-        }
-
-        public Integer getStatus() {
-            return status;
-        }
-
-        public void setStatus(Integer status) {
-            this.status = status;
-        }
-    }
 }

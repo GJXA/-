@@ -139,18 +139,19 @@ public class JobApplication {
      * 逻辑删除标志：0-未删除，1-已删除
      */
     @TableLogic
+    @TableField("is_deleted")
     private Integer isDeleted;
 
     /**
      * 创建时间
      */
-    @TableField(fill = FieldFill.INSERT)
+    @TableField(value = "created_at", fill = FieldFill.INSERT)
     private LocalDateTime createdAt;
 
     /**
      * 更新时间
      */
-    @TableField(fill = FieldFill.INSERT_UPDATE)
+    @TableField(value = "updated_at", fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updatedAt;
 
     /**

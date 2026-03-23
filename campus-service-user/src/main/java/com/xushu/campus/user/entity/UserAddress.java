@@ -69,16 +69,19 @@ public class UserAddress {
      * 逻辑删除标志
      */
     @TableLogic
+    @TableField("is_deleted")
     private Integer deleted;
 
     /**
      * 创建时间
      */
+    @TableField(value = "created_at", fill = FieldFill.INSERT)
     private LocalDateTime createTime;
 
     /**
      * 更新时间
      */
+    @TableField(value = "updated_at", fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updateTime;
 
 }

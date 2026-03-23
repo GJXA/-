@@ -15,7 +15,19 @@
       "Bash(findstr :8080)",
       "Bash(findstr LISTENING)",
       "Bash(curl -X POST http://localhost:8080/api/users/login -H \"Content-Type: application/json\" -d '{\"\"username\"\":\"\"testuser\"\",\"\"password\"\":\"\"password123\"\"}' -v)",
-      "Bash(curl -X POST http://localhost:8080/api/users/register -H \"Content-Type: application/json\" -d '{\"\"username\"\":\"\"testuser2\"\",\"\"password\"\":\"\"password123\"\",\"\"email\"\":\"\"test2@example.com\"\"}' -v)"
+      "Bash(curl -X POST http://localhost:8080/api/users/register -H \"Content-Type: application/json\" -d '{\"\"username\"\":\"\"testuser2\"\",\"\"password\"\":\"\"password123\"\",\"\"email\"\":\"\"test2@example.com\"\"}' -v)",
+      "Bash(findstr :8082)",
+      "Bash(findstr :8083)",
+      "Bash(findstr :8084)",
+      "Bash(findstr :8085)",
+      "Bash(curl -s http://localhost:8848/nacos/v1/ns/instance/list)",
+      "Bash(curl -s http://localhost:8848/nacos)",
+      "Bash(curl -I http://localhost:8848/nacos)",
+      "Bash(redis-cli ping:*)",
+      "Bash(findstr :6379)",
+      "Bash(findstr :3306)",
+      "Bash(findstr :5672)",
+      "Bash(mysql -u root -p123456 -e \"SHOW DATABASES;\")"
     ]
   }
 }

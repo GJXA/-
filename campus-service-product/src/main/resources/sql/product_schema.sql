@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS `products` (
   `like_count` int DEFAULT 0 COMMENT '点赞数',
   `favorite_count` int DEFAULT 0 COMMENT '收藏数',
   `address` varchar(300) COMMENT '详细地址（包含位置信息）',
+  `images` text COMMENT '商品图片URL列表（JSON格式）',
   `contact_phone` varchar(20) COMMENT '联系电话',
   `contact_name` varchar(50) COMMENT '联系人姓名',
   `quality_level` varchar(20) COMMENT '成色：NEW-全新，LIKE_NEW-几乎全新，USED-使用过',

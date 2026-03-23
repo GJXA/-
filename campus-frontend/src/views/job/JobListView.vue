@@ -199,18 +199,14 @@ const loadJobs = async () => {
     params.sortDirection = sortDirection
 
     const response = await jobApi.getJobList(params)
-    // 响应可能是分页格式，尝试从records或data字段获取
-    const records = response.records || response.data?.records || response.data || []
+    // 响应是分页格式，包含records字段
+    const records = response.records || []
     jobs.value = records
 
     // 更新分页总数
-    pagination.total = response.total || response.data?.total || records.length
+    pagination.total = response.total || records.length
 
-    // 更新工作类型统计（简单示例，实际应从后端获取分类统计）
-    updateJobTypeStats(records)
-
-    // 更新地点列表（从现有数据中提取唯一地点）
-    updateLocationList(records)
+    // 工作类型和地点列表由computed属性自动更新
 
     console.log('✅ JobList: jobs loaded, count:', jobs.value.length, 'total:', pagination.total)
   } catch (error) {
@@ -239,36 +235,6 @@ const handlePageChange = (page: number) => {
   loadJobs()
 }
 
-// 更新工作类型统计
-const updateJobTypeStats = (jobs: any[]) => {
-  // 统计每种类型的工作数量
-  const typeCounts: Record<string, number> = {}
-  jobs.forEach(job => {
-    const type = job.jobType || 'other'
-    typeCounts[type] = (typeCounts[type] || 0) + 1
-  })
-
-  // 更新jobTypes的count字段
-  jobTypes.value = jobTypes.value.map(type => ({
-    ...type,
-    count: typeCounts[type.id] || 0
-  }))
-}
-
-// 更新地点列表
-const updateLocationList = (jobs: any[]) => {
-  const locationSet = new Set<string>()
-  jobs.forEach(job => {
-    if (job.location) {
-      locationSet.add(job.location)
-    }
-  })
-
-  // 如果有数据，更新地点列表
-  if (locationSet.size > 0) {
-    locations.value = Array.from(locationSet)
-  }
-}
 
 
 
@@ -573,7 +539,7 @@ onMounted(() => {
                     分享
                   </el-button>
                   <el-button
-                    type="text"
+                    type="link"
                     @click.stop
                     class="save-btn"
                   >

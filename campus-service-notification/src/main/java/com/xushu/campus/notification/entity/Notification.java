@@ -97,6 +97,7 @@ public class Notification {
      * 逻辑删除标志：0-未删除，1-已删除
      */
     @TableLogic
+    @TableField("is_deleted")
     private Integer isDeleted;
 
     /**

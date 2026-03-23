@@ -74,7 +74,7 @@ const handleNavClick = (item: any) => {
       <div class="header-actions">
         <el-button
           v-if="!isAuthenticated"
-          type="text"
+          type="link"
           size="small"
           @click="handleLogin"
           class="action-btn"

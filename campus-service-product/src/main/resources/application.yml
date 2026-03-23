@@ -59,7 +59,7 @@ spring:
     global-config:
       db-config:
         id-type: auto
-        logic-delete-field: deleted
+        logic-delete-field: is_deleted  # 商品服务使用is_deleted字段
         logic-delete-value: 1
         logic-not-delete-value: 0
 

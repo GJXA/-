@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { UploadFilled, Picture, Location, PriceTag, Document } from '@element-plus/icons-vue'
+import { UploadFilled, Picture, Location, PriceTag, Document, Delete } from '@element-plus/icons-vue'
 import { useRouter } from 'vue-router'
 import { productApi } from '@/api'
+import { uploadApi } from '@/api/upload'
 
 const router = useRouter()
 
@@ -65,7 +66,7 @@ const conditionOptions = [
 const loadCategories = async () => {
   try {
     const response = await productApi.getCategories()
-    categories.value = response.data.data || []
+    categories.value = response || []
   } catch (error) {
     console.error('加载分类失败:', error)
     ElMessage.error('加载分类失败')
@@ -73,17 +74,32 @@ const loadCategories = async () => {
 }
 
 // 处理图片上传
-const handleUpload = (file: File) => {
-  // 这里模拟上传，实际开发中需要调用上传接口
+const handleUpload = async (file: File) => {
   isUploading.value = true
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const url = URL.createObjectURL(file)
-      form.images.push(url)
-      isUploading.value = false
-      resolve(url)
-    }, 1000)
-  })
+  try {
+    // 调用真实的上传API
+    const response = await uploadApi.uploadImage(file, (progressEvent: any) => {
+      // 可以在这里添加上传进度显示
+      console.log(`上传进度: ${progressEvent.percent}%`)
+    })
+
+    // response已经是UploadResponse类型（经过请求拦截器处理）
+    // UploadResponse接口包含url字段
+    const url = (response as any).url
+
+    if (!url) {
+      throw new Error('上传失败：未返回有效的图片URL')
+    }
+
+    form.images.push(url)
+    return url
+  } catch (error: any) {
+    console.error('图片上传失败:', error)
+    ElMessage.error(error.message || '图片上传失败，请重试')
+    throw error // 重新抛出错误，让上传组件处理
+  } finally {
+    isUploading.value = false
+  }
 }
 
 // 图片上传前验证
@@ -120,26 +136,38 @@ const submitForm = async () => {
       return
     }
 
+    // 验证图片：至少需要一张图片
+    if (form.images.length === 0) {
+      ElMessage.error('请至少上传一张商品图片')
+      return
+    }
+
     // 准备提交数据
     const submitData = {
-      ...form,
-      images: form.images.join(','), // 实际开发中应上传到服务器后返回URL
-      status: 'pending'
+      title: form.title,
+      description: form.description,
+      price: form.price!, // 已验证不为null
+      originalPrice: form.originalPrice || undefined,
+      categoryId: form.categoryId!, // 已验证不为null
+      condition: form.condition,
+      location: form.location,
+      images: form.images, // 已经是string[]
+      stock: form.stock,
+      contactPhone: form.contactPhone || undefined,
+      contactWechat: form.contactWechat || undefined
     }
 
     // 调用API
-    const response = await productApi.createProduct(submitData)
+    await productApi.createProduct(submitData)
 
-    if (response.data.code === 200) {
-      ElMessage.success('商品发布成功！')
-      // 跳转到商品详情页或商品列表页
-      router.push('/products')
-    } else {
-      ElMessage.error(response.data.message || '发布失败')
-    }
+    // 注意：response已经是经过请求拦截器处理后的数据
+    // 如果API调用成功，直接返回商品数据
+    ElMessage.success('商品发布成功！')
+    // 跳转到商品详情页或商品列表页
+    router.push('/products')
   } catch (error: any) {
     console.error('发布失败:', error)
-    ElMessage.error(error.response?.data?.message || '发布失败，请稍后重试')
+    ElMessage.error(error.message || error.response?.data?.message || '发布失败，请稍后重试')
   }
 }
 

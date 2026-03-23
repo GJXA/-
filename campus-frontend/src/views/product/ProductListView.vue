@@ -2,7 +2,7 @@
 import { ref, reactive, onMounted, computed, onBeforeMount, onUpdated, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { Search, Filter, Sort } from '@element-plus/icons-vue'
+import { Search, Filter, Sort, Star, Location, Clock, View } from '@element-plus/icons-vue'
 import { productApi } from '@/api'
 
 const router = useRouter()
@@ -130,8 +130,8 @@ const resetFilters = () => {
 const loadCategories = async () => {
   try {
     const response = await productApi.getCategories()
-    // 响应可能是分页格式，尝试从records或data字段获取
-    categories.value = response.records || response.data?.records || response.data || []
+    // 响应直接是分类数组
+    categories.value = Array.isArray(response) ? response : []
     console.log('✅ ProductList: categories loaded, count:', categories.value.length)
   } catch (error) {
     console.error('❌ ProductList: loadCategories error:', error)
@@ -186,12 +186,12 @@ const loadProducts = async () => {
     params.sortDirection = sortDirection
 
     const response = await productApi.getProductList(params)
-    // 响应可能是分页格式，尝试从records或data字段获取
-    const records = response.records || response.data?.records || response.data || []
+    // 响应是PageResult类型，直接使用records和total
+    const records = response.records || []
     products.value = records
 
     // 更新分页总数
-    pagination.total = response.total || response.data?.total || records.length
+    pagination.total = response.total || records.length
 
     console.log('✅ ProductList: products loaded, count:', products.value.length, 'total:', pagination.total)
   } catch (error) {
@@ -296,7 +296,7 @@ onUnmounted(() => {
                 <el-option
                   v-for="category in categories"
                   :key="category.id"
-                  :label="`${category.name} (${category.count})`"
+                  :label="category.name"
                   :value="category.id"
                 />
               </el-select>
@@ -374,7 +374,6 @@ onUnmounted(() => {
                 @click="filterForm.categoryId = category.id.toString(); handleSearch()"
               >
                 <span class="category-name">{{ category.name }}</span>
-                <span class="category-count">{{ category.count }}</span>
               </li>
             </ul>
           </div>
@@ -438,13 +437,12 @@ onUnmounted(() => {
                   </div>
                   <div class="product-actions">
                     <el-button
-                      type="text"
+                      type="link"
                       class="like-btn"
                       @click.stop="toggleLike(product.id, $event)"
                     >
                       <el-icon :size="20">
-                        <Heart v-if="product.likeCount > 89" />
-                        <HeartOutline v-else />
+                        <Star :class="{ 'liked': product.likeCount > 89 }" />
                       </el-icon>
                       {{ product.likeCount }}
                     </el-button>

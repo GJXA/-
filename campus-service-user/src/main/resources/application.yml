@@ -25,11 +25,17 @@ spring:
     redis:
       enabled: false
 
-  # MyBatis配置（标准配置）
-  mybatis:
+  # MyBatis Plus配置
+  mybatis-plus:
     configuration:
       log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
       map-underscore-to-camel-case: true
+    global-config:
+      db-config:
+        id-type: auto
+        logic-delete-field: is_deleted  # 用户服务使用is_deleted字段
+        logic-delete-value: 1
+        logic-not-delete-value: 0
 
   # 数据库初始化配置
   sql:

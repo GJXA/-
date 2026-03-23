@@ -18,53 +18,54 @@ public interface ProductMapper extends BaseMapper<Product> {
     /**
      * 根据用户ID查询商品列表
      */
-    @Select("SELECT * FROM product WHERE user_id = #{userId} AND deleted = 0 ORDER BY create_time DESC")
+    @Select("SELECT * FROM products WHERE user_id = #{userId} AND is_deleted = 0 ORDER BY created_at DESC")
     List<Product> selectByUserId(@Param("userId") Long userId);
 
     /**
      * 根据分类ID查询商品列表
      */
-    @Select("SELECT * FROM product WHERE category_id = #{categoryId} AND deleted = 0 AND status = 1 ORDER BY create_time DESC")
+    @Select("SELECT * FROM products WHERE category_id = #{categoryId} AND is_deleted = 0 AND status = 1 ORDER BY created_at DESC")
     List<Product> selectByCategoryId(@Param("categoryId") Long categoryId);
 
     /**
      * 搜索商品（标题和描述）
      */
-    @Select("SELECT * FROM product WHERE (title LIKE CONCAT('%', #{keyword}, '%') OR description LIKE CONCAT('%', #{keyword}, '%')) AND deleted = 0 AND status = 1 ORDER BY create_time DESC")
+    @Select("SELECT * FROM products WHERE (title LIKE CONCAT('%', #{keyword}, '%') OR description LIKE CONCAT('%', #{keyword}, '%')) AND is_deleted = 0 AND status = 1 ORDER BY created_at DESC")
     List<Product> searchByKeyword(@Param("keyword") String keyword);
 
     /**
      * 增加浏览次数
      */
-    @Update("UPDATE product SET view_count = view_count + 1 WHERE id = #{productId}")
+    @Update("UPDATE products SET view_count = view_count + 1 WHERE id = #{productId} AND is_deleted = 0")
     void incrementViewCount(@Param("productId") Long productId);
 
     /**
      * 增加点赞数
      */
-    @Update("UPDATE product SET like_count = like_count + 1 WHERE id = #{productId}")
+    @Update("UPDATE products SET like_count = like_count + 1 WHERE id = #{productId} AND is_deleted = 0")
     void incrementLikeCount(@Param("productId") Long productId);
 
     /**
      * 减少点赞数
      */
-    @Update("UPDATE product SET like_count = like_count - 1 WHERE id = #{productId} AND like_count > 0")
+    @Update("UPDATE products SET like_count = like_count - 1 WHERE id = #{productId} AND like_count > 0 AND is_deleted = 0")
     void decrementLikeCount(@Param("productId") Long productId);
 
     /**
      * 更新商品状态
      */
-    @Update("UPDATE product SET status = #{status} WHERE id = #{productId}")
+    @Update("UPDATE products SET status = #{status} WHERE id = #{productId} AND is_deleted = 0")
     void updateStatus(@Param("productId") Long productId, @Param("status") Integer status);
 
     /**
      * 批量更新商品状态
      */
     @Update("<script>" +
-            "UPDATE product SET status = #{status} WHERE id IN " +
+            "UPDATE products SET status = #{status} WHERE id IN " +
             "<foreach collection='productIds' item='id' open='(' separator=',' close=')'>" +
             "#{id}" +
             "</foreach>" +
+            " AND is_deleted = 0" +
             "</script>")
     void batchUpdateStatus(@Param("productIds") List<Long> productIds, @Param("status") Integer status);
 

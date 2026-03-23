@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Update;
 import org.apache.ibatis.annotations.Options;
 import org.springframework.stereotype.Repository;
 
@@ -43,15 +44,8 @@ public interface UserMapper extends BaseMapper<User> {
     /**
      * 更新用户最后登录时间
      */
-    @Select("UPDATE users SET last_login_time = NOW(), updated_at = NOW() WHERE id = #{userId}")
+    @Update("UPDATE users SET last_login_time = NOW(), updated_at = NOW() WHERE id = #{userId}")
     void updateLastLoginTime(@Param("userId") Long userId);
 
-    /**
-     * 插入用户（自定义insert方法）
-     */
-    @Options(useGeneratedKeys = true, keyProperty = "user.id", keyColumn = "id")
-    @Insert("INSERT INTO users (username, password, email, phone, real_name, student_id, avatar_url, gender, status, birthday, school, major, grade, address, signature, last_login_time, last_login_ip, is_deleted, created_at, updated_at, version) " +
-            "VALUES (#{user.username}, #{user.password}, #{user.email}, #{user.phone}, #{user.realName}, #{user.studentId}, #{user.avatarUrl}, #{user.gender}, #{user.status}, #{user.birthday}, #{user.school}, #{user.major}, #{user.grade}, #{user.address}, #{user.signature}, #{user.lastLoginTime}, #{user.lastLoginIp}, #{user.isDeleted}, #{user.createTime}, #{user.updateTime}, #{user.version})")
-    int insertUser(@Param("user") User user);
 
 }

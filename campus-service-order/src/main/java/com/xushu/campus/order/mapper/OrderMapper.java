@@ -21,43 +21,43 @@ public interface OrderMapper extends BaseMapper<Order> {
     /**
      * 根据订单号查询订单
      */
-    @Select("SELECT * FROM orders WHERE order_no = #{orderNo} AND deleted = 0")
+    @Select("SELECT * FROM orders WHERE order_no = #{orderNo} AND is_deleted = 0")
     Order selectByOrderNo(@Param("orderNo") String orderNo);
 
     /**
      * 根据用户ID查询订单列表（分页）
      */
-    @Select("SELECT * FROM orders WHERE user_id = #{userId} AND deleted = 0 ORDER BY create_time DESC")
+    @Select("SELECT * FROM orders WHERE user_id = #{userId} AND is_deleted = 0 ORDER BY created_at DESC")
     IPage<Order> selectByUserId(Page<Order> page, @Param("userId") Long userId);
 
     /**
      * 根据卖家ID查询订单列表（分页）
      */
-    @Select("SELECT * FROM orders WHERE seller_id = #{sellerId} AND deleted = 0 ORDER BY create_time DESC")
+    @Select("SELECT * FROM orders WHERE seller_id = #{sellerId} AND is_deleted = 0 ORDER BY created_at DESC")
     IPage<Order> selectBySellerId(Page<Order> page, @Param("sellerId") Long sellerId);
 
     /**
      * 查询待支付的订单（用于定时任务取消超时订单）
      */
-    @Select("SELECT * FROM orders WHERE order_status = 0 AND payment_status = 0 AND deleted = 0 AND expire_time < #{now}")
+    @Select("SELECT * FROM orders WHERE order_status = 0 AND payment_status = 0 AND is_deleted = 0 AND expire_time < #{now}")
     List<Order> selectExpiredOrders(@Param("now") LocalDateTime now);
 
     /**
      * 查询待确认收货的订单（用于定时任务自动确认收货）
      */
-    @Select("SELECT * FROM orders WHERE order_status = 2 AND payment_status = 1 AND deleted = 0 AND create_time < #{deadline}")
+    @Select("SELECT * FROM orders WHERE order_status = 2 AND payment_status = 1 AND is_deleted = 0 AND created_at < #{deadline}")
     List<Order> selectAutoConfirmOrders(@Param("deadline") LocalDateTime deadline);
 
     /**
      * 更新订单状态
      */
-    @Select("UPDATE orders SET order_status = #{orderStatus}, update_time = NOW() WHERE id = #{orderId} AND deleted = 0")
+    @Select("UPDATE orders SET order_status = #{orderStatus}, updated_at = NOW() WHERE id = #{orderId} AND is_deleted = 0")
     int updateOrderStatus(@Param("orderId") Long orderId, @Param("orderStatus") Integer orderStatus);
 
     /**
      * 更新支付状态
      */
-    @Select("UPDATE orders SET payment_status = #{paymentStatus}, payment_time = #{paymentTime}, update_time = NOW() WHERE id = #{orderId} AND deleted = 0")
+    @Select("UPDATE orders SET payment_status = #{paymentStatus}, payment_time = #{paymentTime}, updated_at = NOW() WHERE id = #{orderId} AND is_deleted = 0")
     int updatePaymentStatus(@Param("orderId") Long orderId,
                             @Param("paymentStatus") Integer paymentStatus,
                             @Param("paymentTime") LocalDateTime paymentTime);
@@ -65,7 +65,7 @@ public interface OrderMapper extends BaseMapper<Order> {
     /**
      * 更新发货信息
      */
-    @Select("UPDATE orders SET order_status = #{orderStatus}, delivery_time = #{deliveryTime}, update_time = NOW() WHERE id = #{orderId} AND deleted = 0")
+    @Select("UPDATE orders SET order_status = #{orderStatus}, delivery_time = #{deliveryTime}, updated_at = NOW() WHERE id = #{orderId} AND is_deleted = 0")
     int updateDeliveryInfo(@Param("orderId") Long orderId,
                            @Param("orderStatus") Integer orderStatus,
                            @Param("deliveryTime") LocalDateTime deliveryTime);
@@ -73,7 +73,7 @@ public interface OrderMapper extends BaseMapper<Order> {
     /**
      * 更新确认收货信息
      */
-    @Select("UPDATE orders SET order_status = #{orderStatus}, confirm_time = #{confirmTime}, update_time = NOW() WHERE id = #{orderId} AND deleted = 0")
+    @Select("UPDATE orders SET order_status = #{orderStatus}, confirm_time = #{confirmTime}, updated_at = NOW() WHERE id = #{orderId} AND is_deleted = 0")
     int updateConfirmInfo(@Param("orderId") Long orderId,
                           @Param("orderStatus") Integer orderStatus,
                           @Param("confirmTime") LocalDateTime confirmTime);
@@ -81,7 +81,7 @@ public interface OrderMapper extends BaseMapper<Order> {
     /**
      * 更新取消信息
      */
-    @Select("UPDATE orders SET order_status = #{orderStatus}, cancel_time = #{cancelTime}, cancel_reason = #{cancelReason}, update_time = NOW() WHERE id = #{orderId} AND deleted = 0")
+    @Select("UPDATE orders SET order_status = #{orderStatus}, cancel_time = #{cancelTime}, cancel_reason = #{cancelReason}, updated_at = NOW() WHERE id = #{orderId} AND is_deleted = 0")
     int updateCancelInfo(@Param("orderId") Long orderId,
                          @Param("orderStatus") Integer orderStatus,
                          @Param("cancelTime") LocalDateTime cancelTime,
@@ -101,7 +101,7 @@ public interface OrderMapper extends BaseMapper<Order> {
             "COUNT(CASE WHEN order_status = 2 THEN 1 END) AS pending_receipt_count, " +
             "COUNT(CASE WHEN order_status = 3 THEN 1 END) AS completed_count, " +
             "COUNT(CASE WHEN order_status = 4 THEN 1 END) AS cancelled_count " +
-            "FROM orders WHERE user_id = #{userId} AND deleted = 0")
+            "FROM orders WHERE user_id = #{userId} AND is_deleted = 0")
     OrderStatistics selectUserOrderStatistics(@Param("userId") Long userId);
 
     /**

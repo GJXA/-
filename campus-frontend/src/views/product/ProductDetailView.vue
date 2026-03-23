@@ -2,11 +2,13 @@
 import { ref, reactive, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { ShoppingCart, Share, Location, Clock, Message, Phone } from '@element-plus/icons-vue'
+import { ShoppingCart, Share, Location, Clock, Message, Phone, Star, View, Pointer } from '@element-plus/icons-vue'
 import { productApi } from '@/api'
+import { useCartStore } from '@/store/cart'
 
 const route = useRoute()
 const router = useRouter()
+const cartStore = useCartStore()
 
 
 // 加载状态
@@ -32,7 +34,7 @@ const loadRelatedProducts = async (categoryId: number) => {
       categoryId: categoryId
     })
     // 过滤掉当前商品
-    const related = (response.records || response.data?.records || []).filter((p: any) => p.id !== product.value?.id)
+    const related = (response.records || []).filter((p: any) => p.id !== product.value?.id)
     // 映射字段以匹配模板
     relatedProducts.value = related.slice(0, 3).map((p: any) => ({
       id: p.id,
@@ -183,27 +185,30 @@ const buyNow = () => {
       type: 'warning'
     }
   ).then(() => {
-    // TODO: 调用创建订单 API
-    router.push({
-      path: '/order/checkout',
-      query: {
-        productId: product.value.id,
-        quantity: quantity.value
-      }
-    })
+    // 添加到购物车并确保选中
+    cartStore.addItem(product.value, quantity.value)
+    // 确保商品被选中（立即购买的商品应该被选中）
+    const cartItem = cartStore.items.find(item => item.productId === product.value.id)
+    if (cartItem && !cartItem.selected) {
+      cartStore.toggleSelection(product.value.id)
+    }
+
+    // 跳转到结算页面
+    router.push('/order/checkout')
   }).catch(() => {
     // 取消操作
   })
 }
 
-// 加入购物车（暂时模拟）
+// 加入购物车
 const addToCart = () => {
   if (product.value.status !== 'available') {
     ElMessage.warning('该商品已售出或已被预定')
     return
   }
 
-  // TODO: 调用加入购物车 API
+  // 添加到购物车store
+  cartStore.addItem(product.value, quantity.value)
   ElMessage.success('已加入购物车')
 }
 
@@ -244,10 +249,8 @@ onMounted(() => {
           <el-breadcrumb-item>{{ product?.title }}</el-breadcrumb-item>
         </el-breadcrumb>
       </div>
-        <el-skeleton :rows="10" animated />
-      </div>
 
-      <div v-else class="product-detail">
+      <div class="product-detail">
         <!-- 商品主区域 -->
         <div class="product-main">
           <!-- 商品图片 -->
@@ -273,7 +276,7 @@ onMounted(() => {
                 :key="index"
                 class="thumbnail-item"
                 :class="{ active: currentImageIndex === index }"
-                @click="selectImage(index)"
+                @click="selectImage(index as number)"
               >
                 <img :src="image" :alt="`${product.title}-${index}`" />
               </div>
@@ -281,11 +284,11 @@ onMounted(() => {
 
             <!-- 图片操作 -->
             <div class="image-actions">
-              <el-button type="text" @click="toggleLike" class="like-action">
-                <Heart :class="['like-icon', { liked }]" />
+              <el-button type="link" @click="toggleLike" class="like-action">
+                <Star :class="['like-icon', { liked }]" />
                 <span class="like-count">{{ product.likeCount }}</span>
               </el-button>
-              <el-button type="text" @click="shareProduct" class="share-action">
+              <el-button type="link" @click="shareProduct" class="share-action">
                 <Share class="share-icon" />
                 分享
               </el-button>
@@ -343,7 +346,7 @@ onMounted(() => {
               <div class="attribute-item">
                 <span class="attribute-label">浏览次数:</span>
                 <span class="attribute-value">
-                  <Eye class="attribute-icon" />
+                  <View class="attribute-icon" />
                   {{ product.viewCount }}
                 </span>
               </div>
@@ -561,11 +564,11 @@ onMounted(() => {
                       <p class="review-comment">{{ review.comment }}</p>
                     </div>
                     <div class="review-actions">
-                      <el-button type="text" size="small">
-                        <el-icon><Thumb /></el-icon>
+                      <el-button type="link" size="small">
+                        <el-icon><Pointer /></el-icon>
                         有用 ({{ review.likes }})
                       </el-button>
-                      <el-button type="text" size="small">
+                      <el-button type="link" size="small">
                         回复
                       </el-button>
                     </div>
@@ -601,6 +604,22 @@ onMounted(() => {
           </div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <div v-else class="product-not-found">
+    <div class="not-found-container">
+      <el-result
+        icon="error"
+        title="商品不存在"
+        sub-title="抱歉，您查找的商品可能已被删除或不存在。"
+      >
+        <template #extra>
+          <el-button type="primary" @click="router.push('/products')">
+            返回商品列表
+          </el-button>
+        </template>
+      </el-result>
     </div>
   </div>
 </template>

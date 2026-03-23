@@ -2,7 +2,7 @@
 import { ref, reactive, onMounted, computed, onBeforeMount, onUpdated, onUnmounted, onBeforeUpdate } from 'vue'
 import { useRouter, onBeforeRouteUpdate, onBeforeRouteLeave } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Search, ShoppingCart, Wallet, Check, Close, Delete, Clock, Calendar } from '@element-plus/icons-vue'
+import { Search, ShoppingCart, Wallet, Check, Close, Delete, Clock, Calendar, Truck, Eye } from '@element-plus/icons-vue'
 import { orderApi } from '@/api'
 
 const router = useRouter()
@@ -145,12 +145,12 @@ const loadOrders = async () => {
     }
 
     const response = await orderApi.getOrderList(params)
-    // 响应可能是分页格式，尝试从records或data字段获取
-    const records = response.records || response.data?.records || response.data || []
+    // 响应是分页格式，包含records字段
+    const records = response.records || []
     orders.value = records
 
     // 更新分页总数
-    pagination.total = response.total || response.data?.total || records.length
+    pagination.total = response.total || records.length
 
     console.log('✅ OrderList: data loaded, orders count:', orders.value.length, 'total:', pagination.total)
   } catch (error) {
@@ -520,7 +520,7 @@ onBeforeRouteLeave((to, from, next) => {
                   </el-button>
 
                   <el-button
-                    type="text"
+                    type="link"
                     @click="viewOrderDetail(order.id)"
                   >
                     <el-icon><Eye /></el-icon>
@@ -529,7 +529,7 @@ onBeforeRouteLeave((to, from, next) => {
 
                   <el-button
                     v-if="order.status === 'cancelled' || order.status === 'completed'"
-                    type="text"
+                    type="link"
                     @click="deleteOrder(order)"
                     class="delete-btn"
                   >

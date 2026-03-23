@@ -24,26 +24,84 @@ const form = reactive({
   title: '',
   company: '',
   description: '',
+  companyLogo: '' as string,
+  companyDescription: '' as string,
   salaryMin: null as number | null,
   salaryMax: null as number | null,
   salaryType: 'hour' as 'hour' | 'day' | 'month' | 'negotiable',
+  salaryDescription: '' as string,
   location: '',
+  address: '' as string,
   jobType: '' as 'campus' | 'tutor' | 'delivery' | 'internship' | 'other',
   workType: '' as 'part_time' | 'full_time' | 'internship',
   deadline: '',
   requirements: [] as string[],
+  responsibilities: '' as string,
   benefits: [] as string[],
   contact: {
     name: '',
     phone: '',
-    email: ''
+    email: '',
+    wechat: '' as string
   },
   workHours: '',
   education: '' as '' | 'high_school' | 'college' | 'bachelor' | 'master' | 'phd' | 'none',
   experience: '',
   tags: [] as string[],
-  applicationDeadline: ''
+  applicationDeadline: '',
+  startDate: '' as string,
+  endDate: '' as string
 })
+
+// 类型映射函数
+const mapToBackendTypes = (frontendData: typeof form) => {
+  // 映射jobType
+  const jobTypeMap: Record<typeof form.jobType, string> = {
+    'campus': 'PART_TIME',
+    'tutor': 'FREELANCE',
+    'delivery': 'PART_TIME',
+    'internship': 'INTERNSHIP',
+    'other': 'PROJECT'
+  }
+
+  // 映射salaryType
+  const salaryTypeMap: Record<typeof form.salaryType, string> = {
+    'hour': 'HOURLY',
+    'day': 'DAILY',
+    'month': 'MONTHLY',
+    'negotiable': 'NEGOTIABLE'
+  }
+
+  // 映射workType到workLocationType（假设所有都是现场办公）
+  const workLocationType = 'ONSITE'
+
+  return {
+    title: frontendData.title,
+    description: frontendData.description,
+    company: frontendData.company,
+    companyLogo: frontendData.companyLogo || undefined,
+    companyDescription: frontendData.companyDescription || undefined,
+    jobType: jobTypeMap[frontendData.jobType] as any,
+    salaryType: salaryTypeMap[frontendData.salaryType] as any,
+    salaryMin: frontendData.salaryMin || undefined,
+    salaryMax: frontendData.salaryMax || undefined,
+    salaryDescription: frontendData.salaryDescription || undefined,
+    workLocationType: workLocationType as any,
+    location: frontendData.location,
+    address: frontendData.address || undefined,
+    workHours: frontendData.workHours || undefined,
+    requirements: frontendData.requirements.join('; ') || '',
+    responsibilities: frontendData.responsibilities || '',
+    benefits: frontendData.benefits.join('; ') || undefined,
+    contactPerson: frontendData.contact.name,
+    contactPhone: frontendData.contact.phone,
+    contactEmail: frontendData.contact.email,
+    contactWechat: frontendData.contact.wechat || undefined,
+    deadline: frontendData.deadline || undefined,
+    startDate: frontendData.startDate || undefined,
+    endDate: frontendData.endDate || undefined
+  }
+}
 
 // 表单验证规则
 const rules = {
@@ -221,27 +279,17 @@ const submitForm = async () => {
       return
     }
 
-    // 准备提交数据
-    const submitData = {
-      ...form,
-      salary: salaryDisplay.value,
-      status: 'active',
-      createdAt: new Date().toISOString().split('T')[0],
-      viewCount: 0,
-      applyCount: 0
-    }
+    // 准备提交数据 - 使用映射函数转换为后端类型
+    const submitData = mapToBackendTypes(form)
 
     // 调用API
     loading.value = true
     const response = await jobApi.createJob(submitData)
 
-    if (response.data.code === 200) {
-      ElMessage.success('兼职发布成功！')
-      // 跳转到工作详情页
-      router.push(`/jobs/${response.data.data?.id}`)
-    } else {
-      ElMessage.error(response.data.message || '发布失败')
-    }
+    // 响应已经是Job对象（经过拦截器处理）
+    ElMessage.success('兼职发布成功！')
+    // 跳转到工作详情页
+    router.push(`/jobs/${response.id}`)
   } catch (error: any) {
     console.error('发布失败:', error)
     ElMessage.error(error.response?.data?.message || '发布失败，请稍后重试')
@@ -261,25 +309,33 @@ const resetForm = () => {
       title: '',
       company: '',
       description: '',
+      companyLogo: '',
+      companyDescription: '',
       salaryMin: null,
       salaryMax: null,
       salaryType: 'hour',
+      salaryDescription: '',
       location: '',
+      address: '',
       jobType: '' as any,
       workType: '' as any,
       deadline: '',
       requirements: [],
+      responsibilities: '',
       benefits: [],
       contact: {
         name: '',
         phone: '',
-        email: ''
+        email: '',
+        wechat: ''
       },
       workHours: '',
       education: '' as any,
       experience: '',
       tags: [],
-      applicationDeadline: ''
+      applicationDeadline: '',
+      startDate: '',
+      endDate: ''
     })
     ElMessage.success('表单已重置')
   }).catch(() => {
@@ -311,7 +367,7 @@ onMounted(() => {
   <div class="job-publish-container">
     <!-- 返回按钮 -->
     <div class="back-section">
-      <el-button type="text" @click="goBack" class="back-btn">
+      <el-button type="link" @click="goBack" class="back-btn">
         <el-icon><ArrowLeft /></el-icon>
         返回兼职列表
       </el-button>

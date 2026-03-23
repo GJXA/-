@@ -59,7 +59,7 @@ public class UserServiceImpl implements UserService {
         user.setUpdateTime(LocalDateTime.now());
 
         // 3. 保存用户
-        userMapper.insertUser(user);
+        userMapper.insert(user);
 
         // 4. 分配默认角色
         UserRole userRole = new UserRole();

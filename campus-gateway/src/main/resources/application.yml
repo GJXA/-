@@ -17,7 +17,7 @@ spring:
     gateway:
       discovery:
         locator:
-          enabled: true # 开启服务发现
+          enabled: true # 启用服务发现，使用负载均衡路由
           lower-case-service-id: true # 服务ID小写
 
       routes:

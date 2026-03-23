@@ -67,6 +67,12 @@
             <optional>true</optional>
         </dependency>
 
+        <!-- Jakarta Annotation API (替代 javax.annotation) -->
+        <dependency>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
+        </dependency>
+
         <!-- 测试依赖 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

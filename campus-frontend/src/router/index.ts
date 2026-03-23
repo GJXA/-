@@ -45,6 +45,12 @@ const routes: Array<RouteRecordRaw> = [
     meta: { requiresAuth: true }
   },
   {
+    path: '/order/checkout',
+    name: 'OrderCheckout',
+    component: () => import('@/views/order/OrderCheckoutView.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
     path: '/jobs',
     name: 'JobList',
     component: () => import('@/views/job/JobListView.vue')

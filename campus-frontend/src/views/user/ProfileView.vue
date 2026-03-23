@@ -84,29 +84,23 @@ const editDialogVisible = ref(false)
 const passwordDialogVisible = ref(false)
 
 // 头像上传
-const handleAvatarUpload = (file: any) => {
-  const reader = new FileReader()
-  reader.onload = async (e) => {
-    try {
-      // 使用base64数据作为头像URL
-      const base64 = e.target?.result as string
+const handleAvatarUpload = async (file: any) => {
+  try {
+    // 调用头像上传API
+    const response = await userApi.uploadAvatar(file)
+    const avatarUrl = response.avatarUrl
 
-      // 调用API更新用户头像
-      await userApi.updateUserInfo({ avatarUrl: base64 })
-
-      // 更新store中的用户信息
-      if (userInfo.value) {
-        const updatedUser = { ...userInfo.value, avatarUrl: base64 }
-        userStore.setUserInfo(updatedUser)
-      }
-
-      ElMessage.success('头像上传成功')
-    } catch (error) {
-      console.error('头像上传失败:', error)
-      ElMessage.error('头像上传失败')
+    // 更新store中的用户信息
+    if (userInfo.value) {
+      const updatedUser = { ...userInfo.value, avatarUrl }
+      userStore.setUserInfo(updatedUser)
     }
+
+    ElMessage.success('头像上传成功')
+  } catch (error) {
+    console.error('头像上传失败:', error)
+    ElMessage.error('头像上传失败')
   }
-  reader.readAsDataURL(file)
 }
 
 // 初始化编辑表单（已在前面的initEditForm函数中定义）
@@ -267,13 +261,13 @@ onMounted(() => {
                 :on-change="handleAvatarUpload"
                 accept="image/*"
               >
-                <el-button class="upload-btn" type="text">
+                <el-button class="upload-btn" type="link">
                   <Camera class="upload-icon" />
                 </el-button>
               </el-upload>
             </div>
             <div class="avatar-actions">
-              <el-button type="text" @click="initEditForm">
+              <el-button type="link" @click="initEditForm">
                 <Edit class="action-icon" />
                 编辑资料
               </el-button>

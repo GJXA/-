@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(wmic process:*)",
+      "Bash(./mvnw.cmd spring-boot:run -pl campus-gateway -Dspring-boot.run.jvmArguments=\"-Dserver.port=8080\")",
+      "Bash(curl -v -X POST \"http://localhost:8080/api/users/login\" -H \"Content-Type: application/json\" -d \"{\"\"username\"\":\"\"test\"\",\"\"password\"\":\"\"test\"\"}\")",
+      "Bash(curl -v \"http://localhost:8080/api/products\")",
+      "Bash(curl -v -X POST \"http://localhost:8080/api/users/register\" -H \"Content-Type: application/json\" -d \"{\"\"username\"\":\"\"testuser\"\",\"\"password\"\":\"\"test123\"\",\"\"email\"\":\"\"test@example.com\"\",\"\"phone\"\":\"\"13800138000\"\"}\")",
+      "Bash(curl -v -X POST \"http://localhost:8080/api/users/register\" -H \"Content-Type: application/json\" -d \"{\"\"username\"\":\"\"testuser\"\",\"\"password\"\":\"\"Test1234\"\",\"\"email\"\":\"\"test@example.com\"\",\"\"phone\"\":\"\"13800138000\"\"}\")",
+      "Bash(curl -v -X POST \"http://localhost:8080/api/users/register\" -H \"Content-Type: application/json\" -d \"{\"\"username\"\":\"\"testuser2\"\",\"\"password\"\":\"\"Test1234\"\",\"\"email\"\":\"\"test2@example.com\"\",\"\"phone\"\":\"\"13800138001\"\"}\")",
+      "Bash(curl -v -X POST \"http://localhost:8080/api/users/login\" -H \"Content-Type: application/json\" -d \"{\"\"username\"\":\"\"testuser\"\",\"\"password\"\":\"\"Test1234\"\"}\")",
+      "Bash(findstr :808)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8083/actuator/health)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8084/actuator/health)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8085/actuator/health)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8081/actuator/health)",
+      "Read(//c/Program Files/MySQL/MySQL Server 8.0/bin/**)",
+      "Bash(curl -v http://localhost:8082/api/products/categories)",
+      "Bash(powershell -Command \"Get-Command mysql.exe -ErrorAction SilentlyContinue\")"
+    ]
+  }
+}

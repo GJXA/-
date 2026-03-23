@@ -23,7 +23,7 @@ const fetchFeaturedProducts = async () => {
     loading.value = true
     const response = await productApi.getFeaturedProducts()
     // 响应是分页数据，包含records字段
-    featuredProducts.value = response.records || response.data?.records || response.data || []
+    featuredProducts.value = response.records || []
   } catch (error) {
     console.error('获取热门商品失败:', error)
     featuredProducts.value = []
@@ -41,7 +41,7 @@ const fetchRecentJobs = async () => {
     loading.value = true
     const response = await jobApi.getRecentJobs()
     // 响应是分页数据，包含records字段
-    recentJobs.value = response.records || response.data?.records || response.data || []
+    recentJobs.value = response.records || []
   } catch (error) {
     console.error('获取最新兼职失败:', error)
     recentJobs.value = []
@@ -184,7 +184,7 @@ onUnmounted(() => {
             <Fire class="section-icon" />
             <h2>热门商品推荐</h2>
           </div>
-          <el-button type="text" @click="viewAllProducts">
+          <el-button type="link" @click="viewAllProducts">
             查看全部
             <el-icon><ArrowRight /></el-icon>
           </el-button>
@@ -237,7 +237,7 @@ onUnmounted(() => {
             <TrendingUp class="section-icon" />
             <h2>最新兼职机会</h2>
           </div>
-          <el-button type="text" @click="viewAllJobs">
+          <el-button type="link" @click="viewAllJobs">
             查看全部
             <el-icon><ArrowRight /></el-icon>
           </el-button>
