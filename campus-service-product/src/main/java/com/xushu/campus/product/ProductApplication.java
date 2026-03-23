@@ -1,7 +1,7 @@
 package com.xushu.campus.product;
 
-import org.mybatis.spring.annotation.MapperScan;
 import com.baomidou.mybatisplus.autoconfigure.MybatisPlusAutoConfiguration;
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;

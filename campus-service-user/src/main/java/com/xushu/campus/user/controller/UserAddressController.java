@@ -23,7 +23,7 @@ import java.util.List;
 @Slf4j
 @Validated
 @RestController
-@RequestMapping("/api/user-addresses")
+@RequestMapping("/user-addresses")
 @RequiredArgsConstructor
 @Tag(name = "用户地址管理", description = "用户地址的增删改查接口")
 public class UserAddressController {

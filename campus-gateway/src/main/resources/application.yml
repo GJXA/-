@@ -69,6 +69,14 @@ spring:
           filters:
             - StripPrefix=1
 
+        # 用户地址路由
+        - id: campus-service-user-address
+          uri: lb://campus-service-user
+          predicates:
+            - Path=/api/user-addresses/**
+          filters:
+            - StripPrefix=1
+
         # 公共API文档路由
         - id: swagger-ui
           uri: lb://campus-service-user # 可以指向任意服务，实际项目中应该统一文档

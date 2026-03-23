@@ -172,13 +172,10 @@ export const productApi = {
   },
 
   /**
-   * 获取商品统计
+   * 获取商品统计（后端无此接口，返回空对象）
    */
-  getProductStats(productId?: number): Promise<any> {
-    if (productId) {
-      return request.get(`/api/products/${productId}/stats`)
-    }
-    return request.get('/api/products/stats')
+  getProductStats(_productId?: number): Promise<any> {
+    return Promise.resolve({})
   }
 }
 
@@ -241,7 +238,7 @@ export const orderApi = {
    * 获取订单统计
    */
   getOrderStats(params?: { startTime?: string; endTime?: string; userId?: number }): Promise<any> {
-    return request.get('/api/orders/stats', { params })
+    return request.get('/api/orders/statistics/my', { params })
   },
 
   /**
@@ -334,52 +331,52 @@ export const jobApi = {
   },
 
   /**
-   * 获取热门兼职
+   * 获取热门兼职（使用推荐接口）
    */
   getHotJobs(limit: number = 10): Promise<Job[]> {
-    return request.get('/api/jobs/hot', { params: { limit } })
+    return request.get('/api/jobs/recommended', { params: { limit } })
   },
 
   /**
-   * 获取兼职分类
+   * 获取兼职分类（后端无此接口，返回空数组）
    */
   getJobCategories(): Promise<Array<{ id: number; name: string; description?: string }>> {
-    return request.get('/api/jobs/categories')
+    return Promise.resolve([])
   },
 
   /**
    * 收藏兼职
    */
   favoriteJob(jobId: number): Promise<boolean> {
-    return request.post(`/api/jobs/${jobId}/favorite`)
+    return request.post(`/api/jobs/${jobId}/favorite/increase`)
   },
 
   /**
    * 取消收藏兼职
    */
   unfavoriteJob(jobId: number): Promise<boolean> {
-    return request.delete(`/api/jobs/${jobId}/favorite`)
+    return request.post(`/api/jobs/${jobId}/favorite/decrease`)
   },
 
   /**
-   * 获取收藏的兼职
+   * 获取收藏的兼职（后端无此接口，返回空分页数据）
    */
   getFavoriteJobs(params?: { page?: number; size?: number }): Promise<PageResult<Job>> {
-    return request.get('/api/jobs/favorites', { params })
+    return Promise.resolve({ records: [], total: 0, size: params?.size || 10, current: params?.page || 1, pages: 0 })
   },
 
   /**
    * 获取用户发布的兼职
    */
   getUserJobs(userId: number, params?: { page?: number; size?: number; status?: string }): Promise<PageResult<Job>> {
-    return request.get(`/api/jobs/user/${userId}`, { params })
+    return request.get(`/api/jobs/publisher/${userId}`, { params })
   },
 
   /**
    * 更新兼职状态
    */
   updateJobStatus(id: number, status: string): Promise<Job> {
-    return request.put(`/api/jobs/${id}/status`, { status })
+    return request.put(`/api/jobs/${id}/status`, null, { params: { status } })
   },
 
   /**
@@ -401,9 +398,9 @@ export const jobApi = {
    */
   getJobStats(jobId?: number): Promise<any> {
     if (jobId) {
-      return request.get(`/api/jobs/${jobId}/stats`)
+      return request.get(`/api/jobs/${jobId}/statistics`)
     }
-    return request.get('/api/jobs/stats')
+    return request.get('/api/jobs/statistics')
   }
 }
 
